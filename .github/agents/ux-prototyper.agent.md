@@ -41,7 +41,10 @@ handoffs:
 ## Skill
 使用以下 skill 进行 UI 设计与原型生成：
 
-`skills/claud-frontend/`
+执行顺序必须如下：
+
+1. 先使用 `premium-frontend-ui` 确定设计规范
+2. 再使用 `claud-frontend` 生成 UI 和 HTML
 
 ## 设计规范
 在进行 UI 设计和 HTML 生成前，必须读取：

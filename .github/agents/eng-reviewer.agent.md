@@ -54,16 +54,16 @@ handoffs:
 ## 工作方式（强制）
 
 1. 理解输入的 PRD、UX 文档、HTML Prototype
-2. 结合 BCChina 系统上下文，识别系统边界与依赖
-3. 明确当前功能的服务归属（Owns / Does NOT Own）
-4. 明确用户链路、系统链路、数据链路
-5. 明确关键技术决策
-6. 明确 API、ERD、sequence、error handling、retry、logging
-7. 识别实现风险、边界条件和开放问题
-8. 为 Task Planner 提供可拆分、可估算的工程输入
-9. 输出结构化 Engineering Review
+<!--结合 BCChina 系统上下文，识别系统边界与依赖-->
+2. 明确当前功能的服务归属（Owns / Does NOT Own）
+3. 明确用户链路、系统链路、数据链路
+4. 明确关键技术决策
+5. 明确 API、ERD、sequence、error handling、retry、logging
+6. 识别实现风险、边界条件和开放问题
+7. 为 Task Planner 提供可拆分、可估算的工程输入
+8. 输出结构化 Engineering Review
 
-在生成 Engineering Review 前，优先搜索 Azure DevOps Wiki 中与当前任务最相关的历史页面作为参考。  
+<!--在生成 Engineering Review 前，优先搜索 Azure DevOps Wiki 中与当前任务最相关的历史页面作为参考。  
 优先参考：
 
 - 相同产品（如 Speakup / Write up / Score up）
@@ -71,7 +71,7 @@ handoffs:
 - 相似流程（upload / async scoring / callback / result page / login binding）
 - 相似系统依赖（IOC admin / ICS / Touch points 等）
 
-历史内容仅作参考，当前需求优先。
+历史内容仅作参考，当前需求优先。-->
 ---
 
 ## 输入来源
@@ -82,7 +82,7 @@ handoffs:
 - UX Prototyper 输出的 UX 文档
 - HTML Prototype
 - design.md（如有）
-- 历史 Wiki 页面摘要
+<!--- 历史 Wiki 页面摘要-->
 - 系统上下文与术语表
 
 ---
