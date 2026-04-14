@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IELTS Up B2B 管理平台 - UI 原型</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ========== CSS Variables ========== */
+    :root {
+      --brand-dark:    #003F8A;
+      --brand-mid:     #1E5CB3;
+      --brand-light:   #4A90D9;
+      --bg-white:      #FFFFFF;
+      --bg-soft:       #FAFAFA;
+      --bg-light:      #F6F6F6;
+      --bg-disabled:   #D8D8D8;
+      --line-soft:     #F6F6F6;
+      --line-default:  #EAEAEA;
+      --line-mid:      #CFCFCF;
+      --line-strong:   #BFBFBF;
+      --text-primary:  #1A1A1A;
+      --text-secondary:#555555;
+      --text-hint:     #999999;
+      --green:         #0EA66A;
+      --green-bg:      #E6F9F2;
+      --orange:        #F5A623;
+      --orange-bg:     #FFF3DC;
+      --red:           #D0021B;
+      --red-bg:        #FFF0F2;
+      --yellow:        #E8AE00;
+      --yellow-bg:     #FFFAE0;
+      --radius:        8px;
+      --radius-sm:     4px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans SC', Arial, sans-serif; font-size: 14px; color: var(--text-primary); background: var(--bg-white); }
+
+    /* ========== Layout ========== */
+    .app { display: flex; height: 100vh; overflow: hidden; }
+    .sidebar { width: 240px; background: var(--bg-soft); border-right: 1px solid var(--line-default); display: flex; flex-direction: column; flex-shrink: 0; transition: width 0.25s; overflow: hidden; }
+    .sidebar.collapsed { width: 64px; }
+    .sidebar-logo { padding: 20px 24px; border-bottom: 1px solid var(--line-default); display: flex; align-items: center; gap: 12px; min-height: 64px; }
+    .logo-icon { width: 32px; height: 32px; background: var(--brand-dark); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .logo-icon span { color: white; font-weight: 700; font-size: 13px; }
+    .logo-text { font-size: 16px; font-weight: 700; color: var(--brand-dark); white-space: nowrap; }
+    .sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+    .nav-group-title { padding: 0 24px 8px; font-size: 11px; font-weight: 600; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 24px; cursor: pointer; color: var(--text-secondary); font-size: 14px; transition: all 0.15s; white-space: nowrap; border-left: 3px solid transparent; }
+    .nav-item:hover { background: var(--line-soft); color: var(--brand-dark); }
+    .nav-item.active { background: #EBF2FC; color: var(--brand-dark); border-left-color: var(--brand-dark); font-weight: 600; }
+    .nav-item .nav-icon { font-size: 16px; flex-shrink: 0; }
+    .sidebar-footer { padding: 16px 24px; border-top: 1px solid var(--line-default); display: flex; align-items: center; gap: 10px; }
+    .avatar { width: 32px; height: 32px; background: var(--brand-mid); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+    .user-info { min-width: 0; }
+    .user-name { font-size: 14px; font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role { font-size: 12px; color: var(--text-hint); }
+
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .topbar { height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; border-bottom: 1px solid var(--line-default); background: var(--bg-white); flex-shrink: 0; }
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .topbar-toggle { width: 32px; height: 32px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); color: var(--text-secondary); font-size: 18px; }
+    .topbar-toggle:hover { background: var(--bg-light); }
+    .perspective-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .perspective-bc { background: var(--brand-dark); color: white; }
+    .perspective-inst { background: var(--green); color: white; }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .icon-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); cursor: pointer; color: var(--text-secondary); font-size: 18px; transition: background 0.15s; border: none; background: none; }
+    .icon-btn:hover { background: var(--bg-light); }
+
+    .content { flex: 1; overflow-y: auto; padding: 24px; background: var(--bg-white); }
+
+    /* ========== Page Header ========== */
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .page-title { font-size: 24px; font-weight: 700; color: var(--text-primary); }
+    .breadcrumb { font-size: 13px; color: var(--text-hint); margin-bottom: 4px; }
+    .breadcrumb a { color: var(--brand-mid); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb span { margin: 0 6px; }
+    .page-actions { display: flex; gap: 12px; }
+
+    /* ========== Buttons ========== */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 40px; padding: 0 20px; border-radius: var(--radius); font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; font-family: inherit; text-decoration: none; white-space: nowrap; }
+    .btn-lg { height: 48px; padding: 0 24px; font-size: 15px; }
+    .btn-sm { height: 32px; padding: 0 14px; font-size: 13px; }
+    .btn-xs { height: 28px; padding: 0 10px; font-size: 12px; border-radius: var(--radius-sm); }
+    .btn-primary { background: var(--brand-dark); color: white; border-color: var(--brand-dark); }
+    .btn-primary:hover { background: var(--brand-mid); border-color: var(--brand-mid); }
+    .btn-secondary { background: white; color: var(--brand-dark); border-color: var(--brand-dark); }
+    .btn-secondary:hover { background: #EBF2FC; }
+    .btn-danger { background: var(--red); color: white; border-color: var(--red); }
+    .btn-danger:hover { background: #A8001B; }
+    .btn-ghost { background: none; color: var(--brand-mid); border-color: transparent; }
+    .btn-ghost:hover { background: #EBF2FC; }
+    .btn-disabled, .btn:disabled { background: var(--bg-disabled); color: var(--text-hint); border-color: var(--bg-disabled); cursor: not-allowed; pointer-events: none; }
+
+    /* ========== Badge / Tag ========== */
+    .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+    .badge-success { background: var(--green-bg); color: var(--green); }
+    .badge-danger { background: var(--red-bg); color: var(--red); }
+    .badge-warning { background: var(--orange-bg); color: var(--orange); }
+    .badge-yellow { background: var(--yellow-bg); color: var(--yellow); }
+    .badge-blue { background: #EBF2FC; color: var(--brand-dark); }
+    .badge-gray { background: var(--bg-light); color: var(--text-hint); border: 1px solid var(--line-mid); }
+
+    /* ========== Cards ========== */
+    .card { background: var(--bg-white); border: 1px solid var(--line-default); border-radius: var(--radius); padding: 24px; }
+    .card-title { font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 16px; }
+    .card-section { margin-bottom: 24px; }
+    .card-section:last-child { margin-bottom: 0; }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+
+    /* ========== Info Table (KV pairs) ========== */
+    .info-grid { display: grid; grid-template-columns: 120px 1fr; gap: 8px 16px; }
+    .info-label { font-size: 13px; color: var(--text-hint); padding: 4px 0; }
+    .info-value { font-size: 14px; color: var(--text-primary); font-weight: 500; padding: 4px 0; }
+
+    /* ========== Filter Bar ========== */
+    .filter-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; padding: 16px; background: var(--bg-soft); border-radius: var(--radius); border: 1px solid var(--line-default); }
+    .filter-item { display: flex; align-items: center; gap: 8px; }
+    .filter-label { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
+    .filter-actions { margin-left: auto; display: flex; gap: 8px; }
+    input, select { height: 36px; border: 1px solid var(--line-mid); border-radius: var(--radius); padding: 0 12px; font-size: 14px; color: var(--text-primary); background: var(--bg-white); outline: none; font-family: inherit; transition: border-color 0.15s; }
+    input:focus, select:focus { border-color: var(--brand-dark); }
+    input.error, select.error { border-color: var(--red); }
+    .input-error-msg { font-size: 12px; color: var(--red); margin-top: 4px; }
+    .input-hint { font-size: 12px; color: var(--text-hint); margin-top: 4px; }
+    .form-label { font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; display: block; }
+    .form-required::after { content: ' *'; color: var(--red); }
+    .form-group { margin-bottom: 20px; }
+
+    /* ========== Table ========== */
+    .table-wrap { border: 1px solid var(--line-default); border-radius: var(--radius); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    thead th { background: var(--bg-light); padding: 12px 16px; font-size: 12px; font-weight: 600; color: var(--text-secondary); text-align: left; border-bottom: 1px solid var(--line-default); white-space: nowrap; }
+    tbody tr { border-bottom: 1px solid var(--line-default); transition: background 0.1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--bg-soft); }
+    tbody td { padding: 14px 16px; color: var(--text-primary); vertical-align: middle; }
+    .td-actions { display: flex; gap: 4px; justify-content: flex-end; }
+
+    /* ========== Empty State ========== */
+    .empty-state { padding: 48px 24px; text-align: center; }
+    .empty-icon { font-size: 48px; margin-bottom: 16px; color: var(--text-hint); }
+    .empty-text { font-size: 16px; color: var(--text-secondary); margin-bottom: 8px; }
+    .empty-hint { font-size: 13px; color: var(--text-hint); margin-bottom: 20px; }
+
+    /* ========== Pagination ========== */
+    .pagination { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; }
+    .pager { display: flex; gap: 4px; align-items: center; }
+    .page-btn { width: 32px; height: 32px; border: 1px solid var(--line-mid); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; background: var(--bg-white); transition: all 0.1s; }
+    .page-btn:hover { border-color: var(--brand-dark); color: var(--brand-dark); }
+    .page-btn.active { background: var(--brand-dark); border-color: var(--brand-dark); color: white; }
+    .page-info { font-size: 13px; color: var(--text-hint); }
+
+    /* ========== Tabs ========== */
+    .tabs { display: flex; border-bottom: 2px solid var(--line-default); margin-bottom: 24px; }
+    .tab { padding: 10px 20px; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--text-secondary); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+    .tab:hover { color: var(--brand-dark); }
+    .tab.active { color: var(--brand-dark); border-bottom-color: var(--brand-dark); font-weight: 600; }
+
+    /* ========== Stepper ========== */
+    .stepper { display: flex; align-items: center; margin-bottom: 32px; padding: 0 8px; }
+    .step { display: flex; align-items: center; flex: 1; }
+    .step-circle { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; border: 2px solid var(--line-mid); color: var(--text-hint); background: var(--bg-white); transition: all 0.2s; }
+    .step-circle.done { background: var(--brand-dark); border-color: var(--brand-dark); color: white; }
+    .step-circle.active { border-color: var(--brand-dark); color: var(--brand-dark); }
+    .step-label { font-size: 13px; color: var(--text-hint); margin-left: 10px; white-space: nowrap; }
+    .step-label.active { color: var(--brand-dark); font-weight: 600; }
+    .step-label.done { color: var(--text-secondary); }
+    .step-line { flex: 1; height: 2px; background: var(--line-default); margin: 0 12px; }
+    .step-line.done { background: var(--brand-dark); }
+
+    /* ========== Quota Card ========== */
+    .quota-card { background: var(--bg-white); border: 1px solid var(--line-default); border-radius: var(--radius); padding: 20px; position: relative; overflow: hidden; }
+    .quota-card.inactive { background: var(--bg-light); }
+    .quota-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .quota-product { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+    .quota-card.inactive .quota-product { color: var(--text-hint); }
+    .quota-number { font-size: 28px; font-weight: 700; color: var(--brand-dark); font-family: 'British Council Accent', Arial; }
+    .quota-card.inactive .quota-number { color: var(--text-hint); }
+    .quota-bar { height: 6px; background: var(--bg-light); border-radius: 3px; margin: 12px 0; overflow: hidden; }
+    .quota-bar-fill { height: 100%; background: var(--brand-mid); border-radius: 3px; transition: width 0.3s; }
+    .quota-meta { font-size: 12px; color: var(--text-hint); display: flex; justify-content: space-between; }
+    .quota-actions { margin-top: 16px; display: flex; gap: 8px; }
+
+    /* ========== Drawer / Modal ========== */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 100; display: none; align-items: center; justify-content: center; }
+    .overlay.show { display: flex; }
+    .modal { background: var(--bg-white); border-radius: 12px; width: 520px; max-width: 90vw; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.15); }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--line-default); display: flex; align-items: center; justify-content: space-between; }
+    .modal-title { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+    .modal-close { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: var(--radius-sm); color: var(--text-hint); font-size: 20px; border: none; background: none; }
+    .modal-close:hover { background: var(--bg-light); }
+    .modal-body { padding: 24px; max-height: 60vh; overflow-y: auto; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--line-default); display: flex; justify-content: flex-end; gap: 12px; }
+    .modal-warning { background: var(--orange-bg); border: 1px solid var(--orange); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: #8B6200; display: flex; gap: 8px; align-items: flex-start; }
+
+    /* ========== Toast ========== */
+    .toast { position: fixed; top: 24px; right: 24px; background: var(--text-primary); color: white; padding: 12px 20px; border-radius: var(--radius); font-size: 14px; z-index: 200; opacity: 0; transform: translateY(-12px); transition: all 0.25s; pointer-events: none; display: flex; align-items: center; gap: 8px; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast-success { background: var(--green); }
+    .toast-error { background: var(--red); }
+
+    /* ========== Screens ========== */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ========== Login Page ========== */
+    .login-layout { display: flex; height: 100vh; }
+    .login-brand { flex: 1; background: var(--brand-dark); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px; color: white; }
+    .login-brand-logo { font-size: 32px; font-weight: 700; margin-bottom: 12px; }
+    .login-brand-sub { font-size: 16px; opacity: 0.8; margin-bottom: 48px; }
+    .login-brand-desc { font-size: 14px; line-height: 24px; opacity: 0.7; max-width: 320px; text-align: center; }
+    .login-brand-dots { display: flex; gap: 8px; margin-top: 48px; }
+    .login-brand-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3); }
+    .login-brand-dot.active { background: white; width: 24px; border-radius: 4px; }
+    .login-form-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 48px; }
+    .login-form-box { width: 100%; max-width: 400px; }
+    .login-title { font-size: 28px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+    .login-sub { font-size: 14px; color: var(--text-hint); margin-bottom: 32px; }
+    .login-input-group { margin-bottom: 20px; }
+    .login-input-group label { display: block; font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; }
+    .login-input-group input { width: 100%; height: 48px; border: 1px solid var(--line-mid); border-radius: var(--radius); padding: 0 16px; font-size: 15px; font-family: inherit; outline: none; transition: border-color 0.15s; }
+    .login-input-group input:focus { border-color: var(--brand-dark); }
+    .login-forgot { text-align: right; margin-bottom: 24px; }
+    .login-forgot a { font-size: 13px; color: var(--brand-mid); text-decoration: none; }
+    .login-btn { width: 100%; height: 48px; border: none; background: var(--brand-dark); color: white; font-size: 16px; font-weight: 600; border-radius: var(--radius); cursor: pointer; font-family: inherit; transition: background 0.15s; }
+    .login-btn:hover { background: var(--brand-mid); }
+    .login-divider { display: flex; align-items: center; gap: 16px; margin: 24px 0; color: var(--text-hint); font-size: 13px; }
+    .login-divider::before, .login-divider::after { content: ''; flex: 1; height: 1px; background: var(--line-default); }
+    .login-ms-btn { width: 100%; height: 48px; border: 1px solid var(--line-mid); background: white; color: var(--text-primary); font-size: 14px; font-weight: 500; border-radius: var(--radius); cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 10px; transition: border-color 0.15s; }
+    .login-ms-btn:hover { border-color: var(--brand-dark); }
+    .ms-icon { width: 20px; height: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+    .ms-icon div { background: #F25022; }
+    .ms-icon div:nth-child(2) { background: #7FBA00; }
+    .ms-icon div:nth-child(3) { background: #00A4EF; }
+    .ms-icon div:nth-child(4) { background: #FFB900; }
+
+    /* ========== Dashboard ========== */
+    .welcome-bar { background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-mid) 100%); color: white; padding: 24px 28px; border-radius: var(--radius); margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; }
+    .welcome-name { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+    .welcome-date { font-size: 13px; opacity: 0.8; }
+    .welcome-icon { font-size: 40px; opacity: 0.6; }
+    .quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+    .quick-action { background: var(--bg-soft); border: 1px solid var(--line-default); border-radius: var(--radius); padding: 16px; text-align: center; cursor: pointer; transition: all 0.15s; }
+    .quick-action:hover { border-color: var(--brand-mid); background: #EBF2FC; }
+    .quick-action-icon { font-size: 24px; margin-bottom: 8px; }
+    .quick-action-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+    .dashboard-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .stat-card { background: var(--bg-soft); border: 1px solid var(--line-default); border-radius: var(--radius); padding: 20px; text-align: center; }
+    .stat-number { font-size: 28px; font-weight: 700; color: var(--brand-dark); font-family: Arial; }
+    .stat-label { font-size: 12px; color: var(--text-hint); margin-top: 4px; }
+
+    /* ========== Report Detail ========== */
+    .score-display { display: flex; align-items: baseline; gap: 4px; margin: 16px 0; }
+    .score-big { font-size: 48px; font-weight: 700; color: var(--brand-dark); font-family: Arial; }
+    .score-max { font-size: 20px; color: var(--text-hint); }
+    .scoring-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .scoring-item { background: var(--bg-soft); border-radius: var(--radius); padding: 16px; }
+    .scoring-name { font-size: 12px; color: var(--text-hint); margin-bottom: 6px; }
+    .scoring-score { font-size: 22px; font-weight: 700; color: var(--brand-mid); font-family: Arial; }
+    .scoring-bar { height: 4px; background: var(--line-default); border-radius: 2px; margin-top: 8px; }
+    .scoring-bar-fill { height: 100%; background: var(--brand-mid); border-radius: 2px; }
+
+    /* ========== Nav Screen Toggle ========== */
+    .nav-screen-btns { display: flex; gap: 16px; padding: 16px 24px; background: var(--bg-light); border-bottom: 1px solid var(--line-default); flex-wrap: wrap; }
+    .nav-screen-btn { padding: 6px 16px; border-radius: 20px; font-size: 13px; cursor: pointer; border: 1px solid var(--line-mid); background: var(--bg-white); color: var(--text-secondary); transition: all 0.15s; font-family: inherit; }
+    .nav-screen-btn:hover { border-color: var(--brand-mid); color: var(--brand-mid); }
+    .nav-screen-btn.active { background: var(--brand-dark); color: white; border-color: var(--brand-dark); }
+
+    /* ========== Misc ========== */
+    .divider { height: 1px; background: var(--line-default); margin: 24px 0; }
+    .text-hint { font-size: 13px; color: var(--text-hint); }
+    .text-danger { color: var(--red); }
+    .text-success { color: var(--green); }
+    .flex { display: flex; }
+    .flex-center { display: flex; align-items: center; }
+    .gap-8 { gap: 8px; }
+    .gap-12 { gap: 12px; }
+    .gap-16 { gap: 16px; }
+    .mt-8 { margin-top: 8px; }
+    .mt-16 { margin-top: 16px; }
+    .mt-24 { margin-top: 24px; }
+    .mb-16 { margin-bottom: 16px; }
+    .mb-24 { margin-bottom: 24px; }
+    .tag { display: inline-flex; align-items: center; padding: 2px 8px; background: var(--bg-light); border: 1px solid var(--line-default); border-radius: var(--radius-sm); font-size: 12px; color: var(--text-secondary); }
+
+    /* ========== Step Form Area ========== */
+    .step-content { max-width: 640px; }
+    .product-select-card { border: 2px solid var(--line-default); border-radius: var(--radius); padding: 20px; cursor: pointer; transition: all 0.15s; margin-bottom: 12px; display: flex; align-items: center; gap: 16px; }
+    .product-select-card:hover { border-color: var(--brand-mid); }
+    .product-select-card.selected { border-color: var(--brand-dark); background: #EBF2FC; }
+    .radio-circle { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--line-mid); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .radio-circle.checked { border-color: var(--brand-dark); }
+    .radio-circle.checked::after { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--brand-dark); }
+    .product-name { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+    .product-quota { font-size: 13px; color: var(--text-hint); margin-top: 2px; }
+    .quota-realtime { padding: 12px 16px; background: var(--bg-soft); border-radius: var(--radius); border: 1px solid var(--line-default); margin-top: 8px; font-size: 13px; color: var(--text-secondary); display: flex; gap: 24px; }
+    .quota-realtime .num { font-weight: 700; color: var(--brand-dark); }
+    .quota-realtime .num.warn { color: var(--red); }
+
+    /* ========== Two pane layout for paper creation ========== */
+    .two-pane { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; height: 480px; }
+    .pane { border: 1px solid var(--line-default); border-radius: var(--radius); display: flex; flex-direction: column; overflow: hidden; }
+    .pane-header { padding: 12px 16px; background: var(--bg-light); border-bottom: 1px solid var(--line-default); font-size: 14px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .pane-body { flex: 1; overflow-y: auto; }
+    .question-item { padding: 12px 16px; border-bottom: 1px solid var(--line-soft); display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background 0.1s; }
+    .question-item:hover { background: var(--bg-soft); }
+    .question-item.selected { background: #EBF2FC; }
+    .question-item.disabled { opacity: 0.4; cursor: not-allowed; }
+    .question-item .q-id { font-size: 12px; color: var(--text-hint); width: 56px; flex-shrink: 0; }
+    .question-item .q-title { font-size: 14px; flex: 1; }
+    .question-item .q-tag { flex-shrink: 0; }
+    .selected-item { padding: 10px 16px; border-bottom: 1px solid var(--line-soft); display: flex; align-items: center; gap: 12px; }
+    .drag-handle { color: var(--text-hint); cursor: grab; font-size: 16px; }
+    .selected-item .q-order { font-size: 13px; color: var(--text-hint); width: 20px; flex-shrink: 0; }
+    .validation-bar { padding: 12px 16px; border-top: 1px solid var(--line-default); flex-shrink: 0; }
+    .validation-ok { font-size: 13px; color: var(--green); display: flex; align-items: center; gap: 6px; }
+    .validation-fail { font-size: 13px; color: var(--red); display: flex; align-items: center; gap: 6px; }
+  </style>
+</head>
+<body>
+
+<!-- Toast -->
+<div class="toast" id="toast">✓ 操作成功</div>
+
+<!-- Demo Navigation -->
+<div class="nav-screen-btns">
+  <button class="nav-screen-btn active" onclick="showScreen('login-bc')">登录页（BC）</button>
+  <button class="nav-screen-btn" onclick="showScreen('login-inst')">登录页（机构）</button>
+  <button class="nav-screen-btn" onclick="showScreen('customer-list')">BC · 客户管理</button>
+  <button class="nav-screen-btn" onclick="showScreen('subscription-detail')">BC · 订阅详情</button>
+  <button class="nav-screen-btn" onclick="showScreen('inst-dashboard')">机构 · 首页</button>
+  <button class="nav-screen-btn" onclick="showScreen('create-paper')">机构 · 创建试卷</button>
+  <button class="nav-screen-btn" onclick="showScreen('create-batch')">机构 · 创建批次</button>
+  <button class="nav-screen-btn" onclick="showScreen('report-detail')">机构 · 报告详情</button>
+  <button class="nav-screen-btn" onclick="showScreen('user-org')">用户 &amp; 组织管理</button>
+</div>
+
+<!-- ============================= SCREEN: BC Login ============================= -->
+<div class="screen active" id="screen-login-bc">
+  <div class="login-layout">
+    <div class="login-brand">
+      <div class="login-brand-logo">🎓 IELTS Up</div>
+      <div class="login-brand-sub">B2B 管理平台</div>
+      <div class="login-brand-desc">统一管理客户合同、机构开通、额度配置与运营数据分析。</div>
+      <div class="login-brand-dots">
+        <div class="login-brand-dot active"></div>
+        <div class="login-brand-dot"></div>
+        <div class="login-brand-dot"></div>
+      </div>
+    </div>
+    <div class="login-form-area">
+      <div class="login-form-box">
+        <div class="login-title">欢迎回来</div>
+        <div class="login-sub">使用 BC 企业账号登录</div>
+        <div class="login-input-group">
+          <label>企业邮箱</label>
+          <input type="email" placeholder="name@britishcouncil.cn" value="admin@britishcouncil.cn">
+        </div>
+        <div class="login-input-group">
+          <label>密码</label>
+          <input type="password" placeholder="输入密码" value="••••••••">
+        </div>
+        <div class="login-forgot"><a href="#">忘记密码？</a></div>
+        <button class="login-btn" onclick="showToast('登录成功，欢迎回来', 'success'); setTimeout(()=>{showScreen('customer-list')}, 800)">登录</button>
+        <div class="login-divider">或</div>
+        <button class="login-ms-btn">
+          <div class="ms-icon"><div></div><div></div><div></div><div></div></div>
+          使用 Microsoft 账号登录
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= SCREEN: Inst Login ============================= -->
+<div class="screen" id="screen-login-inst">
+  <div class="login-layout">
+    <div class="login-brand" style="background: linear-gradient(135deg, #0EA66A 0%, #0B8A58 100%)">
+      <div class="login-brand-logo">🏫 机构管理</div>
+      <div class="login-brand-sub">IELTS Up 机构管理平台</div>
+      <div class="login-brand-desc">管理题库、创建试卷、发放邀请码，查看学员报告。</div>
+      <div class="login-brand-dots">
+        <div class="login-brand-dot active"></div>
+        <div class="login-brand-dot"></div>
+        <div class="login-brand-dot"></div>
+      </div>
+    </div>
+    <div class="login-form-area">
+      <div class="login-form-box">
+        <div class="login-title">机构用户登录</div>
+        <div class="login-sub">使用机构分配账号登录</div>
+        <div class="login-input-group">
+          <label>邮箱账号</label>
+          <input type="email" placeholder="your@institution.com" value="wang@school.com">
+        </div>
+        <div class="login-input-group">
+          <label>密码</label>
+          <input type="password" placeholder="输入密码" value="••••••••">
+        </div>
+        <div class="login-forgot"><a href="#">忘记密码？</a></div>
+        <button class="login-btn" style="background: #0A8A57" onclick="showToast('登录成功，欢迎回来', 'success'); setTimeout(()=>{showScreen('inst-dashboard')}, 800)">登录</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= SCREEN: Customer List ============================= -->
+<div class="screen" id="screen-customer-list">
+  <div class="app">
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon"><span>IU</span></div>
+        <div class="logo-text">IELTS Up</div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-group-title">运营管理</div>
+        <div class="nav-item active"><span class="nav-icon">👥</span> 客户管理</div>
+        <div class="nav-item"><span class="nav-icon">📋</span> 合同管理</div>
+        <div class="nav-item"><span class="nav-icon">🔄</span> 订阅管理</div>
+        <div class="nav-group-title" style="margin-top:8px">系统管理</div>
+        <div class="nav-item"><span class="nav-icon">👤</span> 成员管理</div>
+        <div class="nav-item"><span class="nav-icon">📊</span> API 调用记录</div>
+      </div>
+      <div class="sidebar-footer">
+        <div class="avatar">ZX</div>
+        <div class="user-info"><div class="user-name">Zhang Xin</div><div class="user-role">BC 超级管理员</div></div>
+      </div>
+    </div>
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="topbar-toggle" onclick="toggleSidebar()">☰</button>
+          <span class="perspective-badge perspective-bc">BC 视角</span>
+        </div>
+        <div class="topbar-right">
+          <button class="icon-btn">🔔</button>
+          <div class="avatar">ZX</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="page-header">
+          <div>
+            <div class="page-title">客户管理</div>
+            <div style="font-size:13px;color:var(--text-hint);margin-top:4px">管理所有机构客户档案</div>
+          </div>
+          <button class="btn btn-primary" onclick="showModal('modal-create-customer')">+ 创建客户</button>
+        </div>
+        <div class="filter-bar">
+          <div class="filter-item"><span class="filter-label">客户名称</span><input type="text" placeholder="输入客户名称" style="width:160px"></div>
+          <div class="filter-item"><span class="filter-label">集团</span><input type="text" placeholder="所属集团" style="width:140px"></div>
+          <div class="filter-item"><span class="filter-label">合同状态</span>
+            <select style="width:110px"><option>全部</option><option>已生效</option><option>未签约</option><option>已结束</option></select>
+          </div>
+          <div class="filter-item"><span class="filter-label">创建日期</span><input type="date" style="width:140px"></div>
+          <div class="filter-actions">
+            <button class="btn btn-primary btn-sm">搜索</button>
+            <button class="btn btn-secondary btn-sm">重置</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>客户名称</th><th>所属集团</th><th>联系人</th><th>合同状态</th><th>订阅产品</th><th>创建时间</th><th style="text-align:right">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>新东方教育集团</strong></td>
+                <td>新东方系</td>
+                <td>李明华</td>
+                <td><span class="badge badge-success">已生效</span></td>
+                <td><span class="tag">WriteUp</span> <span class="tag">SpeakUp</span></td>
+                <td>2026-01-15</td>
+                <td class="td-actions"><button class="btn btn-ghost btn-sm" onclick="showScreen('subscription-detail')">查看详情</button></td>
+              </tr>
+              <tr>
+                <td><strong>学而思教育</strong></td>
+                <td>好未来系</td>
+                <td>王小燕</td>
+                <td><span class="badge badge-success">已生效</span></td>
+                <td><span class="tag">WriteUp</span></td>
+                <td>2026-02-01</td>
+                <td class="td-actions"><button class="btn btn-ghost btn-sm">查看详情</button></td>
+              </tr>
+              <tr>
+                <td><strong>精锐教育</strong></td>
+                <td>—</td>
+                <td>张伟</td>
+                <td><span class="badge badge-gray">未签约</span></td>
+                <td>—</td>
+                <td>2026-03-10</td>
+                <td class="td-actions"><button class="btn btn-ghost btn-sm">查看详情</button></td>
+              </tr>
+              <tr>
+                <td><strong>昂立教育</strong></td>
+                <td>—</td>
+                <td>陈华</td>
+                <td><span class="badge badge-warning">即将到期</span></td>
+                <td><span class="tag">SpeakUp</span></td>
+                <td>2025-06-20</td>
+                <td class="td-actions"><button class="btn btn-ghost btn-sm">查看详情</button></td>
+              </tr>
+              <tr>
+                <td><strong>英孚教育上海</strong></td>
+                <td>英孚系</td>
+                <td>孙倩</td>
+                <td><span class="badge badge-danger">已结束</span></td>
+                <td>—</td>
+                <td>2025-01-05</td>
+                <td class="td-actions"><button class="btn btn-ghost btn-sm">查看详情</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <div class="page-info">共 45 条记录，每页 10 条</div>
+          <div class="pager">
+            <div class="page-btn">‹</div>
+            <div class="page-btn active">1</div>
+            <div class="page-btn">2</div>
+            <div class="page-btn">3</div>
+            <div class="page-btn">…</div>
+            <div class="page-btn">5</div>
+            <div class="page-btn">›</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= SCREEN: Subscription Detail ============================= -->
+<div class="screen" id="screen-subscription-detail">
+  <div class="app">
+    <div class="sidebar">
+      <div class="sidebar-logo"><div class="logo-icon"><span>IU</span></div><div class="logo-text">IELTS Up</div></div>
+      <div class="sidebar-nav">
+        <div class="nav-item"><span class="nav-icon">👥</span> 客户管理</div>
+        <div class="nav-item active"><span class="nav-icon">🔄</span> 订阅管理</div>
+        <div class="nav-item"><span class="nav-icon">📋</span> 合同管理</div>
+        <div class="nav-item"><span class="nav-icon">👤</span> 成员管理</div>
+      </div>
+      <div class="sidebar-footer"><div class="avatar">ZX</div><div class="user-info"><div class="user-name">Zhang Xin</div><div class="user-role">BC 超级管理员</div></div></div>
+    </div>
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-left"><button class="topbar-toggle" onclick="toggleSidebar()">☰</button><span class="perspective-badge perspective-bc">BC 视角</span></div>
+        <div class="topbar-right"><button class="icon-btn">🔔</button><div class="avatar">ZX</div></div>
+      </div>
+      <div class="content">
+        <div class="breadcrumb mb-16">
+          <a href="#" onclick="showScreen('customer-list')">客户管理</a><span>›</span>
+          <a href="#">新东方教育集团</a><span>›</span>
+          订阅详情
+        </div>
+        <div class="page-header">
+          <div>
+            <div class="page-title">订阅详情</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-secondary">服务调整</button>
+            <button class="btn btn-primary">充值额度</button>
+          </div>
+        </div>
+        <!-- Basic Info -->
+        <div class="card mb-24">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div class="card-title" style="margin-bottom:0">基础信息</div>
+            <span class="badge badge-success">生效中</span>
+          </div>
+          <div class="info-grid">
+            <div class="info-label">订阅编号</div><div class="info-value">SUB-20260101-001</div>
+            <div class="info-label">客户名称</div><div class="info-value">新东方教育集团</div>
+            <div class="info-label">服务区间</div><div class="info-value">2026-01-15 ~ 2026-12-31</div>
+            <div class="info-label">关联合同</div><div class="info-value"><a href="#" style="color:var(--brand-mid)">CON-20260001</a></div>
+          </div>
+        </div>
+        <!-- Quota Cards -->
+        <div class="card mb-24">
+          <div class="card-title">权益 & 额度</div>
+          <div class="card-grid">
+            <div class="quota-card">
+              <div class="quota-card-header">
+                <div class="quota-product">✍ WriteUp</div>
+                <span class="badge badge-blue">开通中</span>
+              </div>
+              <div class="quota-number">320</div>
+              <div class="text-hint mt-8">可用额度</div>
+              <div class="quota-bar"><div class="quota-bar-fill" style="width:80%"></div></div>
+              <div class="quota-meta"><span>已用：80 / 总量：400</span><span>到期：2026-12-31</span></div>
+              <div class="quota-actions">
+                <button class="btn btn-secondary btn-sm" onclick="showModal('modal-topup')">充值</button>
+                <button class="btn btn-ghost btn-sm">明细</button>
+              </div>
+            </div>
+            <div class="quota-card">
+              <div class="quota-card-header">
+                <div class="quota-product">🎙 SpeakUp</div>
+                <span class="badge badge-blue">开通中</span>
+              </div>
+              <div class="quota-number">180</div>
+              <div class="text-hint mt-8">可用额度</div>
+              <div class="quota-bar"><div class="quota-bar-fill" style="width:90%"></div></div>
+              <div class="quota-meta"><span>已用：20 / 总量：200</span><span>到期：2026-12-31</span></div>
+              <div class="quota-actions">
+                <button class="btn btn-secondary btn-sm">充值</button>
+                <button class="btn btn-ghost btn-sm">明细</button>
+              </div>
+            </div>
+            <div class="quota-card inactive">
+              <div class="quota-card-header">
+                <div class="quota-product">📝 ScoreUp</div>
+                <span class="badge badge-gray">未开通</span>
+              </div>
+              <div class="quota-number">—</div>
+              <div class="text-hint mt-8">暂未开通此产品</div>
+              <div class="quota-bar"><div class="quota-bar-fill" style="width:0%"></div></div>
+              <div class="quota-meta"><span>—</span></div>
+              <div class="quota-actions">
+                <button class="btn btn-secondary btn-sm btn-disabled" disabled>充值</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Admin Account -->
+        <div class="card mb-24">
+          <div class="card-title">机构管理员账号</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;background:var(--bg-soft);border-radius:var(--radius);border:1px solid var(--line-default)">
+            <div class="flex gap-12" style="align-items:center">
+              <div class="avatar">WF</div>
+              <div>
+                <div style="font-size:14px;font-weight:600">Wang Fang</div>
+                <div style="font-size:13px;color:var(--text-hint)">wangfang@neworiental.cn</div>
+              </div>
+            </div>
+            <div class="flex gap-8 flex-center">
+              <span class="badge badge-success">已激活</span>
+              <button class="btn btn-ghost btn-sm">停用</button>
+              <button class="btn btn-ghost btn-sm">更换</button>
+            </div>
+          </div>
+        </div>
+        <!-- Seat & Service -->
+        <div class="card">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+            <div>
+              <div class="card-title" style="font-size:16px">席位管理</div>
+              <div style="font-size:13px;color:var(--text-hint);margin-bottom:16px">当前开通席位数</div>
+              <div style="font-size:32px;font-weight:700;color:var(--brand-dark);font-family:Arial">50</div>
+              <div style="font-size:13px;color:var(--text-hint);margin-top:4px">席位</div>
+              <button class="btn btn-secondary btn-sm mt-16">扩充席位</button>
+            </div>
+            <div>
+              <div class="card-title" style="font-size:16px">服务开关</div>
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg-soft);border-radius:var(--radius)">
+                  <span style="font-size:14px">API 服务</span>
+                  <span class="badge badge-success">已开通</span>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg-soft);border-radius:var(--radius)">
+                  <span style="font-size:14px">客户端服务</span>
+                  <span class="badge badge-success">已开通</span>
+                </div>
+              </div>
+              <button class="btn btn-secondary btn-sm mt-16">调整服务</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= SCREEN: Institution Dashboard ============================= -->
+<div class="screen" id="screen-inst-dashboard">
+  <div class="app">
+    <div class="sidebar">
+      <div class="sidebar-logo"><div class="logo-icon"><span>NS</span></div><div class="logo-text">新东方管理台</div></div>
+      <div class="sidebar-nav">
+        <div class="nav-item active"><span class="nav-icon">🏠</span> 首页</div>
+        <div class="nav-group-title" style="margin-top:4px">内容管理</div>
+        <div class="nav-item"><span class="nav-icon">📚</span> 题库</div>
+        <div class="nav-item"><span class="nav-icon">📋</span> 试卷管理</div>
+        <div class="nav-item"><span class="nav-icon">🎫</span> 邀请码批次</div>
+        <div class="nav-group-title" style="margin-top:4px">数据分析</div>
+        <div class="nav-item"><span class="nav-icon">📊</span> 报告分析</div>
+        <div class="nav-item"><span class="nav-icon">💳</span> 额度明细</div>
+        <div class="nav-group-title" style="margin-top:4px">设置</div>
+        <div class="nav-item"><span class="nav-icon">🔗</span> API 管理</div>
+        <div class="nav-item"><span class="nav-icon">👤</span> 组织管理</div>
+      </div>
+      <div class="sidebar-footer"><div class="avatar">WF</div><div class="user-info"><div class="user-name">Wang Fang</div><div class="user-role">机构管理员</div></div></div>
+    </div>
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-left"><button class="topbar-toggle" onclick="toggleSidebar()">☰</button><span class="perspective-badge perspective-inst">机构视角</span></div>
+        <div class="topbar-right"><button class="icon-btn">🔔</button><div class="avatar">WF</div></div>
+      </div>
+      <div class="content">
+        <!-- Welcome -->
+        <div class="welcome-bar">
+          <div>
+            <div class="welcome-name">你好，Wang Fang 👋</div>
+            <div class="welcome-date">新东方教育集团 · 2026年4月14日</div>
+          </div>
+          <div class="welcome-icon">🏫</div>
+        </div>
+        <!-- Quota Cards -->
+        <div class="card-grid mb-24">
+          <div class="quota-card">
+            <div class="quota-card-header"><div class="quota-product">✍ WriteUp</div><span class="badge badge-blue">有效</span></div>
+            <div class="quota-number">320</div>
+            <div class="text-hint mt-8">可用额度</div>
+            <div class="quota-bar"><div class="quota-bar-fill" style="width:80%"></div></div>
+            <div class="quota-meta"><span>已用：80 / 400</span><span>到期：12月31日</span></div>
+          </div>
+          <div class="quota-card">
+            <div class="quota-card-header"><div class="quota-product">🎙 SpeakUp</div><span class="badge badge-blue">有效</span></div>
+            <div class="quota-number">180</div>
+            <div class="text-hint mt-8">可用额度</div>
+            <div class="quota-bar"><div class="quota-bar-fill" style="width:90%"></div></div>
+            <div class="quota-meta"><span>已用：20 / 200</span><span>到期：12月31日</span></div>
+          </div>
+          <div class="quota-card inactive">
+            <div class="quota-card-header"><div class="quota-product">📝 ScoreUp</div><span class="badge badge-gray">未开通</span></div>
+            <div class="quota-number">—</div>
+            <div class="text-hint mt-8">暂未开通此产品</div>
+          </div>
+        </div>
+        <!-- Quick Actions -->
+        <div style="font-size:16px;font-weight:600;margin-bottom:12px">快捷操作</div>
+        <div class="quick-actions mb-24">
+          <div class="quick-action" onclick="showScreen('create-batch')">
+            <div class="quick-action-icon">🎫</div>
+            <div class="quick-action-label">创建批次</div>
+          </div>
+          <div class="quick-action" onclick="showScreen('create-paper')">
+            <div class="quick-action-icon">📋</div>
+            <div class="quick-action-label">创建试卷</div>
+          </div>
+          <div class="quick-action" onclick="showScreen('report-detail')">
+            <div class="quick-action-icon">📊</div>
+            <div class="quick-action-label">查看报告</div>
+          </div>
+          <div class="quick-action" onclick="showScreen('user-org')">
+            <div class="quick-action-icon">👤</div>
+            <div class="quick-action-label">成员管理</div>
+          </div>
+        </div>
+        <!-- Stats -->
+        <div style="font-size:16px;font-weight:600;margin-bottom:12px">本月数据</div>
+        <div class="dashboard-stats">
+          <div class="stat-card"><div class="stat-number">12</div><div class="stat-label">本月批次</div></div>
+          <div class="stat-card"><div class="stat-number">240</div><div class="stat-label">发出邀请码</div></div>
+          <div class="stat-card"><div class="stat-number">186</div><div class="stat-label">已使用邀请码</div></div>
+          <div class="stat-card"><div class="stat-number">156</div><div class="stat-label">报告已生成</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= SCREEN: Create Paper ============================= -->
+<div class="screen" id="screen-create-paper">
+  <div class="app">
+    <div class="sidebar">
+      <div class="sidebar-logo"><div class="logo-icon"><span>NS</span></div><div class="logo-text">新东方管理台</div></div>
+      <div class="sidebar-nav">
+        <div class="nav-item"><span class="nav-icon">🏠</span> 首页</div>
+        <div class="nav-item"><span class="nav-icon">📚</span> 题库</div>
+        <div class="nav-item active"><span class="nav-icon">📋</span> 试卷管理</div>
+        <div class="nav-item"><span class="nav-icon">🎫</span> 邀请码批次</div>
+        <div class="nav-item"><span class="nav-icon">📊</span> 报告分析</div>
+      </div>
+      <div class="sidebar-footer"><div class="avatar">WF</div><div class="user-info"><div class="user-name">Wang Fang</div><div class="user-role">机构管理员</div></div></div>
+    </div>
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-left"><button class="topbar-toggle" onclick="toggleSidebar()">☰</button><span class="perspective-badge perspective-inst">机构视角</span></div>
+        <div class="topbar-right"><button class="icon-btn">🔔</button><div class="avatar">WF</div></div>
+      </div>
+      <div class="content">
+        <div class="breadcrumb mb-16"><a href="#" onclick="showScreen('inst-dashboard')">首页</a><span>›</span><a href="#">试卷管理</a><span>›</span> 创建试卷</div>
+        <div class="page-header mb-24">
+          <div>
+            <div class="page-title">创建试卷</div>
+          </div>
+          <div class="flex gap-8">
+            <div class="filter-item"><span class="filter-label">产品类型</span>
+              <select id="paperProductType" onchange="switchPaperProduct()">
+                <option value="writeup">WriteUp</option>
+                <option value="speakup">SpeakUp</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <!-- Paper Name -->
+        <div class="form-group" style="max-width:480px">
+          <label class="form-label form-required">试卷名称</label>
+          <input type="text" placeholder="请输入试卷名称" style="width:100%">
+        </div>
+        <!-- Two Pane -->
+        <div class="two-pane" id="paperpane">
+          <!-- Left: Question Bank -->
+          <div class="pane">
+            <div class="pane-header">
+              <span>题库</span>
+              <div class="flex gap-8">
+                <select id="partFilter" style="height:28px;font-size:13px;padding:0 8px">
+                  <option>Task 1</option>
+                  <option>Task 2</option>
+                </select>
+                <input type="text" placeholder="关键词" style="height:28px;width:90px;font-size:13px">
+              </div>
+            </div>
+            <div class="pane-body" id="questionBank">
+              <div class="question-item" onclick="addQuestion(this, 'Q-00123', 'Task 1', '旅游与交通趋势分析图')">
+                <span class="q-id">Q-00123</span><span class="q-title">旅游与交通趋势分析图</span><span class="q-tag"><span class="tag">Task 1</span></span>
+              </div>
+              <div class="question-item" onclick="addQuestion(this, 'Q-00124', 'Task 2', '讨论：城市化与农村发展的利弊')">
+                <span class="q-id">Q-00124</span><span class="q-title">讨论：城市化与农村发展的利弊</span><span class="q-tag"><span class="tag">Task 2</span></span>
+              </div>
+              <div class="question-item" onclick="addQuestion(this, 'Q-00125', 'Task 1', '能源消费对比柱状图')">
+                <span class="q-id">Q-00125</span><span class="q-title">能源消费对比柱状图</span><span class="q-tag"><span class="tag">Task 1</span></span>
+              </div>
+              <div class="question-item" onclick="addQuestion(this, 'Q-00126', 'Task 2', '科技对人际关系的影响')">
+                <span class="q-id">Q-00126</span><span class="q-title">科技对人际关系的影响</span><span class="q-tag"><span class="tag">Task 2</span></span>
+              </div>
+              <div class="question-item" onclick="addQuestion(this, 'Q-00127', 'Task 1', '全球贸易流程图')">
+                <span class="q-id">Q-00127</span><span class="q-title">全球贸易流程图</span><span class="q-tag"><span class="tag">Task 1</span></span>
+              </div>
+              <div class="question-item" onclick="addQuestion(this, 'Q-00128', 'Task 2', '健康饮食与政府责任')">
+                <span class="q-id">Q-00128</span><span class="q-title">健康饮食与政府责任</span><span class="q-tag"><span class="tag">Task 2</span></span>
+              </div>
+            </div>
+          </div>
+          <!-- Right: Selected -->
+          <div class="pane">
+            <div class="pane-header"><span>已选题目 <span id="selectedCount">(0)</span></span></div>
+            <div class="pane-body" id="selectedList">
+              <div class="empty-state" style="padding:32px">
+                <div class="empty-icon" style="font-size:32px">📋</div>
+                <div class="empty-text" style="font-size:14px">点击左侧题目加入试卷</div>
+              </div>
+            </div>
+            <div class="validation-bar" id="validationBar">
+              <div class="validation-fail" id="validationMsg">⚠ 未选择任何题目</div>
+            </div>
+          </div>
+        </div>
+        <!-- Footer Actions -->
+        <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:24px;padding-top:24px;border-top:1px solid var(--line-default)">
+          <button class="btn btn-secondary" onclick="showScreen('inst-dashboard')">取消</button>
+          <button class="btn btn-primary btn-disabled" id="savePaperBtn" disabled onclick="savePaper()">保存试卷</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= SCREEN: Create Batch ============================= -->
+<div class="screen" id="screen-create-batch">
+  <div class="app">
+    <div class="sidebar">
+      <div class="sidebar-logo"><div class="logo-icon"><span>NS</span></div><div class="logo-text">新东方管理台</div></div>
+      <div class="sidebar-nav">
+        <div class="nav-item"><span class="nav-icon">🏠</span> 首页</div>
+        <div class="nav-item"><span class="nav-icon">📋</span> 试卷管理</div>
+        <div class="nav-item active"><span class="nav-icon">🎫</span> 邀请码批次</div>
+        <div class="nav-item"><span class="nav-icon">📊</span> 报告分析</div>
+      </div>
+      <div class="sidebar-footer"><div class="avatar">WF</div><div class="user-info"><div class="user-name">Wang Fang</div><div class="user-role">机构管理员</div></div></div>
+    </div>
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-left"><button class="topbar-toggle" onclick="toggleSidebar()">☰</button><span class="perspective-badge perspective-inst">机构视角</span></div>
+        <div class="topbar-right"><button class="icon-btn">🔔</button><div class="avatar">WF</div></div>
+      </div>
+      <div class="content">
+        <div class="breadcrumb mb-16"><a href="#" onclick="showScreen('inst-dashboard')">首页</a><span>›</span><a href="#">邀请码批次</a><span>›</span> 创建批次</div>
+        <div class="page-title mb-24">创建邀请码批次</div>
+        <!-- Stepper -->
+        <div class="stepper">
+          <div class="step">
+            <div class="step-circle active" id="step1c">1</div>
+            <div class="step-label active" id="step1l">产品与余量</div>
+          </div>
+          <div class="step-line" id="line1"></div>
+          <div class="step">
+            <div class="step-circle" id="step2c">2</div>
+            <div class="step-label" id="step2l">批次设置</div>
+          </div>
+          <div class="step-line" id="line2"></div>
+          <div class="step">
+            <div class="step-circle" id="step3c">3</div>
+            <div class="step-label" id="step3l">消费者信息</div>
+          </div>
+          <div class="step-line" id="line3"></div>
+          <div class="step">
+            <div class="step-circle" id="step4c">4</div>
+            <div class="step-label" id="step4l">预览确认</div>
+          </div>
+        </div>
+
+        <!-- Step 1 -->
+        <div class="step-content" id="stepContent1">
+          <div style="font-size:16px;font-weight:600;margin-bottom:16px">选择产品</div>
+          <div class="product-select-card selected" onclick="selectProduct(this)">
+            <div class="radio-circle checked" id="wu-radio"></div>
+            <div>
+              <div class="product-name">✍ WriteUp</div>
+              <div class="product-quota">剩余额度：320  · 到期：2026-12-31</div>
+            </div>
+          </div>
+          <div class="product-select-card" onclick="selectProduct(this)">
+            <div class="radio-circle"></div>
+            <div>
+              <div class="product-name">🎙 SpeakUp</div>
+              <div class="product-quota">剩余额度：180  · 到期：2026-12-31</div>
+            </div>
+          </div>
+          <div class="product-select-card" style="opacity:0.5;pointer-events:none">
+            <div class="radio-circle"></div>
+            <div>
+              <div class="product-name">📝 ScoreUp</div>
+              <div class="product-quota" style="color:var(--red)">暂未开通</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:24px">
+            <button class="btn btn-primary" onclick="batchNextStep(1)">下一步 →</button>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-content" id="stepContent2" style="display:none">
+          <div style="font-size:16px;font-weight:600;margin-bottom:16px">批次设置</div>
+          <div class="form-group">
+            <label class="form-label form-required">批次名称</label>
+            <input type="text" placeholder="输入批次名称，例如：2026届高三冲刺班" style="width:100%">
+          </div>
+          <div class="form-group">
+            <label class="form-label form-required">绑定试卷</label>
+            <select style="width:100%">
+              <option>-- 请选择试卷 --</option>
+              <option selected>作文模拟卷 03（WriteUp）</option>
+              <option>作文模拟卷 02（WriteUp）</option>
+              <option>作文模拟卷 01（WriteUp）</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label form-required">邀请码数量</label>
+            <input type="number" id="batchQtyInput" placeholder="输入数量" min="1" max="320" value="20" oninput="updateQuotaPreview(this.value)" style="width:180px">
+            <div class="quota-realtime mt-8">
+              <div>可用余量：<span class="num">320</span></div>
+              <div>本次消耗：<span class="num" id="batchConsumed">20</span></div>
+              <div>创建后剩余：<span class="num" id="batchRemain">300</span></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label form-required">有效期</label>
+            <div class="flex gap-8" style="align-items:center">
+              <input type="date" value="2026-04-15" style="width:160px">
+              <span style="color:var(--text-hint)">至</span>
+              <input type="date" value="2026-06-30" style="width:160px">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">报告释放方式</label>
+            <div style="display:flex;gap:16px;margin-top:8px">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="radio" name="releaseType" checked> 自动释放（完成后立即可见）</label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="radio" name="releaseType"> 手动释放</label>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:24px">
+            <button class="btn btn-secondary" onclick="batchPrevStep(2)">← 上一步</button>
+            <button class="btn btn-primary" onclick="batchNextStep(2)">下一步 →</button>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-content" id="stepContent3" style="display:none">
+          <div style="font-size:16px;font-weight:600;margin-bottom:16px">消费者信息</div>
+          <div style="display:flex;gap:12px;margin-bottom:16px">
+            <button class="btn btn-secondary btn-sm" id="tab-none" onclick="switchConsumerTab('none')" style="background:var(--brand-dark);color:white;border-color:var(--brand-dark)">不绑定</button>
+            <button class="btn btn-secondary btn-sm" id="tab-manual" onclick="switchConsumerTab('manual')">手动录入</button>
+            <button class="btn btn-secondary btn-sm" id="tab-import" onclick="switchConsumerTab('import')">导入文件</button>
+            <button class="btn btn-secondary btn-sm" id="tab-history" onclick="switchConsumerTab('history')">历史批次</button>
+          </div>
+          <!-- None -->
+          <div id="consumer-none" style="padding:24px;background:var(--bg-soft);border-radius:var(--radius);border:1px solid var(--line-default);text-align:center">
+            <div style="font-size:32px;margin-bottom:12px">📤</div>
+            <div style="font-size:14px;color:var(--text-secondary)">不绑定消费者，邀请码将以通用状态生成</div>
+          </div>
+          <!-- Manual -->
+          <div id="consumer-manual" style="display:none">
+            <button class="btn btn-secondary btn-sm mb-16">+ 新增消费者</button>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>姓名</th><th>联系方式</th><th>外部编号</th><th>备注</th><th style="text-align:right">操作</th></tr></thead>
+                <tbody>
+                  <tr><td>张三</td><td>13800001111</td><td>S-001</td><td>—</td><td class="td-actions"><button class="btn btn-ghost btn-xs">编辑</button><button class="btn btn-ghost btn-xs text-danger">删除</button></td></tr>
+                  <tr><td>李四</td><td>13800002222</td><td>S-002</td><td>—</td><td class="td-actions"><button class="btn btn-ghost btn-xs">编辑</button><button class="btn btn-ghost btn-xs text-danger">删除</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Import -->
+          <div id="consumer-import" style="display:none">
+            <div style="border:2px dashed var(--line-mid);border-radius:var(--radius);padding:40px;text-align:center;margin-bottom:16px">
+              <div style="font-size:32px;margin-bottom:12px">📁</div>
+              <div style="font-size:14px;color:var(--text-secondary);margin-bottom:16px">拖拽 Excel 文件到此处，或点击上传</div>
+              <button class="btn btn-secondary btn-sm">选择文件</button>
+              <div style="font-size:12px;color:var(--text-hint);margin-top:12px">支持 .xlsx 格式，单次最多 1000 条，文件小于 5MB</div>
+            </div>
+            <button class="btn btn-ghost btn-sm">⬇ 下载模板</button>
+          </div>
+          <!-- History -->
+          <div id="consumer-history" style="display:none">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>批次编号</th><th>批次名称</th><th>试卷</th><th>消费者数</th><th>操作</th></tr></thead>
+                <tbody>
+                  <tr><td>B-20260301</td><td>2026届高三一班</td><td>作文模拟卷02</td><td>28</td><td><button class="btn btn-ghost btn-xs">复用</button></td></tr>
+                  <tr><td>B-20260201</td><td>2026届高三二班</td><td>作文模拟卷01</td><td>32</td><td><button class="btn btn-ghost btn-xs">复用</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:24px">
+            <button class="btn btn-secondary" onclick="batchPrevStep(3)">← 上一步</button>
+            <button class="btn btn-primary" onclick="batchNextStep(3)">进入预览 →</button>
+          </div>
+        </div>
+
+        <!-- Step 4: Preview -->
+        <div class="step-content" id="stepContent4" style="display:none">
+          <div style="font-size:16px;font-weight:600;margin-bottom:16px">预览确认</div>
+          <div class="card mb-24">
+            <div class="info-grid">
+              <div class="info-label">产品类型</div><div class="info-value">✍ WriteUp</div>
+              <div class="info-label">批次名称</div><div class="info-value">2026届高三冲刺班</div>
+              <div class="info-label">绑定试卷</div><div class="info-value">作文模拟卷 03</div>
+              <div class="info-label">邀请码数量</div><div class="info-value">20 个</div>
+              <div class="info-label">有效期</div><div class="info-value">2026-04-15 ~ 2026-06-30</div>
+              <div class="info-label">报告释放</div><div class="info-value">自动释放</div>
+              <div class="info-label">消费者绑定</div><div class="info-value">不绑定</div>
+              <div class="info-label">本次消耗额度</div><div class="info-value" style="color:var(--brand-dark)">20</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:24px">
+            <button class="btn btn-secondary" onclick="batchPrevStep(4)">← 返回修改</button>
+            <button class="btn btn-primary" onclick="confirmCreateBatch()">✓ 确认创建</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= SCREEN: Report Detail ============================= -->
+<div class="screen" id="screen-report-detail">
+  <div class="app">
+    <div class="sidebar">
+      <div class="sidebar-logo"><div class="logo-icon"><span>NS</span></div><div class="logo-text">新东方管理台</div></div>
+      <div class="sidebar-nav">
+        <div class="nav-item"><span class="nav-icon">🏠</span> 首页</div>
+        <div class="nav-item"><span class="nav-icon">📋</span> 试卷管理</div>
+        <div class="nav-item"><span class="nav-icon">🎫</span> 邀请码批次</div>
+        <div class="nav-item active"><span class="nav-icon">📊</span> 报告分析</div>
+      </div>
+      <div class="sidebar-footer"><div class="avatar">WF</div><div class="user-info"><div class="user-name">Wang Fang</div><div class="user-role">机构管理员</div></div></div>
+    </div>
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-left"><button class="topbar-toggle" onclick="toggleSidebar()">☰</button><span class="perspective-badge perspective-inst">机构视角</span></div>
+        <div class="topbar-right"><button class="icon-btn">🔔</button><div class="avatar">WF</div></div>
+      </div>
+      <div class="content">
+        <div class="breadcrumb mb-16"><a href="#">报告分析</a><span>›</span> <a href="#">WriteUp</a><span>›</span> 报告详情</div>
+        <div class="page-header">
+          <div class="page-title">WriteUp 报告详情</div>
+          <span class="badge badge-gray" id="reportStatusBadge">未释放</span>
+        </div>
+        <!-- Basic Info -->
+        <div class="card mb-24">
+          <div class="card-title">基础信息</div>
+          <div class="info-grid">
+            <div class="info-label">消费者</div><div class="info-value">张三</div>
+            <div class="info-label">使用邀请码</div><div class="info-value">WU-00234</div>
+            <div class="info-label">所在批次</div><div class="info-value">B-20260401 · 2026届高三冲刺班</div>
+            <div class="info-label">绑定试卷</div><div class="info-value">作文模拟卷 03</div>
+            <div class="info-label">提交时间</div><div class="info-value">2026-04-10 14:32:45</div>
+            <div class="info-label">作答状态</div><div class="info-value"><span class="badge badge-success">已完成</span></div>
+            <div class="info-label">报告状态</div><div class="info-value" id="reportStatusCell"><span class="badge badge-gray">未释放</span></div>
+          </div>
+        </div>
+        <!-- Score -->
+        <div class="card mb-24">
+          <div class="card-title">评分结果</div>
+          <div class="score-display">
+            <div class="score-big">6.5</div>
+            <div class="score-max">/ 9.0</div>
+          </div>
+          <div class="scoring-grid">
+            <div class="scoring-item">
+              <div class="scoring-name">Task Achievement</div>
+              <div class="scoring-score">6.0</div>
+              <div class="scoring-bar"><div class="scoring-bar-fill" style="width:67%"></div></div>
+            </div>
+            <div class="scoring-item">
+              <div class="scoring-name">Coherence & Cohesion</div>
+              <div class="scoring-score">7.0</div>
+              <div class="scoring-bar"><div class="scoring-bar-fill" style="width:78%"></div></div>
+            </div>
+            <div class="scoring-item">
+              <div class="scoring-name">Lexical Resource</div>
+              <div class="scoring-score">6.5</div>
+              <div class="scoring-bar"><div class="scoring-bar-fill" style="width:72%"></div></div>
+            </div>
+            <div class="scoring-item">
+              <div class="scoring-name">Grammatical Range</div>
+              <div class="scoring-score">6.5</div>
+              <div class="scoring-bar"><div class="scoring-bar-fill" style="width:72%"></div></div>
+            </div>
+          </div>
+        </div>
+        <!-- Action -->
+        <div class="card" id="releaseSection">
+          <div class="card-title">报告操作</div>
+          <div style="padding:16px;background:var(--yellow-bg);border:1px solid var(--yellow);border-radius:var(--radius);margin-bottom:16px;font-size:14px;color:#7A6000">
+            ⚠ 当前报告尚未释放。释放后，消费者可在产品端查看完整报告，操作不可撤回。
+          </div>
+          <button class="btn btn-primary" onclick="showModal('modal-release-report')">释放报告</button>
+        </div>
+        <div class="card" id="releasedSection" style="display:none">
+          <div class="card-title">释放记录</div>
+          <div class="info-grid">
+            <div class="info-label">释放时间</div><div class="info-value">2026-04-14 10:30:00</div>
+            <div class="info-label">操作人</div><div class="info-value">Wang Fang（机构管理员）</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= SCREEN: User & Org ============================= -->
+<div class="screen" id="screen-user-org">
+  <div class="app">
+    <div class="sidebar">
+      <div class="sidebar-logo"><div class="logo-icon"><span>NS</span></div><div class="logo-text">新东方管理台</div></div>
+      <div class="sidebar-nav">
+        <div class="nav-item"><span class="nav-icon">🏠</span> 首页</div>
+        <div class="nav-item"><span class="nav-icon">📋</span> 试卷管理</div>
+        <div class="nav-item"><span class="nav-icon">🎫</span> 邀请码批次</div>
+        <div class="nav-item"><span class="nav-icon">📊</span> 报告分析</div>
+        <div class="nav-item active"><span class="nav-icon">👤</span> 组织管理</div>
+      </div>
+      <div class="sidebar-footer"><div class="avatar">WF</div><div class="user-info"><div class="user-name">Wang Fang</div><div class="user-role">机构管理员</div></div></div>
+    </div>
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-left"><button class="topbar-toggle" onclick="toggleSidebar()">☰</button><span class="perspective-badge perspective-inst">机构视角</span></div>
+        <div class="topbar-right"><button class="icon-btn">🔔</button><div class="avatar">WF</div></div>
+      </div>
+      <div class="content">
+        <div class="page-title mb-24">用户与组织管理</div>
+        <div class="tabs">
+          <div class="tab active" onclick="switchOrgTab(this,'tab-org')">组织架构</div>
+          <div class="tab" onclick="switchOrgTab(this,'tab-users')">用户管理</div>
+          <div class="tab" onclick="switchOrgTab(this,'tab-roles')">角色管理</div>
+        </div>
+        <!-- Org Tab -->
+        <div id="tab-org">
+          <div style="display:grid;grid-template-columns:280px 1fr;gap:16px;height:420px">
+            <div class="pane">
+              <div class="pane-header">组织架构树<button class="btn btn-ghost btn-xs" style="padding:0 8px">+ 新增</button></div>
+              <div class="pane-body" style="padding:12px">
+                <div style="padding:8px 12px;border-radius:var(--radius-sm);background:var(--bg-light);font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-weight:600;color:var(--brand-dark)">
+                  🏢 新东方教育集团
+                </div>
+                <div style="padding:8px 12px 8px 28px;font-size:14px;cursor:pointer;color:var(--text-secondary)">▶ 教研部</div>
+                <div style="padding:8px 12px 8px 28px;font-size:14px;cursor:pointer;color:var(--text-secondary)">▶ 招生部</div>
+                <div style="padding:8px 12px 8px 28px;font-size:14px;cursor:pointer;color:var(--text-secondary)">▶ 课程中心</div>
+                <div style="padding:8px 12px 8px 28px;font-size:14px;cursor:pointer;color:var(--text-secondary)">▶ 运营部</div>
+              </div>
+            </div>
+            <div class="pane">
+              <div class="pane-header">新东方教育集团（根节点）</div>
+              <div class="pane-body" style="padding:24px">
+                <div class="info-grid">
+                  <div class="info-label">组织名称</div><div class="info-value">新东方教育集团</div>
+                  <div class="info-label">上级组织</div><div class="info-value"><span class="badge badge-gray">根节点</span></div>
+                  <div class="info-label">成员数</div><div class="info-value">56</div>
+                  <div class="info-label">子组织数</div><div class="info-value">4</div>
+                </div>
+                <div class="divider"></div>
+                <div style="display:flex;gap:8px">
+                  <button class="btn btn-secondary btn-sm">编辑</button>
+                  <button class="btn btn-secondary btn-sm">新增子组织</button>
+                  <button class="btn btn-ghost btn-sm btn-disabled" disabled title="根节点不可删除">删除</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Users Tab -->
+        <div id="tab-users" style="display:none">
+          <div class="filter-bar">
+            <input type="text" placeholder="姓名 / 邮箱" style="width:180px">
+            <select style="width:140px"><option>全部组织</option><option>教研部</option><option>招生部</option></select>
+            <select style="width:120px"><option>全部角色</option><option>管理员</option><option>教师</option><option>助教</option></select>
+            <select style="width:100px"><option>全部状态</option><option>启用</option><option>禁用</option></select>
+            <div class="filter-actions"><button class="btn btn-primary btn-sm">搜索</button><button class="btn btn-secondary btn-sm">重置</button><button class="btn btn-primary btn-sm" style="margin-left:8px">+ 新建用户</button></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>姓名</th><th>邮箱</th><th>所属组织</th><th>角色</th><th>状态</th><th>激活状态</th><th style="text-align:right">操作</th></tr></thead>
+              <tbody>
+                <tr><td>Wang Fang</td><td>wangfang@neworiental.cn</td><td>教研部</td><td>机构管理员</td><td><span class="badge badge-success">启用</span></td><td><span class="badge badge-blue">已激活</span></td><td class="td-actions"><button class="btn btn-ghost btn-xs">编辑</button><button class="btn btn-ghost btn-xs">禁用</button></td></tr>
+                <tr><td>Li Ming</td><td>liming@neworiental.cn</td><td>教研部</td><td>教师</td><td><span class="badge badge-success">启用</span></td><td><span class="badge badge-blue">已激活</span></td><td class="td-actions"><button class="btn btn-ghost btn-xs">编辑</button><button class="btn btn-ghost btn-xs">禁用</button></td></tr>
+                <tr><td>Zhao Xiaomei</td><td>zhaoxm@neworiental.cn</td><td>招生部</td><td>助教</td><td><span class="badge badge-success">启用</span></td><td><span class="badge badge-yellow">未激活</span></td><td class="td-actions"><button class="btn btn-ghost btn-xs">编辑</button><button class="btn btn-ghost btn-xs">重发激活</button></td></tr>
+                <tr><td>Chen Wei</td><td>chenwei@neworiental.cn</td><td>课程中心</td><td>教师</td><td><span class="badge badge-danger">禁用</span></td><td><span class="badge badge-blue">已激活</span></td><td class="td-actions"><button class="btn btn-ghost btn-xs">编辑</button><button class="btn btn-ghost btn-xs text-success">启用</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Roles Tab -->
+        <div id="tab-roles" style="display:none">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:16px"><button class="btn btn-primary btn-sm">+ 新建角色</button></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>角色名称</th><th>权限数</th><th>绑定用户数</th><th>类型</th><th style="text-align:right">操作</th></tr></thead>
+              <tbody>
+                <tr><td><strong>机构管理员</strong></td><td>48</td><td>2</td><td><span class="badge badge-blue">系统角色</span></td><td class="td-actions"><button class="btn btn-ghost btn-xs">查看权限</button><button class="btn btn-ghost btn-xs btn-disabled" disabled>删除</button></td></tr>
+                <tr><td><strong>教师</strong></td><td>24</td><td>8</td><td><span class="badge badge-blue">系统角色</span></td><td class="td-actions"><button class="btn btn-ghost btn-xs">查看权限</button><button class="btn btn-ghost btn-xs btn-disabled" disabled>删除</button></td></tr>
+                <tr><td><strong>助教</strong></td><td>16</td><td>3</td><td><span class="badge badge-blue">系统角色</span></td><td class="td-actions"><button class="btn btn-ghost btn-xs">查看权限</button><button class="btn btn-ghost btn-xs btn-disabled" disabled>删除</button></td></tr>
+                <tr><td><strong>高级教师（定制）</strong></td><td>30</td><td>1</td><td><span class="badge badge-gray">自定义</span></td><td class="td-actions"><button class="btn btn-ghost btn-xs">编辑</button><button class="btn btn-ghost btn-xs">复制</button><button class="btn btn-ghost btn-xs text-danger">删除</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= MODALS ============================= -->
+<!-- Create Customer Modal -->
+<div class="overlay" id="modal-create-customer" onclick="closeModal('modal-create-customer', event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">创建客户</div>
+      <button class="modal-close" onclick="closeModal('modal-create-customer')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label form-required">客户名称</label>
+        <input type="text" placeholder="输入客户名称" style="width:100%">
+        <div class="input-hint">请输入机构全名，不得与现有客户重名</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">所属集团</label>
+        <input type="text" placeholder="可选" style="width:100%">
+      </div>
+      <div class="form-group">
+        <label class="form-label">主要联系人</label>
+        <input type="text" placeholder="联系人姓名" style="width:100%">
+      </div>
+      <div class="form-group">
+        <label class="form-label">联系方式</label>
+        <input type="text" placeholder="邮箱或电话" style="width:100%">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">备注</label>
+        <textarea style="width:100%;min-height:70px;border:1px solid var(--line-mid);border-radius:var(--radius);padding:10px 12px;font-family:inherit;font-size:14px;outline:none;resize:vertical" placeholder="可选备注信息"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-create-customer')">取消</button>
+      <button class="btn btn-primary" onclick="handleCreateCustomer()">创建客户</button>
+    </div>
+  </div>
+</div>
+
+<!-- Topup Modal -->
+<div class="overlay" id="modal-topup" onclick="closeModal('modal-topup', event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">额度充值 — WriteUp</div>
+      <button class="modal-close" onclick="closeModal('modal-topup')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label form-required">充值档位</label>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px">
+          <div onclick="selectTopupTier(this,100)" style="padding:12px;border:2px solid var(--brand-dark);border-radius:var(--radius);text-align:center;cursor:pointer;background:#EBF2FC">
+            <div style="font-size:20px;font-weight:700;color:var(--brand-dark)">100</div>
+            <div style="font-size:12px;color:var(--text-hint)">Credits</div>
+          </div>
+          <div onclick="selectTopupTier(this,200)" style="padding:12px;border:2px solid var(--line-mid);border-radius:var(--radius);text-align:center;cursor:pointer">
+            <div style="font-size:20px;font-weight:700">200</div>
+            <div style="font-size:12px;color:var(--text-hint)">Credits</div>
+          </div>
+          <div onclick="selectTopupTier(this,500)" style="padding:12px;border:2px solid var(--line-mid);border-radius:var(--radius);text-align:center;cursor:pointer">
+            <div style="font-size:20px;font-weight:700">500</div>
+            <div style="font-size:12px;color:var(--text-hint)">Credits</div>
+          </div>
+        </div>
+      </div>
+      <div style="padding:12px 16px;background:var(--bg-soft);border-radius:var(--radius);border:1px solid var(--line-default);margin-bottom:20px;font-size:13px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>当前额度</span><span style="font-weight:600">320</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>本次充值</span><span style="font-weight:600;color:var(--brand-mid)" id="topupAmt">+100</span></div>
+        <div style="border-top:1px solid var(--line-default);padding-top:8px;margin-top:8px;display:flex;justify-content:space-between"><span style="font-weight:600">充值后</span><span style="font-weight:700;color:var(--brand-dark)" id="topupAfter">420</span></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label form-required">合同 / 收据编号</label>
+        <input type="text" id="topupRef" placeholder="输入依据单号" style="width:100%" oninput="validateTopupRef(this)">
+        <div class="input-hint">同一单号仅允许使用一次</div>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label form-required">使用截止日期</label>
+        <input type="date" value="2026-12-31" style="width:200px">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-topup')">取消</button>
+      <button class="btn btn-primary" onclick="handleTopup()">确认充值</button>
+    </div>
+  </div>
+</div>
+
+<!-- Release Report Modal -->
+<div class="overlay" id="modal-release-report" onclick="closeModal('modal-release-report', event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">⚠ 确认释放报告</div>
+      <button class="modal-close" onclick="closeModal('modal-release-report')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-warning">
+        ⚠ 此操作将向消费者开放报告查看权限，操作执行后无法撤回，请确认后继续。
+      </div>
+      <div class="info-grid">
+        <div class="info-label">消费者</div><div class="info-value">张三</div>
+        <div class="info-label">提交时间</div><div class="info-value">2026-04-10 14:32:45</div>
+        <div class="info-label">总分</div><div class="info-value" style="color:var(--brand-dark);font-weight:700">6.5 / 9.0</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-release-report')">取消</button>
+      <button class="btn btn-danger" onclick="confirmRelease()">确认释放</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ========== Screen Navigation ==========
+  function showScreen(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const target = document.getElementById('screen-' + name);
+    if(target) target.classList.add('active');
+    document.querySelectorAll('.nav-screen-btn').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('onclick').includes("'" + name + "'"));
+    });
+    window.scrollTo(0,0);
+  }
+
+  // ========== Sidebar Toggle ==========
+  function toggleSidebar() {
+    const sidebar = document.querySelector('.screen.active .sidebar');
+    if(sidebar) sidebar.classList.toggle('collapsed');
+  }
+
+  // ========== Modal ==========
+  function showModal(id) { document.getElementById(id).classList.add('show'); }
+  function closeModal(id, e) {
+    if(e && e.target !== document.getElementById(id)) return;
+    document.getElementById(id).classList.remove('show');
+  }
+
+  // ========== Toast ==========
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = (type === 'success' ? '✓ ' : type === 'error' ? '✕ ' : '') + msg;
+    t.className = 'toast show' + (type ? ' toast-' + type : '');
+    setTimeout(() => { t.classList.remove('show'); }, 2500);
+  }
+
+  // ========== Customer Create ==========
+  function handleCreateCustomer() {
+    closeModal('modal-create-customer');
+    showToast('客户创建成功', 'success');
+  }
+
+  // ========== Topup ==========
+  function selectTopupTier(el, amt) {
+    document.querySelectorAll('#modal-topup .form-group div > div').forEach(d => {
+      if(d.style.border) { d.style.border = '2px solid var(--line-mid)'; d.style.background = ''; }
+    });
+    el.style.border = '2px solid var(--brand-dark)';
+    el.style.background = '#EBF2FC';
+    document.getElementById('topupAmt').textContent = '+' + amt;
+    document.getElementById('topupAfter').textContent = 320 + amt;
+  }
+  function validateTopupRef(el) {
+    // Simulate duplicate check
+    if(el.value === 'REF-DUP') {
+      el.classList.add('error');
+      let msg = el.nextElementSibling.nextElementSibling;
+      if(!msg || !msg.classList.contains('input-error-msg')) {
+        msg = document.createElement('div');
+        msg.className = 'input-error-msg';
+        msg.textContent = '该依据单号已被使用，请检查后重新输入';
+        el.parentNode.insertBefore(msg, el.nextElementSibling.nextElementSibling || null);
+      }
+    } else {
+      el.classList.remove('error');
+      const msg = el.parentNode.querySelector('.input-error-msg'); if(msg) msg.remove();
+    }
+  }
+  function handleTopup() { closeModal('modal-topup'); showToast('充值成功，额度已更新', 'success'); }
+
+  // ========== Release Report ==========
+  function confirmRelease() {
+    closeModal('modal-release-report');
+    document.getElementById('reportStatusBadge').className = 'badge badge-blue';
+    document.getElementById('reportStatusBadge').textContent = '已释放';
+    document.getElementById('reportStatusCell').innerHTML = '<span class="badge badge-blue">已释放</span>';
+    document.getElementById('releaseSection').style.display = 'none';
+    document.getElementById('releasedSection').style.display = 'block';
+    showToast('报告已成功释放', 'success');
+  }
+
+  // ========== Paper Creation ==========
+  const selectedQuestions = [];
+  function addQuestion(el, id, part, title) {
+    if(el.classList.contains('selected')) return;
+    el.classList.add('selected');
+    selectedQuestions.push({ id, part, title });
+    renderSelected();
+  }
+  function renderSelected() {
+    const container = document.getElementById('selectedList');
+    const count = document.getElementById('selectedCount');
+    const saveBtn = document.getElementById('savePaperBtn');
+    const validMsg = document.getElementById('validationMsg');
+    count.textContent = '(' + selectedQuestions.length + ')';
+    if(selectedQuestions.length === 0) {
+      container.innerHTML = '<div class="empty-state" style="padding:32px"><div class="empty-icon" style="font-size:32px">📋</div><div class="empty-text" style="font-size:14px">点击左侧题目加入试卷</div></div>';
+      saveBtn.disabled = true; saveBtn.className = 'btn btn-primary btn-disabled';
+      validMsg.className = 'validation-fail'; validMsg.textContent = '⚠ 未选择任何题目';
+      return;
+    }
+    container.innerHTML = selectedQuestions.map((q,i) =>
+      `<div class="selected-item"><span class="drag-handle">⠿</span><span class="q-order">${i+1}</span><span style="flex:1;font-size:14px">${q.title}</span><span class="tag">${q.part}</span></div>`
+    ).join('');
+    const t1 = selectedQuestions.filter(q=>q.part==='Task 1').length;
+    const t2 = selectedQuestions.filter(q=>q.part==='Task 2').length;
+    const ok = t1 >= 1 && t2 >= 1;
+    saveBtn.disabled = !ok; saveBtn.className = 'btn btn-primary' + (ok ? '' : ' btn-disabled');
+    if(ok) { validMsg.className = 'validation-ok'; validMsg.textContent = '✓ 试卷结构满足要求（Task1: ' + t1 + ', Task2: ' + t2 + '）'; }
+    else { validMsg.className = 'validation-fail'; validMsg.textContent = '⚠ 需至少包含 1 道 Task 1 和 1 道 Task 2'; }
+  }
+  function savePaper() { showToast('试卷创建成功', 'success'); setTimeout(()=>showScreen('inst-dashboard'), 600); }
+
+  // ========== Batch Steps ==========
+  let currentBatchStep = 1;
+  function batchNextStep(from) {
+    document.getElementById('stepContent' + from).style.display = 'none';
+    document.getElementById('stepContent' + (from+1)).style.display = 'block';
+    document.getElementById('step' + from + 'c').className = 'step-circle done';
+    document.getElementById('step' + from + 'c').textContent = '✓';
+    document.getElementById('step' + from + 'l').className = 'step-label done';
+    const next = from + 1;
+    document.getElementById('step' + next + 'c').className = 'step-circle active';
+    document.getElementById('step' + next + 'l').className = 'step-label active';
+    if(document.getElementById('line' + from)) document.getElementById('line' + from).className = 'step-line done';
+  }
+  function batchPrevStep(from) {
+    document.getElementById('stepContent' + from).style.display = 'none';
+    document.getElementById('stepContent' + (from-1)).style.display = 'block';
+    document.getElementById('step' + (from-1) + 'c').className = 'step-circle active';
+    document.getElementById('step' + (from-1) + 'c').textContent = '' + (from-1);
+    document.getElementById('step' + (from-1) + 'l').className = 'step-label active';
+    document.getElementById('step' + from + 'c').className = 'step-circle';
+    document.getElementById('step' + from + 'l').className = 'step-label';
+    if(document.getElementById('line' + (from-1))) document.getElementById('line' + (from-1)).className = 'step-line';
+  }
+  function confirmCreateBatch() {
+    showToast('批次创建成功，已生成 20 个邀请码', 'success');
+    setTimeout(() => showScreen('inst-dashboard'), 800);
+  }
+  function updateQuotaPreview(val) {
+    const n = parseInt(val) || 0;
+    document.getElementById('batchConsumed').textContent = n;
+    const remain = 320 - n;
+    const remEl = document.getElementById('batchRemain');
+    remEl.textContent = remain;
+    remEl.className = 'num' + (remain < 0 ? ' warn' : '');
+  }
+  function selectProduct(el) {
+    document.querySelectorAll('.product-select-card').forEach(c => { if(!c.style.pointerEvents) { c.classList.remove('selected'); c.querySelector('.radio-circle').className = 'radio-circle'; }});
+    if(!el.style.pointerEvents) { el.classList.add('selected'); el.querySelector('.radio-circle').className = 'radio-circle checked'; }
+  }
+  function switchConsumerTab(tab) {
+    ['none','manual','import','history'].forEach(t => {
+      document.getElementById('consumer-' + t).style.display = t === tab ? 'block' : 'none';
+      document.getElementById('tab-' + t).style.background = t === tab ? 'var(--brand-dark)' : '';
+      document.getElementById('tab-' + t).style.color = t === tab ? 'white' : '';
+      document.getElementById('tab-' + t).style.borderColor = t === tab ? 'var(--brand-dark)' : '';
+    });
+  }
+
+  // ========== Org Tabs ==========
+  function switchOrgTab(btn, tabId) {
+    document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    ['tab-org','tab-users','tab-roles'].forEach(id => {
+      const el = document.getElementById(id); if(el) el.style.display = id === tabId ? 'block' : 'none';
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 ---
 name: Eng Reviewer
 description: Review PRD and UX outputs, produce structured engineering review for implementation handover
-tools: ['read', 'search/codebase', 'agent']
+tools: [read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/terminalSelection, read/terminalLastCommand, agent/runSubagent, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, edit/rename, search/codebase]
 handoffs:
   - label: Publish Engineering Review to Wiki
     agent: Wiki Publisher

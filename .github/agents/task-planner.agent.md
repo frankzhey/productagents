@@ -1,7 +1,7 @@
 ---
 name: Task Planner
 description: Break engineering-reviewed stories into executable development tasks with units, effort, and delivery planning
-tools: ['read', 'search/codebase', 'agent']
+tools: [read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/terminalSelection, read/terminalLastCommand, agent/runSubagent, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, edit/rename, search/codebase]
 handoffs:
   - label: Publish Task Plan to Wiki
     agent: Wiki Publisher
