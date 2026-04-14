@@ -52,6 +52,10 @@
    - 产品文档相关 → 读取 `product.instructions.md`
    - 工程设计相关 → 读取 `engineering.instructions.md`
 
+3. 当前任务是否涉及 Azure DevOps：
+  - 如请求涉及 Azure DevOps Wiki、Work Item、Boards、Repos、Pipelines、Test Plans，优先检查 Azure DevOps MCP server 是否已有可用工具
+  - 如 MCP 工具可满足需求，优先通过 MCP 完成查询或写入，而不是仅输出静态建议
+
 <!--3. 当前任务是否需要参考历史知识：
    - 在生成 PRD、UX 文档、Engineering Review 前，优先搜索 Azure DevOps Wiki 中最相关的历史页面
    - 优先参考最近、结构完整、与当前系统或业务最相似的 3–5 个页面

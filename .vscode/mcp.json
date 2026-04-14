@@ -1,0 +1,17 @@
+{
+  "servers": {
+    "ado": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "-p",
+        "open",
+        "-p",
+        "@azure-devops/mcp",
+        "mcp-server-azuredevops",
+        "BCChina"
+      ]
+    }
+  }
+}
