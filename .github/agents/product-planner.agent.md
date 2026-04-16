@@ -5,7 +5,8 @@ version: 2.0.0
 updated: 2026-04-16
 maintainer: @frankzhey
 user-invocable: true
-tools: [read, agent, edit, search/codebase]
+tools: [read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/terminalSelection, read/terminalLastCommand, agent/runSubagent, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, edit/rename, search/codebase]
+
 agents: ['Story Splitter']
 handoffs:
   - label: Create UI Prototype
