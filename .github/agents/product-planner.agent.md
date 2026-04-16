@@ -116,6 +116,7 @@ handoffs:
 
 # 工作方式
 
+0. **（如有）读取 `context-memo.md`**：检查当前 Epic 文件夹是否存在 `context-memo.md`。如存在，优先读取其中的 **Product Patterns**、**可复用技术决策**、**适用性说明**，作为本次 PRD 的历史参照输入。文件不存在则直接跳过，从业务目标出发。不可因此重新调用 Knowledge Retriever 或触发 ADO 搜索。
 1. 理解业务目标
 2. 明确 Epic
 3. 定义 Feature List

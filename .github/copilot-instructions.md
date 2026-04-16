@@ -56,6 +56,8 @@
   - 如请求涉及 Azure DevOps Wiki、Work Item、Boards、Repos、Pipelines、Test Plans，优先检查 Azure DevOps MCP server 是否已有可用工具
   - 如 MCP 工具可满足需求，优先通过 MCP 完成查询或写入，而不是仅输出静态建议
 
+4. 如当前 Epic 文件夹存在 `context-memo.md`，各 Agent 直接读取该文件作为历史参照，**不得重新调用 Knowledge Retriever 或触发 ADO Wiki 搜索**。context-memo.md 为 Epic 级缓存，全 Epic 生命周期内共享复用。
+
 <!--3. 当前任务是否需要参考历史知识：
    - 在生成 PRD、UX 文档、Engineering Review 前，优先搜索 Azure DevOps Wiki 中最相关的历史页面
    - 优先参考最近、结构完整、与当前系统或业务最相似的 3–5 个页面
