@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.md"
+applyTo: "{**/*.md,docs/**,requirements/**,prd/**}"
 ---
 
 # Product Instructions
@@ -9,8 +9,6 @@ applyTo: "**/*.md"
 - Acceptance Criteria 用中文 Given / When / Then
 - 优先输出 Jira-ready 格式
 
----
-applyTo: "{**/*.md,docs/**,requirements/**,prd/**}"
 ---
 
 # BCChina Product Instructions

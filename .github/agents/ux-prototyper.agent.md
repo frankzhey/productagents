@@ -2,6 +2,9 @@
 name: UX Prototyper
 description: Generate structured Chinese UX documentation and HTML prototype from PRD
 tools: [read/readFile, read/viewImage, search/codebase, edit/createDirectory, edit/createFile]
+version: 2.0.0
+updated: 2026-04-16
+maintainer: @frankzhey
 handoffs:
   - label: Review Feasibility
     agent: Eng Reviewer
@@ -45,6 +48,7 @@ handoffs:
 
 1. 先使用 `premium-frontend-ui` 确定设计规范
 2. 再使用 `claud-frontend` 生成 UI 和 HTML
+3. frontend.instructions.md > Skill 内置设计规范 > 全局规则
 
 ## 设计规范
 在进行 UI 设计和 HTML 生成前，必须读取：

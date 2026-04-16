@@ -231,6 +231,7 @@ PRD must follow a structured format phased by scope:
 * PRD 发布至 `/wiki/{epic-name}`
 * UX 发布至 `/wiki/{epic-name}/ui-prototype`
 * Engineering Review 发布至 `/wiki/{epic-name}/engineering-review`
+* task 列表发布至 `/wiki/{epic-name}/tasks`
 
 ## 5. Coding Rules (代码)
 

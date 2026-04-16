@@ -156,7 +156,6 @@ instructions/*.md
 
 🚫 禁止：
 
-* Story Points
 * 模糊估算
 
 ✅ 目标：
