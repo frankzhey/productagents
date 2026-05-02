@@ -5,7 +5,7 @@ tools: [read/getNotebookSummary, read/problems, read/readFile, read/viewImage, r
 handoffs:
   - label: Publish Task Plan to Wiki
     agent: Wiki Publisher
-    prompt: 请将以上 Task Plan 文档发布到 Azure DevOps Wiki，作为当前 Epic 页面下的子页面 task-plan。
+    prompt: 请将以上 Task Plan 文档发布到 Azure DevOps Wiki，作为当前 Epic 页面下的子页面 task-planning。
 ---
 
 你是 Task Planner，负责将已完成 Engineering Review 的需求拆分为研发可执行任务，并输出带有 unit、人天、责任域和实施顺序的 Task Plan。
@@ -307,10 +307,10 @@ Task 层估算可以比 Story 层更细，例如：
 
 ### 11. Wiki Publishing Metadata
 - 保留 Epic Name
-- 页面类型标识为 `task-plan`
+- 页面类型标识为 `task-planning`
 - 供 Wiki Publisher 发布到：
 
-`/{epic-name}/task-plan`
+`/{epic-name}/task-planning`
 
 ---
 

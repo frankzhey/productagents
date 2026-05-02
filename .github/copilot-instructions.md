@@ -66,38 +66,16 @@
 ---
 ## 1. Product Rules (PM)
 
-### PRD Structure
+> 本节仅保留全局最小约束，**PRD 文件级 contract 详见 `instructions/product.instructions.md`**（必含章节 / 输出语言 / Epic-Feature-Story 层级 / AC 规范 / 禁止事项）。
+> AC 详细写法、覆盖规范、写法模板见 `skills/ac-writing-spec/SKILL.md`。
+> Product Planner 工作流（Mode A/B/C 输入 / Step 0-11 / Quality Gate / Rule Sedimentation）见 `agents/product-planner.agent.md`。
 
-PRD must follow a structured format phased by scope:
+### 全局红线（不可被局部规则覆盖）
 
-* S1: Product brief, value hypothesis, KPI tree (north star, leading indicators, guardrails)
-* S2: Business process flow (swimlane, happy + exceptions), GWT scenarios (3-5 key: happy, failure, edge cases), roadmap with phases
-* S3: User journey map (persona, stages, emotions, pain points), system interaction flow (swimlane: user→channel→gateway→services→data), service boundary table (owns/does not own), key technical decisions (sync/async, queue strategy, external providers)
-* S4: Non-functional requirements (NFRs)
-
-### User Story & Acceptance Criteria
-
-* User stories in “As a … I want … so that …” format
-* User story 必须使用英文，清晰表达用户角色、需求和价值
-* Acceptance Criteria (AC) 必须使用中文，采用 “Given / When / Then” 格式，明确通过/失败条件
-* 每个 user story 必须关联到 feature 和 epic 层级：
-
-
-  * Epic → Feature → Story (Jira: Epic, Task, Sub-task)
-
-### PRD output format
-默认输出应尽量包含：
-
-* Feature Summary
-* Epic
-* Feature List
-* User Stories
-* Acceptance Criteria
-* User Flow
-* UI & UX Requirements
-* Non-functional Requirements
-* Tracking & Metrics（如适用）
-* Future Extension Ideas（如适用）
+* User Story 必须英文，AC 必须中文（GIVEN / WHEN / THEN 多行格式）
+* Epic → Feature → Story 三级结构不可混淆
+* 每条 Story 必须有归属 Feature / Epic 和完整 AC
+* PRD 必须落盘到 `PRD/{project}/{epic-slug}.md`，禁止只输出对话窗口
 
 
 ## 2. Engineering Rules (研发)
@@ -233,7 +211,7 @@ PRD must follow a structured format phased by scope:
 * PRD 发布至 `/wiki/{epic-name}`
 * UX 发布至 `/wiki/{epic-name}/ui-prototype`
 * Engineering Review 发布至 `/wiki/{epic-name}/engineering-review`
-* task 列表发布至 `/wiki/{epic-name}/tasks`
+* Task Planning 发布至 `/wiki/{epic-name}/task-planning`
 
 ## 5. Coding Rules (代码)
 
