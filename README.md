@@ -7,7 +7,7 @@
 
 ## 仓库定位
 
-本仓库管理 BCChina 从 **Discovery → Plan → Deliver → 工程评审 → 任务拆分 → Wiki 发布** 的全流程 AI Agent 协作体系。所有 Agent 遵循 `.github/copilot-instructions.md` 全局规则，通过 **SKILL（写作规范）+ instructions（文件级 contract）+ agents（流程编排）** 三层架构串联。
+本仓库管理 BCChina 从 **Discovery → Plan → Deliver → 工程评审 → 任务拆分 → Wiki / Work Item 发布** 的全流程 AI Agent 协作体系。所有 Agent 遵循 `.github/copilot-instructions.md` 全局规则，通过 **SKILL（写作规范）+ instructions（文件级 contract）+ agents（流程编排）** 三层架构串联。
 
 当前仓库已扩展为 **PM 文档链路 + 工程设计图形资产链路**：Solution 阶段在遇到复杂系统边界、AI scoring、异步评分、Mini program + backend、website handoff 等场景时，可通过 `fireworks-tech-graph` 生成发布级 SVG 技术图，用于 Engineering Review 和 Wiki 发布。
 
@@ -30,6 +30,11 @@ Value Architect   →   Solution Architect         →   Product Planner
        ▼                     ▼                                    ▼
 Project/{p}/Value/    Project/{p}/Solution/              Project/{p}/PRD/
 LATEST.md             {epic}/LATEST.md                   {epic}/LATEST.md
+                                                                  │
+                                                                  ▼
+                                                         PM Confirm Gate
+                                                    status: approved +
+                                               pm_confirmation.status: approved
                                                                   │
                           ┌───────────────────────────────────────┤
                           ▼                                       ▼
@@ -60,6 +65,15 @@ LATEST.md             {epic}/LATEST.md                   {epic}/LATEST.md
                 │  /{project}/{epic}-PRD/engineering-review ← Eng      │
                 │  /{project}/{epic}-PRD/task-planning      ← Task     │
                 └──────────────────────────────────────────────────────┘
+                                                                  │
+                                                                  ▼
+                ┌──────────────────────────────────────────────────────┐
+                │            Work Item Publisher (v1.0)                │
+                │  BCChina / {ADO Project}                             │
+                │  Epic → Feature → User Story + AC                    │
+                │  tag 幂等：found=update / missing=create             │
+                │  Iteration Path / Area Path 可选，空值走 project 根路径 │
+                └──────────────────────────────────────────────────────┘
 ```
 
 > **v3.0 核心变化**：
@@ -68,6 +82,8 @@ LATEST.md             {epic}/LATEST.md                   {epic}/LATEST.md
 > - Wiki 路径以 `/{project}` 为主页，全部带 `-solution` / `-PRD` 命名后缀
 > - Solution Architect 支持从 Value §4 Roadmap 单选 / 多选 / ALL，且每个 Epic 独立产出 Solution Brief
 > - Product Planner 支持单 Epic 或 ALL 全选批处理（每 Epic 独立 PRD）
+> - Product Planner 新增 PM Confirm Gate：PM 明确 `PRD is confirmed` 后写入 `pm_confirmation.status: approved`
+> - 新增 Work Item Publisher：将 approved PRD 发布到 BCChina Azure DevOps Boards，ADO project 由 PM 指定，Iteration Path / Area Path 可选
 > - 新增 `skills/project-context-loader` 与 `skills/eng-review-spec` 两个 SKILL，Eng Reviewer 改为薄编排
 > - Knowledge Retriever 在 Epic Kickoff 时单独调用一次，生成 `context-memo.md` 供后续所有 Agent 共享。
 
@@ -168,6 +184,19 @@ Feature → User Story → Acceptance Criteria → Estimation → Engineering No
 
 Magic Patterns 可在 Product Planner 阶段继续作为 Story / AC 细化输入，用于识别页面状态、字段、按钮、校验和异常反馈。若 Solution 或设计稿更新，Product Planner 进入 refinement，同步更新 `PRD/{epic}/LATEST.md`。
 
+PRD 进入发布前必须经过 PM Confirm Gate。PM 明确回复 `PRD is confirmed` 后，Product Planner 写入：
+
+```yaml
+status: approved
+pm_confirmation:
+  status: approved
+  confirmed_by: PM
+  confirmed_at: {YYYY-MM-DD-HHmm}
+  confirmation_note: "PRD is confirmed"
+```
+
+只有 `pm_confirmation.status: approved` 的 PRD 才允许交给 Work Item Publisher 发布到 Azure DevOps Boards。
+
 ### Stage 4：Handoff（交付延展）
 
 | 下游 Agent | 输入 | 输出 |
@@ -176,6 +205,7 @@ Magic Patterns 可在 Product Planner 阶段继续作为 Story / AC 细化输入
 | Eng Reviewer | Value + Solution + PRD + UX | Engineering Review / 风险与实现建议 |
 | Task Planner | PRD + Eng Review | 可执行开发任务拆分 |
 | Wiki Publisher | Value / Solution / PRD / UX / Eng / Task | ADO Wiki standard / merged 发布 |
+| Work Item Publisher | PM approved PRD + PM 指定 ADO Project / Iteration Path / Area Path | ADO Boards Epic / Feature / User Story + AC 发布 |
 
 PM 推荐使用顺序：
 
@@ -187,6 +217,7 @@ Knowledge Retriever（可选）
 → UX Prototyper / Eng Reviewer
 → Task Planner
 → Wiki Publisher
+→ Work Item Publisher（PRD approved 后发布到 ADO Boards）
 ```
 
 ---
@@ -198,12 +229,13 @@ Knowledge Retriever（可选）
 | **Knowledge Retriever** | — | Epic Kickoff 时检索 ADO Wiki 历史，生成 `context-memo.md` | — | Product Planner / UX / Eng |
 | **Value Architect** | v2.5.0 | Discovery 入口（project 主入口）：启动时主动扫描已有 project，竞品 URL 调研 + Gate 2 PM 必答四问 + Value Frame | `market-research`, `value-frame` | Solution Architect |
 | **Solution Architect** | v2.2.0 | Plan 中段：Step -1 强制 project-context-loader → 列 Value §4 Epic List → PM 单选 / 多选 / ALL → 每 Epic 独立产出 Solution Brief；复杂边界下生成发布级技术图 | `project-context-loader`, `solution-design`, `fireworks-tech-graph` | Product Planner / Eng Reviewer |
-| **Product Planner** | v4.3.0 | Deliver 终段：Step 0 强制 project-context-loader → 列 Value Epic List + Solution / PRD 状态 → PM 单选 / ALL 全选批处理 → Epic→Feature→Story→AC + Estimation + NFR + Engineering Notes | `project-context-loader`, `ac-writing-spec` | Story Splitter / UX / Eng / Wiki |
+| **Product Planner** | v4.4.0 | Deliver 终段：Step 0 强制 project-context-loader → 列 Value Epic List + Solution / PRD 状态 → PM 单选 / ALL 全选批处理 → Epic→Feature→Story→AC + Estimation + NFR + Engineering Notes → PM Confirm Gate 写入 `pm_confirmation.status: approved` | `project-context-loader`, `ac-writing-spec` | Story Splitter / UX / Eng / Wiki / Work Item Publisher |
 | **Story Splitter** | v2.2.0 | Feature 复杂度评估 (FCS) + Story 拆分 + AC 补全（PP 子 Agent） | `ac-writing-spec` | (返回 Product Planner) |
 | **UX Prototyper** | v2.0.0 | UX 文档 + HTML 原型 | — | Eng Reviewer / Wiki |
 | **Eng Reviewer** | v3.1.0 | 工程评审薄编排：Step 0 project-context-loader → Step 1 mode 判定（`local` / `wiki-fallback` 临时缓存 / `manual-input`）→ 产出落盘到 `Project/{p}/EngReview/{epic}/`；评审章节锚点 / Scope Challenge / Blast Radius / §17.0 AC 合规由 SKILL 定义 | `project-context-loader`, `eng-review-spec`, `ac-writing-spec` | Task Planner / Wiki |
 | **Task Planner** | — | 任务拆分、估算、依赖识别 | — | Wiki Publisher |
 | **Wiki Publisher** | v3.0.0 | v3.0 路径表：`/{project}` Value 主页 + `-solution` / `-PRD` 命名后缀 + 三级子页 UX / Eng / Task；支持 6 种 page_type；PRD 合并模式 | `project-context-loader` | — |
+| **Work Item Publisher** | v1.0.0 | 将 PM approved PRD 发布到 Azure DevOps Boards：PM 输入 PRD 准确名称 → 校验 `pm_confirmation.status: approved` → PM 指定 ADO Project + 可选 Iteration / Area → dry-run → `publish confirmed` 后 create/update Epic / Feature / User Story / AC | `ado-work-item-publish-spec`, `project-context-loader` | — |
 
 ---
 
@@ -220,6 +252,7 @@ Knowledge Retriever（可选）
 | [skills/fireworks-tech-graph/SKILL.md](skills/fireworks-tech-graph/SKILL.md) | external | 生成发布级 SVG/PNG 技术图（layered architecture / data flow / sequence / component diagram 等），默认可配合 Claude Official style | Solution Architect / Eng Reviewer |
 | [skills/ac-writing-spec/SKILL.md](skills/ac-writing-spec/SKILL.md) | v1.0.0 | AC 写作规范（GIVEN/WHEN/THEN 多行 / A 类操作 / B 类字段 / C 类业务）；编号体系唯一权威 | Product Planner / Story Splitter / Eng Reviewer |
 | [skills/eng-review-spec/SKILL.md](skills/eng-review-spec/SKILL.md) | v1.0.0 | **Engineering Review 写作规范**（v3.0 新增）：章节锚点（§0–§18）/ Scope Challenge 三问 / Complexity Smell 5 触发 / Service Boundary 双列 / Blast Radius 五维 / Sequence ≥1 happy + ≥1 failure / API 11 字段 / Error 8 类 / §17.0 AC 合规输出格式 / §17 Task Planning Readiness | Eng Reviewer |
+| [skills/ado-work-item-publish-spec/SKILL.md](skills/ado-work-item-publish-spec/SKILL.md) | v1.0.0 | **ADO Work Item 发布规范**：approved PRD 校验 / ADO Project + Iteration Path + Area Path / Epic-Feature-Story 映射 / tag 幂等 / dry-run / create-update-stale-block / PRD managed block | Work Item Publisher |
 
 ### Solution 技术图生成约定
 
@@ -254,6 +287,7 @@ Project/{project}/Solution/Engdesign/{epic-slug}-engdesign/
     eng-reviewer.agent.md          ← 工程评审 + AC 合规
     task-planner.agent.md          ← 任务拆分
     wiki-publisher.agent.md        ← ADO Wiki 发布（standard/merged）
+    work-item-publisher.agent.md   ← ADO Boards Work Items 发布（Epic/Feature/User Story/AC）
   instructions/
     product.instructions.md        ← PRD 文件级 contract
     engineering.instructions.md    ← 工程设计规范
@@ -271,6 +305,7 @@ skills/
     scripts/
   ac-writing-spec/SKILL.md         ← AC 写作规范（PM agents 唯一权威）
   eng-review-spec/SKILL.md         ← v3.0 Engineering Review 写作规范
+  ado-work-item-publish-spec/SKILL.md ← ADO Work Item 发布规范（tag 幂等 + dry-run）
 
 Project/                           ← 项目级落盘根目录
   {project}/
@@ -324,6 +359,7 @@ README.md
 8. **多 project 并行（v3.0 新增）** — `project-context-loader` mini-SKILL 是除 Value Architect 外所有 agent 的强制前置：询问 project name → 校验 Value LATEST → 列 Epic List → PM 确认。不一致循环 ≤3 次，禁止凭 handoff 直接处理 project + epic
 9. **Eng Reviewer 薄编排（v3.1）** — 评审章节锚点、Scope Challenge、Blast Radius、§17.0 AC 合规输出格式抽离到 `eng-review-spec` SKILL；Eng Reviewer 只负责 `local` / `wiki-fallback` / `manual-input` 编排
 10. **Wiki 路径项目化（v3.0 新增）** — 旧 `/{epic-name}` 平铺废弃；新规则以 `/{project}` 为 Value 主页，命名后缀 `-solution` / `-PRD` 严格强制
+11. **ADO Boards 发布幂等（v1.0 新增）** — Work Item Publisher 只发布 `pm_confirmation.status: approved` 的 PRD；以 `prd-epic-id` / `prd-feature-id` / `prd-story-id` tags 作为幂等 key，found=update、missing=create、多命中或类型冲突=block；Iteration Path / Area Path 可选，create 空值进入 ADO project 根路径，update 空值不覆盖已有路径
 
 ---
 
@@ -381,6 +417,7 @@ E1 `speaking-challenge-and-scoring` 的 Engdesign 资产包括：
 
 | 日期 | 变更 |
 |---|---|
+| 2026-05-19 | **Work Item Publisher v1.0 新增**。新增 `.github/agents/work-item-publisher.agent.md` 与 `skills/ado-work-item-publish-spec/SKILL.md`；Product Planner v4.4 新增 PM Confirm Gate，PM 明确 `PRD is confirmed` 后写入 `pm_confirmation.status: approved`；Work Item Publisher 将 approved PRD 发布到 BCChina Azure DevOps Boards，支持 PM 指定 ADO Project、可选 Iteration Path / Area Path、tag 幂等、dry-run 与 `publish confirmed` 双阶段 |
 | 2026-05-19 | **Solution Architect v2.2 批量编排增强**。Solution 阶段支持从 Value §4 Roadmap 选择单个、多个或 ALL Epic；多选只增强编排能力，每个 Epic 仍独立产出 Solution Brief、独立 Quality Gate、独立落盘并维护 LATEST。`project-context-loader` 升级到 v1.1，同步 selected_epics / batch_selection 约定 |
 | 2026-05-19 | **v3.0 多 project 并行 + Wiki 路径重构**。新增 `skills/project-context-loader` mini-SKILL（除 Value 外所有 agent 强制前置协议）；新增 `skills/eng-review-spec` SKILL（Eng Reviewer 改为薄编排）；Solution Architect v2.1 新增 Step -1 Epic List 选择；Product Planner v4.2 新增 ALL 全选批处理；Eng Reviewer v3.0 新增本地 / Wiki Fallback 临时缓存 / 手工输入 + 落盘 `Project/{p}/EngReview/`；Wiki Publisher v3.0 路径重构 `/{project}` 主页 + `-solution` / `-PRD` 命名后缀 + 三级子页；Value Architect v2.5 启动时扫描已有 project 防重名 |
 | 2026-05-14 | Value 层重构：Mode 2 改为"竞品 URL 调研"（不依赖 web search）；竞品 Summary 升级为"核心能力 + 解决的痛点"两列并列 + 6 段式深度对标；Gate 2 升级为 PM 必答四问强制门；`value-frame` Brief 新增"为什么是我们做"字段 |
