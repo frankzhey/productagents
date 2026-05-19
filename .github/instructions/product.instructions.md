@@ -67,30 +67,37 @@ AC 必须用中文，采用 GIVEN / WHEN / THEN 多行格式，至少覆盖：
 
 ---
 
-## 5. PRD 必含章节（骨架 contract）
+## 5. PRD 源文件必含章节（骨架 contract）
 
-PRD 必须包含以下章节（详细要求见各 agent 的输出结构定义）：
+PRD 源文件由 Product Planner 产出，必须保持 **Epic → Feature → Story → AC** 的可执行需求骨架。Value / Solution 的战略、Journey、Process、GWT Top、Roadmap 不在 PRD 源文件中重复展开，由 Wiki Publisher 在发布态合并。
 
-### S1 — 价值与目标
-- Product / Opportunity Brief
-- Value Hypothesis
-- KPI Tree（North Star + Leading Indicators + Guardrails）
+### S1 — Epic Definition
+- Epic ID / Epic Name / Source
+- KPI 对齐（来自 Value，如适用）
+- Context / Scope In / Scope Out
 
-### S2 — 范围与流程
-- Epic / Feature / Story 拆解
-- Business Process Flow（至少 1 happy path + 2 exception paths，建议泳道）
-- GWT Scenarios（top 3-5，覆盖 happy / failure / edge cases）
-- Roadmap with Phases（MVP / Phase 2 / Future Extension）
+### S2 — Feature List
+- Feature ID / Feature Name / Description / Value / Source
+- Feature ID 必须跨阶段稳定，不得重排或复用退役编号
 
-### S3 — 用户旅程
-- User Journey Map（persona / stages / emotions / pain points）
+### S3 — User Stories and AC
+- 按 Feature 分组
+- 每个 Story 必须含 Stable Story ID、User Story、upstream_refs、中文 AC、变更记录
+- AC 必须遵守 `skills/ac-writing-spec/SKILL.md`
 
-> ⚠️ System Interaction Flow、Service Boundary Table、Key Technical Decisions 不在 PRD 范围内，由 Eng Reviewer 在工程评审阶段产出（见 `eng-reviewer.agent.md` Section 5-7）。
+### S4 — Estimation / Engineering Notes / NFR
+- Story-level Estimation
+- Engineering Notes
+- Non-functional Requirements
+- Capacity Summary（如有 Solution Brief，必须与 Solution §6 Phase-level Workload 做偏差对比）
 
-### S4 — 非功能与扩展
-- Non-functional Requirements（performance / compatibility / availability / retry / security / observability / data limits）
-- Tracking & Metrics（如适用）
-- Future Extension Ideas（如适用）
+### S5 — Open Questions / Future / Changelog
+- Open Questions 三层聚合（V- / S- / P-）
+- Future Extension（仅记录 PRD 拆解中新增的边界外扩展点）
+- 已沉淀规则索引
+- PRD-level Changelog
+
+> ⚠️ Value Hypothesis、KPI Tree、Roadmap、User Journey、Business Process Flow、GWT Top 来自 Value / Solution 源文件；PRD 发布到 Wiki 时由 Wiki Publisher 合并。System Interaction Flow、Service Boundary Table、Key Technical Decisions 由 Eng Reviewer 在工程评审阶段产出。
 
 ---
 
@@ -109,9 +116,10 @@ PRD 必须包含以下章节（详细要求见各 agent 的输出结构定义）
 - ❌ 禁止混淆 Epic / Feature / Story
 - ❌ 禁止只输出高层概念，不落地
 - ❌ 禁止跳过 AC
-- ❌ 禁止只写 happy path，不写异常路径
-- ❌ 禁止只写页面功能，不写业务流程
-- ❌ 禁止忽略系统边界
+- ❌ 禁止在 PRD 源文件中重复展开上游 Value / Solution 章节
+- ❌ 禁止 Story 只写 happy path，不写异常 / 权限 / 空状态 / 错误处理等必要 AC
+- ❌ 禁止只写页面功能，不写 Story 级业务规则与验收标准
+- ❌ 禁止忽略上游 Solution 中的系统边界和工程约束引用
 - ❌ 禁止把实现细节写成产品逻辑，或把产品逻辑丢给研发自行推断
 - ❌ 禁止 AC 中混入 UI 视觉描述（颜色、布局、字号），UI 视觉由 UX Prototyper 决定
 

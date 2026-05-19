@@ -58,6 +58,15 @@
 
 4. 如当前 Epic 文件夹存在 `context-memo.md`，各 Agent 直接读取该文件作为历史参照，**不得重新调用 Knowledge Retriever 或触发 ADO Wiki 搜索**。context-memo.md 为 Epic 级缓存，全 Epic 生命周期内共享复用。
 
+5. **多 project 并行场景（v3.0 强制）**：除 Value Architect（项目入口）外，所有 agent（Solution / Product Planner / Eng Reviewer / Wiki Publisher）启动时必须先 Read `skills/project-context-loader/SKILL.md` 执行上下文加载协议：
+   - 询问 PM project name
+   - 校验 `Project/{project}/Value/LATEST.md` 存在性（不存在进入不一致循环 ≤3 次）
+   - 加载 Value / Rules / context-memo
+   - 按 agent 类型列出可选范围或进入例外流程（Solution: Value Epic List；Product Planner: Value Epic List + Solution 状态；Eng Reviewer: 本地 PRD List 或 Wiki fallback；Wiki Publisher: 由输入文件 frontmatter 决定）
+   - PM 确认（单选 / 全选 / Wiki fallback / 手工输入）
+
+   **禁止跳过此协议直接处理 handoff 传入的 project + epic**。
+
 <!--3. 当前任务是否需要参考历史知识：
    - 在生成 PRD、UX 文档、Engineering Review 前，优先搜索 Azure DevOps Wiki 中最相关的历史页面
    - 优先参考最近、结构完整、与当前系统或业务最相似的 3–5 个页面
@@ -68,14 +77,15 @@
 
 > 本节仅保留全局最小约束，**PRD 文件级 contract 详见 `instructions/product.instructions.md`**（必含章节 / 输出语言 / Epic-Feature-Story 层级 / AC 规范 / 禁止事项）。
 > AC 详细写法、覆盖规范、写法模板见 `skills/ac-writing-spec/SKILL.md`。
-> Product Planner 工作流（Mode A/B/C 输入 / Step 0-11 / Quality Gate / Rule Sedimentation）见 `agents/product-planner.agent.md`。
+> Product Planner 工作流（Project & Epic 选择 / 上游自动检测 / 设计稿输入 / Quality Gate / Rule Sedimentation）见 `agents/product-planner.agent.md`。
 
 ### 全局红线（不可被局部规则覆盖）
 
 * User Story 必须英文，AC 必须中文（GIVEN / WHEN / THEN 多行格式）
 * Epic → Feature → Story 三级结构不可混淆
 * 每条 Story 必须有归属 Feature / Epic 和完整 AC
-* PRD 必须落盘到 `PRD/{project}/{epic-slug}.md`，禁止只输出对话窗口
+* PRD 必须落盘到 `Project/{project}/PRD/{epic-slug}/{epic-slug}-prd-{YYYY-MM-DD-HHmm}.md` 并更新 `Project/{project}/PRD/{epic-slug}/LATEST.md`，禁止只输出对话窗口
+* PRD 本地源文件只产出 Epic → Feature → Story → AC 及必要估算 / NFR / OQ；Value / Solution 内容由 Wiki Publisher 在发布态合并，不在 PRD 源文件中重复展开
 
 
 ## 2. Engineering Rules (研发)
@@ -202,16 +212,32 @@
 
 ### Agent Handoff
 
-* PRD → UX Prototyper: 基于 PRD 生成 UI/UX 设计
-* UX → Eng Reviewer: 评估技术可行性
-* Eng → Wiki Publisher: 发布 PRD 和 UX 文档到 Wiki
+* Value Architect → Solution Architect：基于 Value Roadmap 中的 1 个或多个 Epic 展开 Solution Brief（每 Epic 独立文件）
+* Solution Architect → Product Planner：基于一个或多个 Solution Brief 拆 Feature / Story / AC（Product Planner 需再次确认单 Epic / 多 Epic / ALL）
+* Product Planner → UX Prototyper：基于 PRD 生成 UI/UX 设计
+* Product Planner / UX → Eng Reviewer：评估技术可行性（`local` / `wiki-fallback` / `manual-input`）
+* Eng → Task Planner：基于评审拆研发任务
+* All → Wiki Publisher：按 v3.0 路径表发布到 ADO Wiki
 
-### Wiki 发布规范
+### Wiki 发布规范（v3.0 · 唯一权威）
 
-* PRD 发布至 `/wiki/{epic-name}`
-* UX 发布至 `/wiki/{epic-name}/ui-prototype`
-* Engineering Review 发布至 `/wiki/{epic-name}/engineering-review`
-* Task Planning 发布至 `/wiki/{epic-name}/task-planning`
+> v3.0 起，发布路径以 **project name** 为根目录，命名后缀 `-solution` / `-PRD` 严格强制。
+
+| 文档类型 | 发布路径 | 模式 |
+|---|---|---|
+| Value Frame | `/{project}` | standard（项目主页） |
+| Solution Brief | `/{project}/{epic-slug}-solution` | standard |
+| PRD（含 upstream） | `/{project}/{epic-slug}-PRD` | **merged**（拼接 Value + Solution + PRD） |
+| PRD（独立） | `/{project}/{epic-slug}-PRD` | standard |
+| UX | `/{project}/{epic-slug}-PRD/ui-prototype` | standard（三级子页） |
+| Engineering Review | `/{project}/{epic-slug}-PRD/engineering-review` | standard（三级子页） |
+| Task Planning | `/{project}/{epic-slug}-PRD/task-planning` | standard（三级子页） |
+
+> 详细发布逻辑由 `agents/wiki-publisher.agent.md` v3.0 统一执行。Agent 输出 frontmatter 必须含 `project` 字段（Value/Solution/PRD/Eng 都必填）；Epic 级文档必须含 Epic 标识字段（Solution / Eng 使用 `epic`，PRD 使用 `epic_id`）。
+>
+> 历史示例产出如果缺少 `project_loader` 或新版 `skills_loaded` 字段，视为 legacy artifact，不要求批量迁移；新产出与重大版本 refinement 必须补齐当前 frontmatter。
+>
+> **v2.x 旧路径 `/wiki/{epic-name}` 已废弃**。
 
 ## 5. Coding Rules (代码)
 

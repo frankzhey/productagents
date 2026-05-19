@@ -41,7 +41,7 @@ applies-to: [solution-architect]
 | Persona | `P1`, `P2` | 永不重排 | Product Planner Story `upstream_refs.persona` 引用 |
 | Journey Stage | `J1`, `J2` | 永不重排 | Product Planner Story `upstream_refs.journey_stage` 引用 |
 | Scenario (GWT) | `S1`, `S2` | 永不重排（与 Story S 编号互不冲突，因为有完整前缀区分） | Product Planner Story `upstream_refs.scenarios` 引用 |
-| Open Question | `S-OQ1`, `S-OQ2`（S 前缀避免与 Value V- 混淆） | — | PRD §18 propagate |
+| Open Question | `S-OQ1`, `S-OQ2`（S 前缀避免与 Value V- 混淆） | — | PRD §9 propagate |
 
 **强制规则**：
 - ID 一经 PM 确认（评审通过）→ 永不变更
@@ -178,7 +178,7 @@ AND 用户可点击 `Confirm Pass` 完成复核
 
 **强制要求**：
 - T-shirt 与 Unit Range 严格按映射，禁止"M = 50 units"等偏离
-- 必须输出 Epic 合计行（Product Planner §15 Capacity 偏差校验依赖此值）
+- 必须输出 Epic 合计行（Product Planner §7 Capacity Summary 偏差校验依赖此值）
 
 ---
 
