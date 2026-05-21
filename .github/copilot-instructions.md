@@ -217,23 +217,28 @@
 * Product Planner → UX Prototyper：基于 PRD 生成 UI/UX 设计
 * Product Planner / UX → Eng Reviewer：评估技术可行性（`local` / `wiki-fallback` / `manual-input`）
 * Eng → Task Planner：基于评审拆研发任务
-* All → Wiki Publisher：按 v3.0 路径表发布到 ADO Wiki
+* All → Wiki Publisher：按 v3.2 路径表发布到 ADO Wiki
 
-### Wiki 发布规范（v3.0 · 唯一权威）
+### Wiki 发布规范（v3.2 · 唯一权威）
 
-> v3.0 起，发布路径以 **project name** 为根目录，命名后缀 `-solution` / `-PRD` 严格强制。
+> v3.2 起，发布路径以 **project name** 为根目录，命名后缀 `-solution` / `-PRD` 严格强制。Wiki Publisher 自动注入协作元数据 + frontmatter YAML 保真 + SVG Attachment 同步上传。
 
 | 文档类型 | 发布路径 | 模式 |
 |---|---|---|
 | Value Frame | `/{project}` | standard（项目主页） |
-| Solution Brief | `/{project}/{epic-slug}-solution` | standard |
-| PRD（含 upstream） | `/{project}/{epic-slug}-PRD` | **merged**（拼接 Value + Solution + PRD） |
+| Solution Brief（v1.4 业务方案） | `/{project}/{epic-slug}-solution` | standard |
+| PRD（含 upstream）（v4.6 含 NFR Ref + Coverage Matrix） | `/{project}/{epic-slug}-PRD` | **merged** |
 | PRD（独立） | `/{project}/{epic-slug}-PRD` | standard |
-| UX | `/{project}/{epic-slug}-PRD/ui-prototype` | standard（三级子页） |
-| Engineering Review | `/{project}/{epic-slug}-PRD/engineering-review` | standard（三级子页） |
-| Task Planning | `/{project}/{epic-slug}-PRD/task-planning` | standard（三级子页） |
+| UX | `/{project}/{epic-slug}-PRD/ui-prototype` | standard |
+| Engineering Review（v4.0 纯评审 + SVG Attachment） | `/{project}/{epic-slug}-PRD/engineering-review` | standard |
+| Task Planning | `/{project}/{epic-slug}-PRD/task-planning` | standard |
+| **Architecture** ⭐ v3.2（IT Architect 产出 + SVG Attachment） | `/{project}/{epic-slug}-PRD/architecture` | standard |
+| **ADR** ⭐ v3.2（每条 ADR 一页） | `/{project}/{epic-slug}-PRD/architecture/adr-{slug}` | standard |
+| **NFR（Epic 级）** ⭐ v3.2 | `/{project}/{epic-slug}-PRD/nfr` | standard |
+| **NFR（Project-wide）** ⭐ v3.2 | `/{project}/project-wide-nfr` | standard |
+| **Refinement Request** ⭐ v3.2（反向 RR · 仅有时） | `/{project}/{epic-slug}-PRD/{architecture 或 engineering-review}/{type}-refinement-{stamp}` | standard |
 
-> 详细发布逻辑由 `agents/wiki-publisher.agent.md` v3.0 统一执行。Agent 输出 frontmatter 必须含 `project` 字段（Value/Solution/PRD/Eng 都必填）；Epic 级文档必须含 Epic 标识字段（Solution / Eng 使用 `epic`，PRD 使用 `epic_id`）。
+> 详细发布逻辑由 `agents/wiki-publisher.agent.md` v3.2 统一执行。Agent 输出 frontmatter 必须含 `project` + `maintainer` 字段（v3.2 必填 · 唯一所有权标识）。Epic 级文档必须含 Epic 标识字段（Solution / Eng / Architecture / NFR Epic 级使用 `epic`，PRD 使用 `epic_id`）。
 >
 > 历史示例产出如果缺少 `project_loader` 或新版 `skills_loaded` 字段，视为 legacy artifact，不要求批量迁移；新产出与重大版本 refinement 必须补齐当前 frontmatter。
 >

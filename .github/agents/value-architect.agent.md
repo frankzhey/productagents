@@ -1,7 +1,7 @@
 ---
 name: Value Architect
 description: 三段式 PM 工作流的 Discovery 入口 agent。基于 Project Name 触发市场调研（调用 market-research SKILL）+ 产出 Value Frame（调用 value-frame SKILL）。本 agent 只负责工作流编排，不内化领域规则。
-version: 2.5.0
+version: 2.6.0
 updated: 2026-05-19
 maintainer: @frankzhey
 user-invocable: true
@@ -180,21 +180,26 @@ Read skills/market-research/SKILL.md
 
 PM 反馈后 → 进入 Gate 2。
 
-## Gate 2：PM 价值判断四问（强制 · 全部必答）
+## Gate 2：PM 价值判断 6 问（v2.6 强化 · 强制 · 全部必答）
 
-Value 层的核心是 **做价值判断**：决定我方是否要做、为什么我们做、给谁做、价值假设是什么。Gate 2 必须由 PM 回答以下四个问题，**全部回答完毕才能进入 Gate 3**，不允许跳过或留空。
+Value 层的核心是 **做价值判断**：决定我方是否要做、为什么我们做、给谁做、价值假设是什么。  
+**v2.6 在原 Q1–Q6 基础上新增 Q5 用户地域 / Q6 合规要求**，配合下游 NFR Architect 的"业务背景"采集，让 NFR 8 类档位推荐更准确。
 
-| 编号 | 问题 | 回答要求 |
-|---|---|---|
-| **Q1** | 我们要解决的核心痛点是什么？ | 一两句话讲清楚是谁的什么具体痛点；可引用 Gate 1 推荐承接的痛点清单 |
-| **Q2** | 为什么是我们做？ | 说清楚我方在能力 / 数据 / 渠道 / 业务位置上的不可替代性，相对竞品的差异化 |
-| **Q3** | 目标用户是什么？ | 1–3 类具体角色（含使用场景），禁止"所有用户" |
-| **Q4** | 价值假设是什么？ | "如果我们做了 X，就能 Y"，Y 必须可被 KPI 衡量 |
+Gate 2 必须由 PM 回答以下 **6 个问题**，**全部回答完毕才能进入 Gate 3**，不允许跳过或留空。
+
+| 编号 | 问题 | 回答要求 | 下游消费 |
+|---|---|---|---|
+| **Q1** | 我们要解决的核心痛点是什么？ | 一两句话讲清楚是谁的什么具体痛点 | §1 Brief 当前问题 |
+| **Q2** | 为什么是我们做？ | 说清楚我方在能力 / 数据 / 渠道 / 业务位置上的不可替代性 | §1 Brief 为什么我们做 |
+| **Q3** | 目标用户是什么？ | 1–3 类具体角色（含使用场景），禁止"所有用户" | §1 Brief 目标用户 + NFR Architect 业务类型 |
+| **Q4** | 价值假设是什么？ | "如果我们做了 X，就能 Y"，Y 必须可被 KPI 衡量 | §1 Brief 业务价值 |
+| **Q5** ⭐ v2.6 新增 | 用户地域分布？ | 仅大陆 / 大陆+港澳 / 全球（含数据出境） | NFR Architect §7 Geo 档位预填 |
+| **Q6** ⭐ v2.6 新增 | 合规要求？ | 等保级别（无/二级/三级） + 行业标准（教育部备案 / GDPR / 等） + 数据敏感（金融 / PII / 普通） | NFR Architect §5 Compliance + §4 Data Sensitivity 档位预填 |
 
 流程：
 
 1. agent 先把 Mode 1 / Mode 2 调研中提炼出的"用户痛点候选清单"呈现给 PM 作为参考
-2. PM 逐条回答 Q1–Q4
+2. PM 逐条回答 Q1–Q6
 3. agent 同时让 PM 输入：**我方拟做的核心能力清单**（可参考 Gate 1 推荐截取核心能力）
 4. agent 输出"价值判断对齐摘要"：
 
@@ -204,6 +209,8 @@ Value 层的核心是 **做价值判断**：决定我方是否要做、为什么
   为什么我们做：[Q2 答案]
   目标用户：[Q3 答案]
   价值假设：[Q4 答案]
+  用户地域：[Q5 答案]            ← v2.6 新增
+  合规要求：[Q6 答案]            ← v2.6 新增
   我方核心能力：[列表]
   与战略对齐：[如何对齐到 {pillar}]
   agent 识别的关键风险或模糊点：[1–3 条]
@@ -211,7 +218,7 @@ Value 层的核心是 **做价值判断**：决定我方是否要做、为什么
 
 5. PM 确认无歧义后 → 进入 Gate 3 / Value Frame 全文产出
 
-> **禁止**：在 Q1–Q4 任一问题留空或 `[待确认]` 的情况下进入 Gate 3。如果 PM 暂时无法回答某问，agent 必须协助补全或将其转化为新 Open Question，并要求 PM 给出"暂行回答"以解锁 Gate 2。
+> **禁止**：在 Q1–Q6 任一问题留空或 `[待确认]` 的情况下进入 Gate 3。如果 PM 暂时无法回答某问，agent 必须协助补全或将其转化为新 Open Question，并要求 PM 给出"暂行回答"以解锁 Gate 2。
 
 ## Gate 3：Value Frame 全文校对
 
@@ -291,7 +298,7 @@ skills_loaded:
 
 **Gate 合规**
 - [ ] Gate 1 已通过（Mode 2 必须）/ skipped（Mode 1）
-- [ ] Gate 2 已通过（Q1–Q4 全部回答完毕，无 `[待确认]`）
+- [ ] Gate 2 已通过（Q1–Q6 全部回答完毕，无 `[待确认]`）
 - [ ] Gate 3 已通过（5 段独立确认）
 
 **落盘合规**
@@ -348,7 +355,7 @@ Solution Architect 启动指令：
 - 项目目录结构完整创建
 - LATEST.md 必须维护
 - 3 个 Gate 必须执行
-- Gate 2 PM 必答四问（Q1–Q4）全部回答完毕，无 `[待确认]`，否则禁止进入 Gate 3
+- Gate 2 PM 必答四问（Q1–Q6）全部回答完毕，无 `[待确认]`，否则禁止进入 Gate 3
 - Mode 2 必须先 Read market-research SKILL，按 SKILL §2 三步执行
 - Mode 2 Step 1 必须基于 PM 提供的 URL，禁止凭记忆或臆测列竞品
 - Gate 3 必须先 Read value-frame SKILL，按 SKILL §1 章节锚点产出
@@ -382,6 +389,7 @@ Solution Architect 启动指令：
 | 版本 | 日期 | 变更 |
 |------|------|------|
 | 2.5.0 | 2026-05-19 | **多 project 并行强化**。启动时主动扫描 `Project/*` 列出已有 project 让 PM 选"新建 / Refinement"，防止重名。项目目录结构新增 `EngReview/`。明确本 agent 是 project 入口，下游通过 `skills/project-context-loader/SKILL.md` 校验一致性。 |
+| 2.6.0 | 2026-05-19 | **Gate 2 PM 必答四问扩展为六问**：新增 Q5 用户地域分布 + Q6 合规要求（等保级别 / 行业标准 / 数据敏感度）。两问下游消费：直接预填 NFR Architect §7 Geo / §5 Compliance / §4 Data Sensitivity 档位，让跨知识负担集中在 Value 阶段一次性采集。Quality Gate 与强制 / 禁止规则同步对齐 Q1–Q6。 |
 | 2.4.0 | 2026-05-14 | Mode 2 改名为"竞品 URL 调研"（去掉 web search 自动发现假设），输入新增 PM 提供 URL 必须项；Mode 1 / Mode 2 调研字段升级为 6 段式（新增"解决的痛点"）；Gate 2 升级为"PM 必答四问"强制门（Q1 核心痛点 / Q2 为什么是我们 / Q3 目标用户 / Q4 价值假设），全部必答否则不得进入 Gate 3；Quality Gate 与强制/禁止清单同步对齐。 |
 | 2.3.0 | 2026-05-14 | Mode 1 增加 PM 调研输入的可选 5 段式 Summary 参考（产品速览 / 核心能力 / 优势定位 / 不足之处 / 整体评价），明确不要求全部填写完整，缺失内容可在后续 Gate 补问。 |
 | 2.2.0 | 2026-05-08 | 对齐 SKILL v1.2.0 + v1.3.0：Quality Gate 新增 5 项阻塞检查（自检矩阵 / KPI 子集与重叠率 / 反模式 E / 依赖单向性 / value_statement 主语 / 非 MVP Epic 新增 Leading KPI）；强制规则展开为 §5.4 全 6 步 + §5.4.1 自检矩阵硬要求；禁止清单新增 KPI 重叠率 / 单向依赖 / 内部角色主语 / 跳过自检矩阵 4 项。 |

@@ -1,7 +1,7 @@
 ---
 name: Wiki Publisher
-description: Publish Value Frame / Solution Brief / PRD / Eng Review / UX / Task Planning to Azure DevOps Wiki. v3.0 重构路径规则：以 /{project} 为主页（Value），Solution → /{project}/{epic}-solution，PRD → /{project}/{epic}-PRD（合并 Value + Solution + PRD 三段），Eng/UX 为三级子页。
-version: 3.0.0
+description: Publish Value Frame / Solution Brief / PRD / Eng Review / UX / Task Planning / Architecture / NFR to Azure DevOps Wiki. v3.2：扩展 page_type 含 architecture / adr / nfr / refinement-request；强制注入协作元数据（status / last_published_at / source_local_at / maintainer / cross-agent-consumable）；frontmatter 保真（YAML 原文不剥离）；Architecture / Eng Review 发布时同步上传 diagrams/*.svg 为 Attachment + 路径自动重写。
+version: 3.2.0
 updated: 2026-05-19
 maintainer: @frankzhey
 tools: [read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/terminalSelection, read/terminalLastCommand, browser/openBrowserPage, ado/wiki_create_or_update_page, ado/wiki_get_page, ado/wiki_get_page_content, ado/wiki_get_wiki, ado/wiki_list_pages, ado/wiki_list_wikis, ado/search_wiki, ado/search_code, ado/search_workitem, ado/core_get_identity_ids, ado/core_list_project_teams, ado/core_list_projects]
@@ -33,16 +33,23 @@ tools: [read/getNotebookSummary, read/problems, read/readFile, read/viewImage, r
 
 ---
 
-# v3.0 路径规则表（强制 · 唯一权威）
+# v3.2 路径规则表（强制 · 唯一权威）
 
 | 文档类型 | 发布路径 | 命名后缀 | 模式 | 内容来源 |
 |---|---|---|---|---|
 | **Value Frame** | `/{project}` | 无（项目主页） | standard | `Project/{project}/Value/LATEST.md` 全文 |
 | **Solution Brief** | `/{project}/{epic-slug}-solution` | `-solution` | standard | `Project/{project}/Solution/{epic-slug}/LATEST.md` 全文 |
-| **PRD（合并）** | `/{project}/{epic-slug}-PRD` | `-PRD` | merged | Value §1–§4 + Solution §1–§8 + PRD §1–§12 合并 |
+| **PRD（合并）** | `/{project}/{epic-slug}-PRD` | `-PRD` | merged | Value §1–§4 + Solution §1–§9 + PRD §1–§X 合并（v3.2 更新 Solution 章节范围） |
 | **UX** | `/{project}/{epic-slug}-PRD/ui-prototype` | 三级子页 | standard | UX 文档 |
-| **Engineering Review** | `/{project}/{epic-slug}-PRD/engineering-review` | 三级子页 | standard | Eng Review 文档 |
+| **Engineering Review** | `/{project}/{epic-slug}-PRD/engineering-review` | 三级子页 | standard | Eng Review 文档 + SVG（如有） |
 | **Task Planning** | `/{project}/{epic-slug}-PRD/task-planning` | 三级子页 | standard | Task Plan 文档 |
+| **Architecture** ⭐ v3.2 新增 | `/{project}/{epic-slug}-PRD/architecture` | 三级子页 | standard | `Project/{project}/Architecture/{epic-slug}/LATEST.md` + diagrams/*.svg（Attachment） |
+| **ADR** ⭐ v3.2 新增 | `/{project}/{epic-slug}-PRD/architecture/adr-{slug}` | 四级子页 | standard | `Project/{project}/Architecture/{epic-slug}/adr/ADR-NNN-{slug}.md` |
+| **NFR（Epic 级）** ⭐ v3.2 新增 | `/{project}/{epic-slug}-PRD/nfr` | 三级子页 | standard | `Project/{project}/NFR/{epic-slug}/LATEST.md` |
+| **NFR（Project-wide）** ⭐ v3.2 新增 | `/{project}/project-wide-nfr` | 二级子页 | standard | `Project/{project}/NFR/project-wide/LATEST.md` |
+| **Architecture RR** ⭐ v3.2 新增 | `/{project}/{epic-slug}-PRD/engineering-review/architecture-refinement-{stamp}` | 四级子页 | standard | Eng Review 反向 RR（如有） |
+| **NFR RR** ⭐ v3.2 新增 | `/{project}/{epic-slug}-PRD/engineering-review/nfr-refinement-{stamp}` | 四级子页 | standard | Eng Review 反向 RR（如有） |
+| **Upstream RR**（IT Architect → PM）⭐ v3.2 新增 | `/{project}/{epic-slug}-PRD/architecture/upstream-refinement-{stamp}` | 四级子页 | standard | IT Architect 反向 RR（如有） |
 
 ### 路径示例
 
@@ -89,9 +96,11 @@ tools: [read/getNotebookSummary, read/problems, read/readFile, read/viewImage, r
 [Solution §2 Feature List]
 [Solution §3 User Journey]
 [Solution §4 Process Flow]
-[Solution §5 GWT Top]
+[Solution §5 流程难点与 PRD 拆解提示]  ← v1.4 替代 §5 GWT Top
 [Solution §6 Phase-level Workload]
-[Solution §7 Tech high-level]
+[Solution §7 Technology Direction（瘦版）]  ← v1.4 替代 §7 Tech high-level
+[Solution §8 NFR Reference]  ← v1.4 新增
+[Solution §9 Story List 预览]  ← 编号下移
 
 ## 需求详情（来自 PRD）
 > 来源：Project/{project}/PRD/{epic-slug}/{epic-slug}-prd-{stamp}.md
@@ -157,13 +166,17 @@ Read skills/project-context-loader/SKILL.md
 | 特征 | page_type |
 |---|---|
 | frontmatter 含 `project` 且正文包含 Value Frame 章节（§1 Brief / §2 Hypothesis / §3 KPI Tree / §4 Roadmap），或 legacy frontmatter 含 `mode: 1\|2` + `gate_log` | `value` |
-| frontmatter 含 `epic` + Solution Brief 章节（§2 Feature List / §3 User Journey / §6 Phase-level Workload / §7 Tech high-level） | `solution` |
-| frontmatter 含 `epic_id` + PRD 章节（§1 Epic Definition / §2 Feature List / §3 User Stories + AC） | `prd` |
-| 含 §0 Scope Challenge + §3 High-level Architecture + §6 Service Boundary Table | `engineering-review` |
+| frontmatter 含 `epic` + Solution Brief v1.4 章节（§2 Feature List / §3 User Journey / **§5 流程难点与 PRD 拆解提示** / §6 Phase-level Workload / **§7 Technology Direction** / **§8 NFR Reference**） | `solution` |
+| frontmatter 含 `epic_id` + PRD v4.6 章节（§1 Epic Definition / §2 Feature List / §3 User Stories + AC / **§6 NFR Reference** / **§X Coverage Matrix**） | `prd` |
+| 含 **§2 Architecture Challenge Checklist + §3 Blast Radius + §4 NFR Verification + §6 AC 合规校验 + §X Coverage Verification**（Eng Reviewer v4.0 纯评审版） | `engineering-review` |
 | 含 页面地图 / 用户流程 / 页面结构 / 核心组件 / 交互说明 | `ux` |
 | 含 Planning Scope / Story Task Breakdown / Refined Estimation Summary | `task-planning` |
+| frontmatter 含 `epic` + 正文含 **§0 Architecture Brief / §1 Layer 1 Context / §2 Layer 2 Solution Architecture / §3 Layer 3 / §8 ADR**（IT Architect v1.2 产出） ⭐ v3.2 新增 | `architecture` |
+| frontmatter 含 `adr_id` + Status / Context / Decision / Consequence / Alternatives Considered（单条 ADR） ⭐ v3.2 新增 | `adr` |
+| frontmatter 含 `nfr_targets` + 正文含 §0 NFR Brief + §1-§7 八类 NFR（NFR Architect v1.0 产出） ⭐ v3.2 新增 | `nfr` |
+| frontmatter 含 `rr_id` + target 字段（@ITArch / @NFRArch / @PM）+ PM 决策栏 ⭐ v3.2 新增 | `refinement-request` |
 
-无法识别 → 返回错误：`无法识别当前文档类型，请确认是 Value / Solution / PRD / Eng Review / UX / Task Planning 文档`
+无法识别 → 返回错误：`无法识别当前文档类型，请确认是 Value / Solution / PRD / Architecture / ADR / NFR / Eng Review / UX / Task Planning / Refinement Request 文档`
 
 ---
 
@@ -181,19 +194,24 @@ else:
 ## Step 3：路径生成（按 v3.0 路径表）
 
 ```python
-# 伪代码
-if page_type == "value":
-    path = f"/{project}"
-elif page_type == "solution":
-    path = f"/{project}/{epic_slug}-solution"
-elif page_type == "prd":
-    path = f"/{project}/{epic_slug}-PRD"
-elif page_type == "ux":
-    path = f"/{project}/{epic_slug}-PRD/ui-prototype"
-elif page_type == "engineering-review":
-    path = f"/{project}/{epic_slug}-PRD/engineering-review"
-elif page_type == "task-planning":
-    path = f"/{project}/{epic_slug}-PRD/task-planning"
+# 伪代码（v3.2 扩展为 13 类 page_type）
+PATH_MAP = {
+    "value":              f"/{project}",
+    "solution":           f"/{project}/{epic_slug}-solution",
+    "prd":                f"/{project}/{epic_slug}-PRD",
+    "ux":                 f"/{project}/{epic_slug}-PRD/ui-prototype",
+    "engineering-review": f"/{project}/{epic_slug}-PRD/engineering-review",
+    "task-planning":      f"/{project}/{epic_slug}-PRD/task-planning",
+    # v3.2 新增 page_type
+    "architecture":       f"/{project}/{epic_slug}-PRD/architecture",
+    "adr":                f"/{project}/{epic_slug}-PRD/architecture/adr-{adr_slug}",  # adr_slug 来自 frontmatter
+    "nfr-epic":           f"/{project}/{epic_slug}-PRD/nfr",                          # Epic 级 NFR
+    "nfr-project-wide":   f"/{project}/project-wide-nfr",                             # Project-wide NFR（无 epic）
+    "refinement-request": f"/{project}/{epic_slug}-PRD/{parent}/{rr_type}-refinement-{stamp}",
+    # parent = "architecture" 或 "engineering-review" 取决于 RR 来源
+    # rr_type = "architecture" / "nfr" / "upstream"
+}
+path = PATH_MAP[page_type]
 ```
 
 ---
@@ -213,6 +231,109 @@ ado/wiki_create_or_update_page(
 
 merged 模式额外步骤：
 - 上游文件缺失 → 在合并页对应章节顶部标注 "⚠️ 上游 X 文件未找到，本节缺失"，**不阻塞发布**
+
+## Step 4-bis（v3.2 新增）：注入协作元数据 + frontmatter 保真 + SVG Attachment
+
+### v3.2-① 协作元数据强制注入（每个 Wiki 页面顶部）
+
+发布任何 page_type 时，**强制在页面顶部插入协作元数据区块**（如已有则覆盖）：
+
+```markdown
+> **协作元数据**（Wiki Publisher v3.2 自动生成 · 供跨电脑 / 跨 agent 消费）
+> - project: {project}
+> - epic: EPIC-{slug}（Value 页无 epic）
+> - page_type: {value | solution | prd | architecture | adr | nfr | engineering-review | ux | task-planning | refinement-request}
+> - last_published_at: {Wiki 发布时间 YYYY-MM-DD-HHmm}
+> - source_local_at: {本地 LATEST.md 时间戳}
+> - status: synced ✅ / local_ahead ⚠️ / wiki_ahead ⚠️
+> - maintainer: {frontmatter.maintainer 字段 · 如 @PM-A / @ITArch / @NFRArch / @EngReviewer}
+> - cross-agent-consumable: true
+> - publisher: Wiki Publisher v3.2
+```
+
+**status 计算逻辑**：
+
+```text
+if local_timestamp > wiki_last_published_at:
+  status = local_ahead    # PM 本地超前 Wiki（应再发布）
+elif local_timestamp < wiki_last_published_at:
+  status = wiki_ahead     # 异常：Wiki 比本地新（提示 PM 拉回本地）
+else:
+  status = synced         # 一致
+```
+
+### v3.2-② frontmatter 保真（YAML 原文不剥离）
+
+发布到 Wiki 时，**保留输入文件的 YAML frontmatter 原文**（作为页面顶部 ```yaml 区块），不只把 frontmatter 转成自然语言。  
+这样下游 agent（IT Architect / Eng Reviewer / NFR Architect）拉回 Wiki 内容时可以解析结构化字段。
+
+格式：
+
+```markdown
+> **协作元数据**（如上）
+
+```yaml
+---
+project: {project}
+epic: EPIC-{slug}
+...（原文 frontmatter 全部内容）...
+---
+```
+
+# {页面正文从这里开始}
+...
+```
+
+### v3.2-③ SVG Attachment 同步上传 + 路径自动重写
+
+发布 page_type=`architecture` / `engineering-review` 时，如果 LATEST.md 同目录下含 `diagrams/*.svg`：
+
+```python
+# 伪代码
+if page_type in ["architecture", "engineering-review"]:
+    diagrams_dir = local_dir / "diagrams"
+    if diagrams_dir.exists():
+        for svg_file in diagrams_dir.glob("*.svg"):
+            # 上传为 Wiki Attachment
+            attachment_url = ado/wiki_upload_attachment(
+                project="ProductPortfolio",
+                wiki="Product-Portfolio.wiki",
+                page_path=path,
+                file=svg_file,
+            )
+            # 重写 Markdown 中的 ./diagrams/xxx.svg 引用
+            content = content.replace(
+                f"./diagrams/{svg_file.name}",
+                attachment_url
+            )
+    
+    # 上传 manifest.json 作为附件（审计追溯）
+    if (local_dir / "diagrams-manifest.json").exists():
+        ado/wiki_upload_attachment(
+            ...,
+            file=local_dir / "diagrams-manifest.json"
+        )
+
+# 上传 ADR 子页（如 page_type=architecture）
+if page_type == "architecture":
+    adr_dir = local_dir / "adr"
+    for adr_file in adr_dir.glob("ADR-*.md"):
+        # 每个 ADR 一页（四级子页）
+        adr_slug = adr_file.stem  # 如 ADR-001-async-scoring
+        ado/wiki_create_or_update_page(
+            path=f"/{project}/{epic_slug}-PRD/architecture/{adr_slug}",
+            content=read(adr_file),
+        )
+```
+
+### v3.2-④ 协作元数据查询接口（供下游 agent 调用）
+
+下游 agent（IT Architect / NFR Architect / Eng Reviewer）通过 `ado/wiki_get_page_content` 拉取 Wiki 内容后：
+
+1. 解析顶部"协作元数据"区块
+2. 校验 `status` 字段
+3. 校验 `maintainer` 字段
+4. 用于 frontmatter `upstream_snapshot.*_pulled_at` 记录
 
 ---
 
@@ -283,26 +404,43 @@ status: success
 - §3 KPI Tree
 - §4 Roadmap with Phases（含 Epic List）
 
-## Solution Brief 必须包含
+## Solution Brief 必须包含（v1.4 章节结构）
 - §1 Epic 定义
 - §2 Feature List
 - §3 User Journey
 - §4 Business Process Flow
-- §5 GWT Top
-- §7 Tech High-level
-- §8 Story List 预览
+- §5 流程难点与 PRD 拆解提示（v1.4 替代 GWT）
+- §7 Technology Direction（v1.4 瘦版）
+- §8 NFR Reference（v1.4 新增）
+- §9 Story List 预览（编号下移）
 
-## PRD 必须包含
+## PRD 必须包含（v4.6 章节结构）
 - §1 Epic Definition
 - §2 Feature List
 - §3 User Stories + AC
+- §6 NFR Reference（v4.6 引用模式）
+- §X Coverage Matrix（v4.6 强制）
 
-## Engineering Review 必须包含
+## Engineering Review 必须包含（v4.0 纯评审版）
 - §0 Scope Challenge
-- §3 High-level Architecture
-- §6 Service Boundary Table
-- §7 Key Technical Decisions（含 Blast Radius）
-- §17.0 AC 合规校验
+- §2 Architecture Challenge Checklist（v4.0 新增）
+- §3 Blast Radius
+- §4 NFR Verification（v4.0 新增）
+- §6 AC 合规校验
+- §X Coverage Verification（警示）
+
+## Architecture 必须包含（v1.1 新增 page_type）
+- §0 Architecture Brief
+- §1 Layer 1 Context（含 §1.3 C1 SVG）
+- §2 Layer 2 Solution Architecture（含 §2.1 C2 + §2.3 Deployment + §2.5 Sequence SVG ×2）
+- §3 Layer 3 Component & Data（含 §3.2 ERD + §3.3 Data Flow SVG）
+- §7 Cross-cutting 5 类
+- §8 ADR ≥3 条
+
+## NFR 必须包含（v1.0 新增 page_type）
+- §0 NFR Brief
+- §1-§7 八类 NFR 档位
+- §8 依赖校验
 
 ## UX 必须包含
 - 页面地图 / 用户流程 / 页面结构 / 核心组件 / 交互说明
@@ -424,6 +562,7 @@ return {
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 3.2.0 | 2026-05-19 | **协作元数据 + frontmatter 保真 + SVG Attachment + page_type 扩展**。路径规则表 +6 行（architecture / adr / nfr Epic 级 / nfr Project-wide / Architecture RR / NFR RR / Upstream RR）。Step 4-bis 强制注入协作元数据区块（status / last_published_at / source_local_at / maintainer / cross-agent-consumable）。status 计算逻辑：local_ahead / synced / wiki_ahead。YAML frontmatter 原文保真（不剥离），供下游 agent 解析。Architecture / Eng Review 发布时同步上传 `diagrams/*.svg` 为 Wiki Attachment + 自动重写 Markdown 引用路径。Architecture 发布时同步上传 adr/ 子目录每条 ADR 为四级子页。Solution Brief 章节范围更新（含 §5 流程难点 / §8 NFR Reference / §9 Story List 编号下移）。PRD 校验新增 §6 NFR Reference + §X Coverage Matrix。Engineering Review 校验对齐 v4.0 纯评审章节（Architecture Challenge / NFR Verification / Coverage Verification）。新增 Architecture / NFR 必须包含字段。|
 | 3.0.0 | 2026-05-19 | **路径规则重构 + 6 类文档支持**。以 `/{project}` 为 Value 主页，Solution → `/{project}/{epic-slug}-solution`，PRD → `/{project}/{epic-slug}-PRD`（merged），UX / Eng / Task 为三级子页 `/{project}/{epic-slug}-PRD/...`。命名后缀 `-solution` / `-PRD` 严格强制。新增 page_type=value / solution 支持。新增 Step 0 project-context-loader 一致性校验 + Wiki 主页存在性预检。返回结果新增 `project_name` 字段。废弃 v2.x 旧路径 `/{epic-name}` 平铺。 |
 | 2.1.0 | 2026-05-08 | 配套 product-planner v3.0 三段式架构。新增"合并发布模式"（merged_publish）— 当 PRD frontmatter 含 upstream_snapshot 时，自动拉取 Value Frame + Solution Brief 与 PRD 合并为单页 Wiki 发布。新增 publish_mode 输出字段。保持 source 文件分离、仅输出态合并。 |
 | 2.0.0 | 2026-04-16 | 初版。PRD / UX / Engineering Review / Task Planning 四类文档识别与发布。 |

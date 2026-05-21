@@ -1,8 +1,8 @@
 ---
 name: ac-writing-spec
 description: 写或评审 Acceptance Criteria 时必加载的强制规范——格式（多行 GIVEN/WHEN/THEN）、覆盖（操作类 5 类 / 列表类 7 类）、状态机、按钮置灰、表单校验、写法模板、自主补全分级。任何 PRD / Story / 工程评审环节涉及 AC 写作或评审都必须 Read 本文件。
-version: 1.0.0
-updated: 2026-04-28
+version: 1.1.0
+updated: 2026-05-19
 maintainer: @frankzhey
 applies-to: [product-planner, story-splitter, eng-reviewer]
 ---
@@ -130,6 +130,58 @@ THEN 按钮处于可点击状态（enabled）
 3. **展示位置**（字段下方 / 右上角 Toast / 弹窗）
 4. **错误文案**（精确到字符级，中英文各自注明）
 5. **校验后数据状态**（输入框是否清空 / 弹窗是否关闭 / 用户如何重试）
+
+---
+
+## §3.5 8 类场景维度索引（v1.1 新增 · 高维场景索引）
+
+> **v1.1 新增动机**：原 §2 A-1～A-8 / B-1～B-6 是细粒度"覆盖项"。本节作为**高维场景索引**，引导 PM/Product Planner 选择应该覆盖哪些 A/B/C 项。不替换 §2，是 §2 之上的"维度层"。
+
+### §3.5.1 8 类场景维度
+
+| 维度 | 含义 | 触发 A/B/C 覆盖项 |
+|---|---|---|
+| **happy** | 主流程成功闭环 | A-1 / A-2 / A-3 / B-1 |
+| **unhappy** | 业务规则失败 / 用户输入错 | A-2 / A-4 / B-2 / B-3 / C-1 |
+| **failure** | 系统失败 / 第三方失败 / 网络异常 | B-6 / A-8 |
+| **edge** | 边界场景（极值 / 0 数据 / 极端并发） | A-6 / A-5 / B-1 |
+| **permission** | 权限边界 | A-2 |
+| **state** | 状态机转移 / 状态依赖 | C-1 / B-3 |
+| **retry** | 重试 / 幂等 / 重复触发 | B-4 / B-6 |
+| **empty-expired-duplicate** | 空状态 / 过期数据 / 重复提交 | A-6 / A-7 / B-4 |
+
+### §3.5.2 使用方式（PM / Product Planner）
+
+```text
+拆 Story 时：
+  1. 识别 Story 类型（操作流程 / 列表查询）
+  2. 按 §2 覆盖规范选 A/B/C 项（操作类 5 项 / 列表类 7 项）
+  3. 同时按 §3.5.1 8 类场景维度自检覆盖率
+     目标: 每个 Feature 在 §X Coverage Matrix 中 8 类覆盖率 ≥ 6（推荐 ≥7）
+     缺失: 标 § OQ 或 [待 PM 决策]
+```
+
+### §3.5.3 与 §2 覆盖规范的关系
+
+| 层次 | 作用 | 谁用 |
+|---|---|---|
+| §3.5 8 类场景维度 | **高维"应该覆盖什么"** | PM 决策 + Product Planner 自检 |
+| §2 A/B/C 覆盖项 | **细粒度"具体怎么写"** | Product Planner 写 AC + Story Splitter |
+| §1 格式规范 | **每条 AC 怎么写** | 所有 AC 强制 |
+
+> 维度 × A/B/C 映射不是 1:1（一个维度可触发多个 A/B/C，一个 A/B/C 可服务多个维度）。
+
+### §3.5.4 与 Solution §5 流程难点的接口
+
+Solution Brief §5 流程难点 Path ID 与 8 类场景维度对应：
+
+| Path ID 前缀 | 默认对应维度 |
+|---|---|
+| BP-H{n} | happy |
+| BP-U{n} | unhappy / failure（PM 在 PRD §X Coverage Matrix Type 列标注）|
+| BP-E{n} | edge |
+
+> PRD §X Coverage Matrix 必须把每条 Path ID 追溯到对应 Story + AC，并补充 8 类场景维度自检。
 
 ---
 
@@ -352,4 +404,5 @@ Read skills/ac-writing-spec/SKILL.md
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 1.1.0 | 2026-05-19 | **新增 §3.5 8 类场景维度索引**（高维场景索引 · happy / unhappy / failure / edge / permission / state / retry / empty-expired-duplicate）。维度 × A/B/C 映射表 + 与 Solution §5 流程难点 Path ID（BP-H/U/E）接口契约 + 与 PRD §X Coverage Matrix 接口契约（每个 Feature 8 类维度覆盖率 ≥ 6）。配套 product-planner v4.6 + solution-design SKILL v1.4 + eng-review-spec v2.0 §6 AC 合规校验。|
 | 1.0.0 | 2026-04-28 | 初版。整合自 product-planner v2.3.0 + story-splitter v2.0.0。修复 story-splitter B-3 旧版连写格式为 §3.2 多行新格式。统一编号体系为 A/B/C + ①②③④⑤ 混合。 |

@@ -1,35 +1,43 @@
 ---
 name: solution-design
-description: Solution Brief 写作规范——Stable Feature ID / Feature List 表格 / Journey 三栏 / Process Flow 标准 / GWT Top 5 / T-shirt Workload 映射 / Tech high-level 四段式 / 复杂系统图发布级 SVG/PNG / Story List 预览。Plan 阶段产出 Solution Brief 时必须 Read 本文件。
-version: 1.0.0
-updated: 2026-05-12
+description: Solution Brief 写作规范 v1.4——业务方案为主（不再包含详细技术架构）。§5 改为"流程难点与 PRD 拆解提示"（替代 GWT，给 PRD 拆解指引）；§7 Technology Direction 瘦身为方向 + 约束 + 待 IT Architect 问题清单（详细架构由 IT Architect 产出）；§8 新增 NFR Reference（引用 NFR LATEST，不重写）；Step 0.5 PM-AI 协作 4 阶段（22→14 项）。Plan 阶段产出 Solution Brief 时必须 Read 本文件。
+version: 1.4.0
+updated: 2026-05-19
 maintainer: @frankzhey
 applies-to: [solution-architect]
 ---
 
-# Solution Brief 写作规范
+# Solution Brief 写作规范 v1.4
 
-本 SKILL 定义 Solution Brief 的章节结构、ID 体系、Feature List 格式、Journey/Process/GWT/T-shirt/Tech high-level/Story List 标准，由 Solution Architect 在产出 brief 前显式 Read 并执行。
+本 SKILL 定义 Solution Brief 的章节结构、ID 体系、Feature List 格式、Journey/Process/流程难点/T-shirt/NFR Reference/Story List 标准，由 Solution Architect 在产出 brief 前显式 Read 并执行。
+
+> **v1.4 核心变化**：
+> - **§5 GWT Top 3-5 → 流程难点与 PRD 拆解提示**（不再写形式化测试用例，转为对 PRD 拆解的结构化指引）
+> - **§7 Tech High-level 四段式 → Technology Direction（瘦版）**（详细架构由 IT Architect 产出，本章节仅给方向 + 约束 + 待 IT Architect 问题）
+> - **§8 新增 NFR Reference**（引用 NFR LATEST，不重写 NFR 详情）
+> - **删除"复杂边界触发 fireworks-tech-graph"段落**（可视化职责完全下放 IT Architect）
+> - **Step 0.5 PM-AI 协作 4 阶段**（14 项分级输入 · NFR 已移除）
 
 ---
 
-## §1 章节锚点（必须按此顺序输出）
+## §1 章节锚点（v1.4 重构 · 必须按此顺序输出）
 
-| § | 章节 | 强制 / 可选 |
-|---|---|---|
-| §0 | 上游引用（Value Frame 摘要） | ✅ 必须 |
-| §1 | Epic 定义（Name + Stable ID + Context + Scope In/Out） | ✅ 必须 |
-| §2 | Feature List ⭐ 核心交付 | ✅ 必须 |
-| §3 | User Journey | ✅ 必须 |
-| §4 | Business Process Flow | ✅ 必须 |
-| §5 | GWT Top 3–5 | ✅ 必须 |
-| §6 | Phase-level Workload（T-shirt 映射） | ✅ 必须 |
-| §7 | Tech High-level（四段式） | ✅ 必须 |
-| §8 | Story List 预览（标题 + Stable ID 占位） | ✅ 必须 |
-| §9 | Open Questions（含 Value 继承） | ✅ 必须 |
-| §10 | 跨团队评审记录 | ⭕ 评审后填写 |
-| §11 | 已沉淀规则索引 | ✅ 必须 |
-| §12 | 变更记录 | ✅ 必须 |
+| § | 章节 | 强制 / 可选 | v1.4 变化 |
+|---|---|---|---|
+| §0 | 上游引用（Value Frame 摘要） | ✅ 必须 | — |
+| §1 | Epic 定义（Name + Stable ID + Context + Scope In/Out） | ✅ 必须 | — |
+| §2 | Feature List ⭐ 核心交付 | ✅ 必须 | — |
+| §3 | User Journey | ✅ 必须 | — |
+| §4 | Business Process Flow | ✅ 必须 | — |
+| **§5** | **流程难点与 PRD 拆解提示** ⭐ v1.4 替代 GWT | ✅ 必须 | 新章节（见 §X 详细规范） |
+| §6 | Phase-level Workload（T-shirt 映射） | ✅ 必须 | — |
+| **§7** | **Technology Direction & Open Questions（瘦版）** | ✅ 必须 | v1.4 瘦身（见 §X 详细规范） |
+| **§8** | **NFR Reference** ⭐ v1.4 新增 | ✅ 必须 | 仅引用 NFR LATEST，不重写 |
+| §9 | Story List 预览（标题 + Stable ID 占位） | ✅ 必须 | 编号下移（原 §8） |
+| §10 | Open Questions（含 Value 继承） | ✅ 必须 | 编号下移（原 §9） |
+| §11 | 跨团队评审记录 | ⭕ 评审后填写 | 编号下移（原 §10） |
+| §12 | 已沉淀规则索引 | ✅ 必须 | 编号下移（原 §11） |
+| §13 | 变更记录 | ✅ 必须 | 编号下移（原 §12） |
 
 ---
 
@@ -125,34 +133,45 @@ applies-to: [solution-architect]
 
 ---
 
-## §7 §5 GWT Top 3–5 格式
+## §7 §5 流程难点与 PRD 拆解提示（v1.4 替代 GWT）
+
+> **v1.4 替换动机**：GWT 是 AC 级形式化测试用例（QA/Engineer 视角），错位放在 Solution 阶段（Plan 视角）。  
+> v1.4 改为 **"对 PRD 拆解的结构化指引"**，由 Product Planner 在 PRD §3 拆解 + §X Coverage Matrix 追溯。
+
+### §5 章节格式（强制）
 
 ```markdown
-| Scenario ID | Type | Persona | Name | 关联 Stage | 关联 Feature |
-|---|---|---|---|---|---|
-| S1 | happy | P1 | 三源一致通过 | J1, J2, J3 | F1 |
-| S2 | unhappy | P1 | 三源不一致需 Override | J2, J3 | F1, F2 |
-| S3 | unhappy | P1 | 证件照不清晰 | J2 | F1 |
-| S4 | failure | P1 | 网络异常读取失败 | J2 | F1 |
-| S5 | edge | P2 | 无权限访问 | J1 | F1 |
+## §5 流程难点与 PRD 拆解提示
+
+| Path ID | 类型 | 所属 Feature | 流程 / 难点 | 对 PRD 的拆解提示 |
+|---|---|---|---|---|
+| BP-H1 | happy | F1 | 用户提交录音并成功进入评分 | PRD 拆"提交录音"+"上传成功"+"评分中状态" 3 个 Story |
+| BP-U1 | unhappy | F1 | 上传中断 / 网络失败 / 重试 | 拆上传失败 AC + 重试 AC + 幂等 AC |
+| BP-U2 | unhappy | F2 | 评分服务超时 / 回调失败 | 拆评分等待 + 超时提示 + 异步查询 + 后台补偿 |
+| BP-U3 | unhappy | F3 | 用户重复提交同一题目 | 拆前端限制 + 后端幂等 + 历史结果回看 |
 ```
 
-**Type 取值**：`happy` / `unhappy` / `failure` / `edge`
+### Path ID 命名规则（跨阶段稳定）
 
-**每条 Scenario 必须**用多行 GWT 格式描述（遵循 `skills/ac-writing-spec/SKILL.md` §1）：
+| 前缀 | 类型 | 说明 |
+|---|---|---|
+| `BP-H{n}` | happy | Happy path · 主流程闭环 |
+| `BP-U{n}` | unhappy | Unhappy path · 关键失败场景 |
+| `BP-E{n}` | edge | Edge case · 罕见但需覆盖 |
 
-```
-### S1：三源一致通过
+> Path ID 由 PRD §X Coverage Matrix 引用 (`Source Path` 列)；ID 一旦发布永不变更。
 
-GIVEN 用户已登录后台并具备 IDV 复核权限
-AND IDV List 中存在状态为 `pending` 的记录
-WHEN 用户点击某条 Pending 记录的 Details 按钮
-AND `Facial Comparison` / `MPS 3-factor` / `NFC` 三源结果均为 `Pass`
-THEN 系统在 Details 弹窗显示三源一致 Pass
-AND 用户可点击 `Confirm Pass` 完成复核
-```
+### 强制要求
 
-**强制要求**：≥3 条，含 ≥1 happy + ≥1 unhappy
+- **至少 1 条 happy path** (BP-H1)
+- **3–5 条 unhappy path** (BP-U1 ~ BP-U5)
+- 每条标注所属 Feature ID（追溯 §2 Feature List）
+- 每条给 PRD 拆解提示（具体到"应拆几个 Story / 应覆盖哪些 AC 类型"）
+
+### 与下游的接口契约
+
+- **Product Planner v4.6**：PRD §3 按 Feature 拆 Story 时，对照每条 BP-X 拆 AC；§X Coverage Matrix 必须追溯每条 BP-X → AC
+- **Eng Reviewer v4.0**：§X Coverage Verification 校验追溯完整性（警示性）
 
 ---
 
@@ -182,69 +201,105 @@ AND 用户可点击 `Confirm Pass` 完成复核
 
 ---
 
-## §9 §7 Tech High-level 四段式
+## §9 §7 Technology Direction & Open Questions（v1.4 瘦版）
+
+> **v1.4 重大变化**：详细技术架构（C2 Container / C3 Component / ERD / API / Deployment / 7 强制 SVG / ADR ≥3 条）**全部下放到 IT Architect**。  
+> Solution §7 仅保留 3 个子节：**方向 + 约束 + 待 IT Architect 问题清单**。
+
+### §7 章节格式（强制）
 
 ```markdown
-### 1. 架构图
-[Mermaid 或 ASCII 文字描述]
+## §7 Technology Direction & Open Questions
 
-### 2. 关键组件清单
-| 组件 | 职责 | 归属服务 |
-|---|---|---|
+> ⚠️ 本章节不包含完整架构。完整三层架构、Container 图、API 契约、ERD、ADR 等
+> 由 **IT Architect** 产出，路径：`Project/{project}/Architecture/{epic-slug}/LATEST.md`
 
-### 3. Service Interaction Flow
-[2–5 个关键链路]
-- 链路 1：用户登录 → SSO → IDV-Service → 第三方 NFC
-- 链路 2：...
+### 7.1 技术方向（≤3 句）
+- 主要的同步 / 异步边界（如：评分走异步队列 + 短轮询前端）
+- 主要存储选型方向（如：MySQL + 对象存储）
+- 主要集成方向（如：复用 IOC 用户体系，新建 ICS 评分通道）
 
-### 4. 主要 ADR（待研发评审确认）
-- ADR-1：[决策点描述]，候选方案 A vs B，倾向 A 因为...
-- ADR-2：...
+### 7.2 关键技术约束
+[来自 Step 0.5 PM 输入的硬约束]
+- 必须用: {例 .NET / Spring}
+- 不能用: {例 Python / Go}
+- 现有基础设施: {例 K8s / ELK / Datadog}
+- 团队能力: {例 BE 团队熟 .NET，FE 团队熟 React/Vue}
+
+### 7.3 引用 IT Architect Layer 1（refinement 时回填）
+> 待 IT Architect 产出后回填此区块的引用：
+> - Layer 1 §1.3 C1 System Context: 见 Architecture LATEST §1.3
+> - Layer 1 §1.4 业务能力地图: 见 Architecture LATEST §1.4
+> - Architecture Wiki URL: /{project}/{epic-slug}-PRD/architecture
+
+### 7.4 待 IT Architect 回答的问题清单
+- Q1: AI 评分异步回调失败时的兜底策略？
+- Q2: unionId 绑定的幂等性如何保证？
+- Q3: ...
 ```
 
-**强制要求**：四段全部输出（即使某段简短也保留区块）
+### 强制要求
 
-### 发布级技术图生成规则（复杂边界 / 评审产出）
+- 必须 4 个子节全部输出（即使某节简短也保留）
+- **禁止**画完整 C2 / C3 / ERD / Sequence 图（这是 IT Architect 职责）
+- 7.3 区块在首版可留空（refinement 时回填）
+- 7.4 必须 ≥1 个问题给 IT Architect
 
-当 Solution Brief 命中以下任一场景时，必须调用 `fireworks-tech-graph` 生成发布级 SVG/PNG 技术图，作为工程评审和 Wiki 发布附件：
+### 与 IT Architect 的接口契约
 
-**前置条件**：本仓库已引入独立 Skill `skills/fireworks-tech-graph/SKILL.md`。触发出图时必须先 Read 该文件；若需要 Claude 风格细节，继续 Read `skills/fireworks-tech-graph/references/style-6-claude-official.md`。
+- Solution §7.4 问题清单是 IT Architect 启动时的"PM 期望回答清单"
+- IT Architect Refinement 完成后 → PM 触发 Solution Architect refinement → 回填 §7.3 引用
+- **删除 v1.0 的"复杂边界触发 fireworks-tech-graph"段落**（职责完全下放 IT Architect，由 it-architecture-spec/SKILL.md §3 7 强制 + 4 可选 SVG 规则统一管理）
 
-- 存在复杂系统边界：多系统协作、Mini program + backend、3Ups website + backend、AI scoring service、外部依赖、异步回调、队列、结果回传、跨服务状态流转
-- 进入 Engineering Review / 跨团队评审产出阶段，需要给研发、测试、运维或业务方使用可发布图形
-- §7 Tech High-level 中仅 Mermaid / ASCII 无法清晰表达 layered architecture、data flow、sequence 或 component ownership
+---
 
-**必须优先生成的图类型**：
-- `layered architecture`：表达用户入口、渠道层、BFF/API gateway、应用服务、数据存储、外部依赖、异步链路
-- `data flow`：表达上传、评分、回调、结果查询、日志/trace 数据在系统间的流动
-- `sequence`：表达 2–5 个关键交互链路，至少覆盖 happy path、failure path、edge case（如适用）
-- `component diagram`：表达组件职责、归属服务、同步/异步边界、依赖方向
+## §9.5 §8 NFR Reference（v1.4 新增）
 
-**默认风格**：Claude 风格（`fireworks-tech-graph` Style 6 / Claude Official），用于保持评审材料克制、清晰、可发布。
+> **v1.4 新增章节**：NFR Targets 由 **NFR Architect** 独立产出，Solution §8 仅做引用。
 
-**调用步骤**：
-1. Read `skills/fireworks-tech-graph/SKILL.md`
-2. Read `skills/fireworks-tech-graph/references/style-6-claude-official.md`
-3. 根据当前 Solution Brief 的 §7 Tech High-level 提取 layers、components、data flows、sequence scenarios
-4. 生成 SVG，并按 `fireworks-tech-graph` 要求校验与导出 PNG
-5. 将 SVG/PNG 路径回写到 Solution Brief 的 §7 `架构图` 或 `Service Interaction Flow`
+### §8 章节格式（强制）
 
-**输出路径**：
+```markdown
+## §8 NFR Reference
 
-```text
-project/{project}/solution/Engdesign/[epic]-engdesign/
+> ⚠️ 本 Epic 的 NFR Targets 由 **NFR Architect** 独立产出。本章节仅引用，不重写。
+
+### 8.1 NFR LATEST 引用
+
+| 项 | 值 |
+|---|---|
+| 路径 | `Project/{project}/NFR/{epic-slug}/LATEST.md` |
+| 回退路径 | `Project/{project}/NFR/project-wide/LATEST.md`（Epic 级缺失时） |
+| Wiki | `/{project}/{epic-slug}-PRD/nfr` 或 `/{project}/project-wide-nfr` |
+| 状态 | ✅ 已产出 / ❌ 未产出（建议调用 NFR Architect）|
+
+### 8.2 关键摘要（NFR 已产出时填）
+
+> 8 类档位摘要（仅一行总结，详细见 NFR LATEST §0 NFR Brief）
+
+| NFR | 档位 | 关键值 |
+|---|:---:|---|
+| 性能 SLA | 中 | API p95 ≤ 500ms / 异步 ≤ 30s |
+| 可用性 SLA | 中 | 99.9% |
+| 容量 | 中 | DAU 10k / 峰值 1k QPS |
+| 数据安全 | 中 | 含 PII |
+| 合规 | 中 | 等保二级 + 教育部备案 |
+| 保留 | 中 | 3 年 |
+| 地域 | 低 | 仅大陆 |
+| 业务量级 | medium | — |
+
+### 8.3 NFR 未产出时的提示
+
+> ❌ NFR LATEST 不存在。建议调用 NFR Architect 产出 NFR Targets：
+>   - 推荐时机：Solution 完成后 / IT Architect 启动前
+>   - 调用 agent：NFR Architect v1.0
 ```
 
-**文件命名建议**：
-- `[epic]-layered-architecture.svg` / `[epic]-layered-architecture.png`
-- `[epic]-data-flow.svg` / `[epic]-data-flow.png`
-- `[epic]-sequence-[scenario].svg` / `[epic]-sequence-[scenario].png`
-- `[epic]-component-diagram.svg` / `[epic]-component-diagram.png`
+### 强制要求
 
-**文档内引用要求**：
-- Solution Brief 仍需保留 §7 四段式文字内容，发布级 SVG/PNG 不能替代组件职责、Service Interaction Flow 和 ADR 描述
-- 在 §7 `架构图` 或 `Service Interaction Flow` 下补充生成图路径，便于 Wiki Publisher 上传或引用
-- 如果评审阶段尚未实际生成图片，必须写明 `Diagram Output: pending generation via fireworks-tech-graph`，不得假装已生成
+- §8.1 必填（路径 + 状态）
+- §8.2 NFR 已产出时必填；未产出时填 §8.3 提示
+- **禁止**在 §8 重写 NFR 详细字段（仅引用 + 摘要）
 
 ---
 
@@ -312,23 +367,126 @@ Read skills/solution-design/SKILL.md
 - §2 Feature List 每 Feature 含 Description + Value + T-shirt + 关联 Persona
 - §3 Journey 每 Stage 含 Persona × Action × Touchpoint
 - §4 Process Flow ≥1 Happy + ≥1 Unhappy
-- §5 GWT ≥3 条含 ≥1 happy + ≥1 unhappy + 每条多行 GWT 格式
+- §5 流程难点 ≥1 happy (BP-H1) + 3-5 unhappy (BP-U1..)，每条标 Feature + 拆解提示（v1.4）
 - §6 T-shirt 与 Unit Range 严格按映射
-- §7 Tech high-level 四段全部输出
-- §8 Story List 每个 Story 有 Stable ID
-- §9 OQ 必须 propagate Value 所有 status=open 条目
+- §7 Technology Direction 4 子节全输出（瘦版 · v1.4）
+- §8 NFR Reference 必填，含路径 + 状态 + 摘要或调用提示（v1.4 新增）
+- §9 Story List 每个 Story 有 Stable ID
+- §10 OQ 必须 propagate Value 所有 status=open 条目
 
 禁止：
 - Feature ID 重排（任何场景）
-- §2 Feature List 出现未在 §3 Journey / §5 GWT 关联的孤立 Feature
+- §2 Feature List 出现未在 §3 Journey / §5 流程难点关联的孤立 Feature
 - 越权写完整 Story AC（Product Planner 职责）
-- 跳过 §8 Story List 预览
-- T-shirt 估算偏离 §8 统一映射
+- **v1.4 严禁画完整架构图 / ERD / API**（IT Architect 职责）
+- **v1.4 严禁触发 fireworks-tech-graph 生图**（IT Architect 职责）
+- **v1.4 严禁在 §8 重写 NFR 详细字段**（NFR Architect 职责，仅引用）
+- 跳过 §9 Story List 预览
+- T-shirt 估算偏离 §6 统一映射
 
 ---
 
-## §14 版本变更
+## §15 Step 0.5 PM-AI 协作模板（v1.4 新增）
+
+> Solution Architect Step 0.5 PM 输入采集协议。NFR 移除后从 22 项缩减为 14 项（PM 负担 -36%）。
+
+### 15.1 4 阶段流程
+
+```text
+阶段 ① AI 先出 9 项初稿（30 秒）
+  AI 基于 Value Frame + Persona 模板 + copilot-instructions 系统清单
+  一次性产出 9 项初稿草案：
+    1. Persona 详细画像（基于 Value Q3 角色展开）
+    2. Scope In（基于 Value Epic 范围拟）
+    3. 端到端主流程
+    4. Happy Path
+    5. Unhappy Path 列表
+    6. 失败处理预期（与 Unhappy Path 配对）
+    7. 外部系统候选（基于 copilot-instructions 系统清单勾选式）
+    8. MoSCoW 优先级（基于 Feature 拟）
+    9. 部分 NFR 提示（仅"是否调用 NFR Architect" 而非 NFR 详细字段）
+
+阶段 ② PM 逐项矫正
+  PM 看 AI 9 项初稿，对每项选：
+    a) 接受 ✅ → 进入下一项
+    b) 修改 ✏️ → 提供修正内容，AI 重新生成
+    c) 重写 🔄 → AI 删除初稿，PM 直接给
+
+阶段 ③ AI 列结构 + PM 填值（2 项）
+  AI 列档位 B 的 2 项结构 / 候选清单：
+    10. 核心业务规则维度（次数 / 有效期 / 资格 / 提交 / 失败计费 / 历史 / 权益 / 复现）
+        → PM 逐维度填具体值
+    11. 成功标准三层候选（用户侧 / 系统侧 / 业务侧）
+        → PM 删除不适用 + 补业务侧细节
+
+阶段 ④ PM 必填硬项（4 项）
+  AI 不出稿，PM 直接输入档位 C 的 4 项：
+    12. Scope Out（业务取舍 · AI 不能猜）
+    13. 用户入口 / 触点（渠道现状 · AI 不知道）
+    14. 第三方 vendor（具体合作商 · AI 容易编造）
+    15. 技术栈 / 团队 / 时间 / 运营闭环约束（合并必填）
+    
+  任一缺失 → 软 Gate 标 [待确认] + 进入 §10 OQ
+  
+  注：NFR 已移除（独立到 NFR Architect agent · v1.0+）
+
+阶段 ⑤ 总确认 + 落 frontmatter
+  AI 把 14 项内容结构化落到 Solution Brief frontmatter
+  PM 总确认 → 进入 §1-§13 Solution Brief 产出
+```
+
+### 15.2 14 项分级总览
+
+| 档位 | 项数 | 输入类型 | 包含 |
+|---|:---:|---|---|
+| A | 9 | AI 先出 + PM 矫正 | Persona / Scope In / 主流程 / Happy Path / Unhappy Path / 失败处理 / 外部系统 / MoSCoW / NFR 调用提示 |
+| B | 2 | AI 列结构 + PM 填值 | 业务规则维度 / 成功标准三层 |
+| C | 4 | PM 必填硬项（无 AI 稿） | Scope Out / 触点 / 第三方 vendor / 技术栈+团队+时间+运营闭环 |
+| 元数据 | — | 系统自动 | Project + Epic + maintainer 时间戳 |
+
+### 15.3 frontmatter 写入约定
+
+```yaml
+pm_input_14:
+  persona: [详细画像]
+  scope_in: [...]
+  scope_out: [...]
+  e2e_flow: [...]
+  happy_path: [BP-H1 大纲]
+  unhappy_paths: [BP-U1, BP-U2, ...]
+  failure_handling: { BP-U1: ..., BP-U2: ... }
+  user_entries: [...]               # 渠道触点
+  external_systems: [...]           # 内部系统勾选
+  third_party_vendors: [...]
+  business_rules:
+    counts: ...
+    validity: ...
+    eligibility: ...
+    submission: ...
+    fail_costs: ...
+    history: ...
+    rights: ...
+    redo: ...
+  success_criteria:
+    user_side: ...
+    system_side: ...
+    business_side: ...
+  moscow: { must: [...], should: [...], could: [...] }
+  constraints:
+    tech_stack: { must_use: [...], cannot_use: [...] }
+    team: [...]
+    time: [...]
+    ops_loop: [...]
+  nfr_call:
+    status: called | skipped
+    nfr_latest_path: Project/{project}/NFR/{scope}/LATEST.md  # 如已调用
+```
+
+---
+
+## §16 版本变更
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 1.4.0 | 2026-05-19 | **重大重构 v1.4**：§5 GWT Top 3-5 → **流程难点与 PRD 拆解提示**（Path ID BP-H/U/E + 拆解提示 + Coverage Matrix 接口）；§7 Tech High-level 四段式 → **Technology Direction 瘦版**（方向 + 约束 + 引用 IT Architect Layer 1 + 待 IT Architect 问题清单）；**§8 新增 NFR Reference**（引用 NFR LATEST · 不重写）；**删除"复杂边界触发 fireworks-tech-graph"段落**（职责完全下放 IT Architect）；§9-§13 编号下移；新增 §15 Step 0.5 PM-AI 协作 4 阶段模板（22 项→14 项 · NFR 移除 · PM 负担 -36%）。|
 | 1.0.0 | 2026-05-08 | 初版。从 solution-architect.agent v1.0 抽离 Solution Brief 章节锚点 + Stable ID 体系 + Feature List 表格 + Journey/Process/GWT/T-shirt/Tech high-level/Story List 预览的格式标准与强制规则。 |

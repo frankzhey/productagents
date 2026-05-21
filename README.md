@@ -1,7 +1,7 @@
 # ProductPortfolio — AI Agent 协作工作流
 
 > BCChina 三段式 PM + 工程交付 Agent 框架  
-> 更新时间：2026-05-19（v3.0 多 project 并行 + Wiki 路径重构）
+> 更新时间：2026-05-19（**v3.7 完整重构**：NFR Architect + IT Architect 双独立 agent + Eng Reviewer 纯评审 v4.0 + Solution v1.4 业务方案聚焦 + PRD §X Coverage Matrix + AC 8 类场景维度 + Wiki Publisher v3.2 协作元数据）
 
 ---
 
@@ -68,7 +68,7 @@ LATEST.md             {epic}/LATEST.md                   {epic}/LATEST.md
                                                                   │
                                                                   ▼
                 ┌──────────────────────────────────────────────────────┐
-                │            Work Item Publisher (v1.0)                │
+                │            Work Item Publisher (v1.1)                │
                 │  BCChina / {ADO Project}                             │
                 │  Epic → Feature → User Story + AC                    │
                 │  tag 幂等：found=update / missing=create             │
@@ -227,15 +227,17 @@ Knowledge Retriever（可选）
 | Agent | 版本 | 职责 | 关键 SKILL | Handoff |
 |---|---|---|---|---|
 | **Knowledge Retriever** | — | Epic Kickoff 时检索 ADO Wiki 历史，生成 `context-memo.md` | — | Product Planner / UX / Eng |
-| **Value Architect** | v2.5.0 | Discovery 入口（project 主入口）：启动时主动扫描已有 project，竞品 URL 调研 + Gate 2 PM 必答四问 + Value Frame | `market-research`, `value-frame` | Solution Architect |
-| **Solution Architect** | v2.2.0 | Plan 中段：Step -1 强制 project-context-loader → 列 Value §4 Epic List → PM 单选 / 多选 / ALL → 每 Epic 独立产出 Solution Brief；复杂边界下生成发布级技术图 | `project-context-loader`, `solution-design`, `fireworks-tech-graph` | Product Planner / Eng Reviewer |
-| **Product Planner** | v4.4.0 | Deliver 终段：Step 0 强制 project-context-loader → 列 Value Epic List + Solution / PRD 状态 → PM 单选 / ALL 全选批处理 → Epic→Feature→Story→AC + Estimation + NFR + Engineering Notes → PM Confirm Gate 写入 `pm_confirmation.status: approved` | `project-context-loader`, `ac-writing-spec` | Story Splitter / UX / Eng / Wiki / Work Item Publisher |
+| **Value Architect** | v2.6.0 | Discovery 入口（project 主入口）：启动主动扫描 project，竞品调研 + Gate 2 PM 必答 6 问（Q1-Q4 + **Q5 用户地域 + Q6 合规要求**）+ Value Frame | `market-research`, `value-frame` | Solution Architect |
+| **Solution Architect** | v2.4.0 | Plan 中段（v1.4 业务方案聚焦）：Step -1 → Step 0.5 PM-AI 协作 4 阶段（14 项 · NFR 已移出）→ 产出 §5 流程难点（替代 GWT）+ §7 Technology Direction 瘦版 + §8 NFR Reference 引用；架构图全部下放 IT Architect | `project-context-loader`, `solution-design v1.4` | Product Planner / NFR Architect / IT Architect |
+| **NFR Architect** ⭐ v3.7 新增 | v1.0.1 | 跨电脑可选调用：4 步极简 PM 输入（3 业务背景 + 8 类 4 选 1 + 依赖校验 + 落盘）；落盘 `Project/{p}/NFR/{scope}/`；通过 Wiki 共享 | `project-context-loader`, `nfr-spec` | IT Architect / Product Planner / Eng Reviewer |
+| **Product Planner** | v4.6.0 | Deliver 终段：Step 0 五步协议 → Epic→Feature→Story→AC（**按 ac-writing-spec v1.1 §3.5 8 类场景维度索引**）+ **§6 NFR Reference 引用**（不再原创）+ **§X Coverage Matrix 强制**（追溯 Solution BP-X + 8 类维度自检）+ PM Confirm Gate | `project-context-loader`, `ac-writing-spec v1.1` | Story Splitter / NFR Architect / IT Architect / UX / Eng / Wiki / Work Item Publisher |
+| **IT Architect** ⭐ v3.7 新增 | v1.2.0 | 跨电脑共享：wiki-pull 白名单（Value / Solution / NFR）→ 产出三层架构（C4 + TOGAF）+ ADR ≥3 + 7 强制 SVG（通过 fireworks-tech-graph）+ 反向 RR to PM；落盘 `Project/{p}/Architecture/{epic}/` | `project-context-loader`, `it-architecture-spec`, `fireworks-tech-graph`, `nfr-spec` | Eng Reviewer / Wiki / Task Planner |
 | **Story Splitter** | v2.2.0 | Feature 复杂度评估 (FCS) + Story 拆分 + AC 补全（PP 子 Agent） | `ac-writing-spec` | (返回 Product Planner) |
 | **UX Prototyper** | v2.0.0 | UX 文档 + HTML 原型 | — | Eng Reviewer / Wiki |
-| **Eng Reviewer** | v3.1.0 | 工程评审薄编排：Step 0 project-context-loader → Step 1 mode 判定（`local` / `wiki-fallback` 临时缓存 / `manual-input`）→ 产出落盘到 `Project/{p}/EngReview/{epic}/`；评审章节锚点 / Scope Challenge / Blast Radius / §17.0 AC 合规由 SKILL 定义 | `project-context-loader`, `eng-review-spec`, `ac-writing-spec` | Task Planner / Wiki |
+| **Eng Reviewer** | v4.0.0 | **纯评审重构**：删除 13 项设计动作（已下放）+ 新增 8 类评审动作（Scope / Architecture Challenge / Blast Radius / NFR Verification / Capacity / AC 合规 / Task Readiness / Coverage Verification 警示）+ 两类反向 RR（Architecture / NFR · PM Confirm Gate）| `project-context-loader`, `eng-review-spec v2.0`, `ac-writing-spec v1.1` | Task Planner / Wiki / IT Architect / NFR Architect |
 | **Task Planner** | — | 任务拆分、估算、依赖识别 | — | Wiki Publisher |
-| **Wiki Publisher** | v3.0.0 | v3.0 路径表：`/{project}` Value 主页 + `-solution` / `-PRD` 命名后缀 + 三级子页 UX / Eng / Task；支持 6 种 page_type；PRD 合并模式 | `project-context-loader` | — |
-| **Work Item Publisher** | v1.0.0 | 将 PM approved PRD 发布到 Azure DevOps Boards：PM 输入 PRD 准确名称 → 校验 `pm_confirmation.status: approved` → PM 指定 ADO Project + 可选 Iteration / Area → dry-run → `publish confirmed` 后 create/update Epic / Feature / User Story / AC | `ado-work-item-publish-spec`, `project-context-loader` | — |
+| **Wiki Publisher** | v3.2.0 | v3.2 路径表（+architecture/adr/nfr/RR 共 13 类 page_type）+ **协作元数据强制注入**（status / last_published_at / source_local_at / maintainer / cross-agent-consumable）+ **frontmatter YAML 保真** + **SVG Attachment 同步上传**（Architecture / Eng Review 自动重写路径）| `project-context-loader` | — |
+| **Work Item Publisher** | v1.1.0 | 将 PM approved PRD 发布到 Azure DevOps Boards：**Step 0 强制 project-context-loader 五步协议** → 列本地 PRD Epic List → PM 单选 → 校验 `pm_confirmation.status: approved` → PM 指定 ADO Project + 可选 Iteration / Area → dry-run（**本地 mapping 优先 + ADO 回查兜底**）→ `publish confirmed` 后 create/update Epic / Feature / User Story / AC → 落盘 `ado-mapping.json` + `ado-publish-history/{stamp}.md` + 回写 PRD frontmatter `ado_published` | `project-context-loader`, `ado-work-item-publish-spec` | — |
 
 ---
 
@@ -248,11 +250,13 @@ Knowledge Retriever（可选）
 | [skills/project-context-loader/SKILL.md](skills/project-context-loader/SKILL.md) | v1.1.0 | **多 project 并行下的统一上下文加载规范**（v3.0 新增）：询问 project name → 校验 Value LATEST → 加载 Rules/context-memo → 列 Epic List → PM 单选 / 多选 / 全选 / 例外流程；project 名不一致循环 ≤3 次 | Solution Architect / Product Planner / Eng Reviewer / Wiki Publisher |
 | [skills/market-research/SKILL.md](skills/market-research/SKILL.md) | v1.2.0 | 竞品 URL 调研（PM 提供 URL）+ 竞品速览（核心能力 + 解决的痛点 两列并列）+ 6 段式深度对标 | Value Architect (Mode 2) |
 | [skills/value-frame/SKILL.md](skills/value-frame/SKILL.md) | v1.1.0 | Value Frame 章节锚点（§1 Brief 6 要素含"为什么是我们做" / §2 Hypothesis / §3 KPI Tree / §4 Roadmap+Epic / §5 OQ）；Epic 颗粒度三判定 + 反模式 + Epic 自检矩阵 | Value Architect (Gate 3) |
-| [skills/solution-design/SKILL.md](skills/solution-design/SKILL.md) | v1.0.0 | Solution Brief 章节锚点（Stable Feature ID / Feature List / Journey / Process / GWT Top / T-shirt Workload / Tech 四段式 / Story List 预览）；复杂系统边界时触发发布级技术图规则 | Solution Architect |
+| [skills/solution-design/SKILL.md](skills/solution-design/SKILL.md) | **v1.4.0** | **业务方案聚焦版**：§5 流程难点与 PRD 拆解提示（Path ID BP-H/U/E · v1.4 替代 GWT）+ §7 Technology Direction 瘦版（方向 + 约束 + 待 IT Architect 问题）+ **§8 NFR Reference 新增**（引用 NFR LATEST 不重写）+ §15 Step 0.5 PM-AI 协作 4 阶段（14 项分级） | Solution Architect |
+| [skills/nfr-spec/SKILL.md](skills/nfr-spec/SKILL.md) ⭐ v3.7 新增 | v1.0.1 | **NFR 写作规范**：8 类 NFR × 3 档行业基线候选库（性能 / 可用性 / 容量 / 数据安全 / 合规 / 保留 / 用户量 / 地域）+ 业务类型 × 推荐档位映射 + NFR 间 6 条依赖校验 + 与 IT Architect QAS 接口契约 | NFR Architect |
+| [skills/it-architecture-spec/SKILL.md](skills/it-architecture-spec/SKILL.md) ⭐ v3.7 新增 | v1.1.0 | **IT 架构写作规范**：三层架构（Layer 1/2/3）+ C4 + TOGAF 融合矩阵 + 7 强制 + 4 可选 SVG 清单（通过 fireworks-tech-graph）+ ADR 标准模板 + QAS 接口契约（消费 NFR LATEST）+ 跨电脑协作规则 + 反向 RR to PM 模板 | IT Architect |
 | [skills/fireworks-tech-graph/SKILL.md](skills/fireworks-tech-graph/SKILL.md) | external | 生成发布级 SVG/PNG 技术图（layered architecture / data flow / sequence / component diagram 等），默认可配合 Claude Official style | Solution Architect / Eng Reviewer |
-| [skills/ac-writing-spec/SKILL.md](skills/ac-writing-spec/SKILL.md) | v1.0.0 | AC 写作规范（GIVEN/WHEN/THEN 多行 / A 类操作 / B 类字段 / C 类业务）；编号体系唯一权威 | Product Planner / Story Splitter / Eng Reviewer |
-| [skills/eng-review-spec/SKILL.md](skills/eng-review-spec/SKILL.md) | v1.0.0 | **Engineering Review 写作规范**（v3.0 新增）：章节锚点（§0–§18）/ Scope Challenge 三问 / Complexity Smell 5 触发 / Service Boundary 双列 / Blast Radius 五维 / Sequence ≥1 happy + ≥1 failure / API 11 字段 / Error 8 类 / §17.0 AC 合规输出格式 / §17 Task Planning Readiness | Eng Reviewer |
-| [skills/ado-work-item-publish-spec/SKILL.md](skills/ado-work-item-publish-spec/SKILL.md) | v1.0.0 | **ADO Work Item 发布规范**：approved PRD 校验 / ADO Project + Iteration Path + Area Path / Epic-Feature-Story 映射 / tag 幂等 / dry-run / create-update-stale-block / PRD managed block | Work Item Publisher |
+| [skills/ac-writing-spec/SKILL.md](skills/ac-writing-spec/SKILL.md) | **v1.1.0** | AC 写作规范（GIVEN/WHEN/THEN 多行 / A 类操作 / B 类字段 / C 类业务）+ **§3.5 8 类场景维度索引**（happy / unhappy / failure / edge / permission / state / retry / empty-expired-duplicate · v1.1 新增 · 与 PRD §X Coverage Matrix 接口契约） | Product Planner / Story Splitter / Eng Reviewer |
+| [skills/eng-review-spec/SKILL.md](skills/eng-review-spec/SKILL.md) | **v2.0.0** | **Engineering Review 纯评审版**（v2.0 重构 · 删 13 设计动作）：章节锚点 = 8 类纯评审动作（§0 Scope / §2 Architecture Challenge Checklist 6 大类题库 / §3 Blast Radius / §4 NFR Verification 8 类校验 / §5 Capacity / §6 AC 合规 / §7 Task Readiness / §X Coverage Verification 警示）+ 两类反向 RR 模板（Architecture / NFR · PM Confirm Gate） | Eng Reviewer |
+| [skills/ado-work-item-publish-spec/SKILL.md](skills/ado-work-item-publish-spec/SKILL.md) | v1.1.0 | **ADO Work Item 发布规范**：approved PRD 校验 / ADO Project + Iteration Path + Area Path / Epic-Feature-Story 映射 / **两阶段幂等（本地 mapping 优先 + ADO 回查兜底）** / dry-run（含 AC Target + Source 列）/ create-update-stale-block / PRD managed block / §14 `ado-mapping.json` + `ado-publish-history/` 落盘规范 + content_hash no-op 优化 | Work Item Publisher |
 
 ### Solution 技术图生成约定
 
@@ -304,7 +308,9 @@ skills/
     templates/
     scripts/
   ac-writing-spec/SKILL.md         ← AC 写作规范（PM agents 唯一权威）
-  eng-review-spec/SKILL.md         ← v3.0 Engineering Review 写作规范
+  eng-review-spec/SKILL.md         ← v2.0 Engineering Review 纯评审写作规范（v3.7 重构）
+  nfr-spec/SKILL.md                ← v1.0 NFR 8 类 × 3 档候选库（v3.7 新增）
+  it-architecture-spec/SKILL.md    ← v1.1 IT 三层架构 + C4 + TOGAF 写作规范（v3.7 新增）
   ado-work-item-publish-spec/SKILL.md ← ADO Work Item 发布规范（tag 幂等 + dry-run）
 
 Project/                           ← 项目级落盘根目录
@@ -359,7 +365,7 @@ README.md
 8. **多 project 并行（v3.0 新增）** — `project-context-loader` mini-SKILL 是除 Value Architect 外所有 agent 的强制前置：询问 project name → 校验 Value LATEST → 列 Epic List → PM 确认。不一致循环 ≤3 次，禁止凭 handoff 直接处理 project + epic
 9. **Eng Reviewer 薄编排（v3.1）** — 评审章节锚点、Scope Challenge、Blast Radius、§17.0 AC 合规输出格式抽离到 `eng-review-spec` SKILL；Eng Reviewer 只负责 `local` / `wiki-fallback` / `manual-input` 编排
 10. **Wiki 路径项目化（v3.0 新增）** — 旧 `/{epic-name}` 平铺废弃；新规则以 `/{project}` 为 Value 主页，命名后缀 `-solution` / `-PRD` 严格强制
-11. **ADO Boards 发布幂等（v1.0 新增）** — Work Item Publisher 只发布 `pm_confirmation.status: approved` 的 PRD；以 `prd-epic-id` / `prd-feature-id` / `prd-story-id` tags 作为幂等 key，found=update、missing=create、多命中或类型冲突=block；Iteration Path / Area Path 可选，create 空值进入 ADO project 根路径，update 空值不覆盖已有路径
+11. **ADO Boards 发布幂等（v1.1 升级）** — Work Item Publisher 只发布 `pm_confirmation.status: approved` 的 PRD；启动强制 `project-context-loader` 五步协议（防跨 project 误命中）；以 `prd-epic-id` / `prd-feature-id` / `prd-story-id` tags 作为幂等 key，found=update、missing=create、多命中或类型冲突=block；Iteration Path / Area Path 可选，create 空值进入 ADO project 根路径，update 空值不覆盖已有路径；**两阶段幂等：先查本地 `ado-mapping.json`，再回查 ADO**；发布完成强制落盘 mapping + `ado-publish-history/{stamp}.md` + PRD frontmatter `ado_published` 回写
 
 ---
 
@@ -417,6 +423,7 @@ E1 `speaking-challenge-and-scoring` 的 Engdesign 资产包括：
 
 | 日期 | 变更 |
 |---|---|
+| 2026-05-19 | **Work Item Publisher v1.1 升级（多 project 并行 + 本地 mapping）**。Work Item Publisher 升级 v1.1：启动强制 `project-context-loader` 五步协议（防跨 project 误命中）；PRD 定位改为基于选定 epic-slug + LATEST.md，废弃跨 project 全局搜索；新增 Step 8 强制落盘 `ado-mapping.json` + `ado-publish-history/{stamp}.md` + PRD frontmatter 回写 `ado_published`；dry-run 升级两阶段幂等（本地 mapping 优先 + ADO 回查兜底），dry-run 表新增 `AC Target` / `Source` 列。SKILL ado-work-item-publish-spec v1.1：新增 §14 落盘规范 + §6 两阶段幂等 + §13 "无写工具时只允许 dry-run" 等强制规则。 |
 | 2026-05-19 | **Work Item Publisher v1.0 新增**。新增 `.github/agents/work-item-publisher.agent.md` 与 `skills/ado-work-item-publish-spec/SKILL.md`；Product Planner v4.4 新增 PM Confirm Gate，PM 明确 `PRD is confirmed` 后写入 `pm_confirmation.status: approved`；Work Item Publisher 将 approved PRD 发布到 BCChina Azure DevOps Boards，支持 PM 指定 ADO Project、可选 Iteration Path / Area Path、tag 幂等、dry-run 与 `publish confirmed` 双阶段 |
 | 2026-05-19 | **Solution Architect v2.2 批量编排增强**。Solution 阶段支持从 Value §4 Roadmap 选择单个、多个或 ALL Epic；多选只增强编排能力，每个 Epic 仍独立产出 Solution Brief、独立 Quality Gate、独立落盘并维护 LATEST。`project-context-loader` 升级到 v1.1，同步 selected_epics / batch_selection 约定 |
 | 2026-05-19 | **v3.0 多 project 并行 + Wiki 路径重构**。新增 `skills/project-context-loader` mini-SKILL（除 Value 外所有 agent 强制前置协议）；新增 `skills/eng-review-spec` SKILL（Eng Reviewer 改为薄编排）；Solution Architect v2.1 新增 Step -1 Epic List 选择；Product Planner v4.2 新增 ALL 全选批处理；Eng Reviewer v3.0 新增本地 / Wiki Fallback 临时缓存 / 手工输入 + 落盘 `Project/{p}/EngReview/`；Wiki Publisher v3.0 路径重构 `/{project}` 主页 + `-solution` / `-PRD` 命名后缀 + 三级子页；Value Architect v2.5 启动时扫描已有 project 防重名 |

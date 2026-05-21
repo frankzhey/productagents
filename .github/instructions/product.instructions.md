@@ -85,19 +85,31 @@ PRD 源文件由 Product Planner 产出，必须保持 **Epic → Feature → St
 - 每个 Story 必须含 Stable Story ID、User Story、upstream_refs、中文 AC、变更记录
 - AC 必须遵守 `skills/ac-writing-spec/SKILL.md`
 
-### S4 — Estimation / Engineering Notes / NFR
+### S4 — Estimation / Engineering Notes / NFR Reference
 - Story-level Estimation
 - Engineering Notes
-- Non-functional Requirements
+- **NFR Reference**（v4.6 改为引用模式 · 不再原创 NFR 详细字段）
+  - 必含：NFR LATEST 路径 + 状态 + 关键摘要 / 未产出提示
+  - 禁止：在 PRD §6 重写 NFR 详细字段（性能 / 可用性 / 容量等具体值都从 NFR LATEST 引用）
+  - 来源：`Project/{project}/NFR/{epic-slug}/LATEST.md`（Epic 级优先）→ 回退 `Project/{project}/NFR/project-wide/LATEST.md`
 - Capacity Summary（如有 Solution Brief，必须与 Solution §6 Phase-level Workload 做偏差对比）
 
-### S5 — Open Questions / Future / Changelog
+### S5 — Open Questions / Future / Coverage Matrix / Changelog
 - Open Questions 三层聚合（V- / S- / P-）
 - Future Extension（仅记录 PRD 拆解中新增的边界外扩展点）
+- **Coverage Matrix**（v4.6 新增 · 强制）
+  - **必填两块**：§X.1 Solution Flow Risk 追溯 + §X.2 8 类场景维度覆盖率
+  - **追溯**：Solution §5 每条 BP-X Path ID（type=solution_risk）必须 100% 追溯到本 PRD 的 Story + AC
+  - **8 类维度自检**：happy / unhappy / failure / edge / permission / state / retry / empty-expired-duplicate（按 ac-writing-spec v1.1 §3.5）
+  - **覆盖率目标**：每个 Feature ≥ 6 / 8（推荐 ≥ 7）
+  - **校验**：Eng Reviewer v4.0 §X Coverage Verification 警示性校验（不阻塞 PRD 发布，但要求 PM accept risk）
 - 已沉淀规则索引
 - PRD-level Changelog
 
-> ⚠️ Value Hypothesis、KPI Tree、Roadmap、User Journey、Business Process Flow、GWT Top 来自 Value / Solution 源文件；PRD 发布到 Wiki 时由 Wiki Publisher 合并。System Interaction Flow、Service Boundary Table、Key Technical Decisions 由 Eng Reviewer 在工程评审阶段产出。
+> ⚠️ Value Hypothesis、KPI Tree、Roadmap、User Journey、Business Process Flow、流程难点（BP-X Path ID）来自 Value / Solution 源文件；PRD 发布到 Wiki 时由 Wiki Publisher 合并。  
+> ⚠️ NFR Targets 详细字段由 NFR Architect 产出（v4.6 拆出独立 agent），PRD §6 仅引用。  
+> ⚠️ 三层 IT 架构（C2 Container / ADR / Sequence / ERD / API / Deployment）由 IT Architect 产出（v4.6 拆出独立 agent），PRD 不重写。  
+> ⚠️ Architecture Challenge / Service Boundary / Blast Radius / Coverage Verification 由 Eng Reviewer 在工程评审阶段产出。
 
 ---
 
@@ -122,6 +134,9 @@ PRD 源文件由 Product Planner 产出，必须保持 **Epic → Feature → St
 - ❌ 禁止忽略上游 Solution 中的系统边界和工程约束引用
 - ❌ 禁止把实现细节写成产品逻辑，或把产品逻辑丢给研发自行推断
 - ❌ 禁止 AC 中混入 UI 视觉描述（颜色、布局、字号），UI 视觉由 UX Prototyper 决定
+- ❌ **v4.6 禁止**：在 PRD §6 重写 NFR 详细字段（NFR Architect 职责，仅引用 NFR LATEST）
+- ❌ **v4.6 禁止**：在 PRD 中原创架构图 / Container / ADR / ERD / API 等技术设计（IT Architect 职责）
+- ❌ **v4.6 禁止**：跳过 §X Coverage Matrix 或仅写 solution_risk 不补 8 类维度自检
 
 ---
 

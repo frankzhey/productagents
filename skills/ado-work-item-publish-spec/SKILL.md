@@ -1,7 +1,7 @@
 ---
 name: ado-work-item-publish-spec
-description: Azure DevOps Boards Work Item 发布规范。用于 Work Item Publisher 将 PM approved PRD 中的 Epic / Feature / User Story / AC 发布到 BCChina Azure DevOps project，包含字段映射、PM confirmation gate、Iteration/Area Path、tag 幂等、dry-run、create/update/stale/block 规则。
-version: 1.0.0
+description: Azure DevOps Boards Work Item 发布规范。用于 Work Item Publisher 将 PM approved PRD 中的 Epic / Feature / User Story / AC 发布到 BCChina Azure DevOps project，包含字段映射、PM confirmation gate、Iteration/Area Path、tag 幂等、dry-run、create/update/stale/block 规则。v1.1 新增本地 ado-mapping.json + 发布历史落盘规范，幂等搜索升级为"本地优先 → ADO 回查"两阶段。
+version: 1.1.0
 updated: 2026-05-19
 maintainer: @frankzhey
 applies-to: [work-item-publisher]
@@ -208,9 +208,30 @@ prd-confirmed-at:{confirmed_at}
 
 ---
 
-## §6 幂等搜索规则
+## §6 幂等搜索规则（v1.1 两阶段：本地优先 → ADO 回查）
 
-发布前必须在 PM 指定的 ADO project 内按 tag 搜索。
+### 6.1 两阶段查找
+
+```text
+For each level (Epic / Feature / User Story):
+
+  Stage A — 本地 mapping 优先（快速路径）：
+    读取 Project/{project}/PRD/{epic-slug}/ado-mapping.json
+    按 PRD stable ID 查找：
+      命中 → 取已记录的 ADO ID
+              校验该 ADO ID 当前是否仍在目标 ADO project
+                ├─ 是 → 直接使用，Source = "local-mapping"
+                └─ 否 → mapping 已失效，进入 Stage B（并清理失效条目）
+      未命中 → 进入 Stage B
+
+  Stage B — ADO 回查（兜底路径）：
+    调用 ado/search_workitem 在指定 ADO project 内按 tag 搜索
+      tag 规则见下方 6.2 表
+    命中 → 取 ADO ID，Source = "ado-search"，并把命中结果写回本地 mapping
+    0 命中 → Action = create，Source = "new"
+```
+
+### 6.2 搜索 tag 表
 
 | Level | 搜索 tag |
 |---|---|
@@ -218,15 +239,16 @@ prd-confirmed-at:{confirmed_at}
 | Feature | `prd-feature-id:{epic_id}-{Feature ID}` |
 | User Story | `prd-story-id:{Story ID}` |
 
-搜索结果处理：
+### 6.3 搜索结果处理
 
 | 搜索结果 | 动作 |
 |---|---|
-| 0 条 | `create` |
+| 0 条（Stage A + Stage B 均未命中） | `create` |
 | 1 条，类型匹配 | `update` |
 | 1 条，类型不匹配 | `block` |
 | 多条 | `block`，要求 PM / ADO owner 清理重复项 |
 | 找到但不在目标 ADO project | `block`，禁止跨 project 更新 |
+| 本地 mapping 与 ADO 回查结果不一致 | `block`，要求 PM 显式选择以本地或 ADO 为准；选定后清理另一方 |
 
 ---
 
@@ -321,19 +343,19 @@ prd-stale-candidate:true
 
 ---
 
-## §10 dry-run 输出
+## §10 dry-run 输出（v1.1 增列）
 
 正式 publish 前必须输出：
 
 ```text
-| Level | PRD ID | Action | Existing ADO ID | Title | Iteration Path | Area Path | Notes |
+| Level | PRD ID | Action | Existing ADO ID | Title | Iteration Path | Area Path | AC Target | Source | Notes |
 ```
 
-Action 取值：
-
-```text
-create | update | block | stale-candidate | no-op
-```
+| 列 | 取值 |
+|---|---|
+| Action | `create` / `update` / `block` / `stale-candidate` / `no-op` |
+| AC Target | `standard`（Microsoft.VSTS.Common.AcceptanceCriteria） / `description-fallback`（字段不可用） / `n/a`（Epic/Feature 无 AC） |
+| Source | `local-mapping`（本地 mapping 命中） / `ado-search`（回查 ADO 命中） / `new`（首次发布） |
 
 任何 `block` 存在时，禁止进入 publish。
 
@@ -384,6 +406,9 @@ status: success | dry-run-only | blocked | partial-success
 - create/update 都保持 Epic -> Feature -> User Story 层级
 - Iteration / Area 在 create 时空值进入 project 根路径
 - Iteration / Area 在 update 时空值不覆盖已有值
+- **每完成一个 Work Item 立即写回本地 mapping**（防止中途失败无法续传 · v1.1）
+- **发布完成后必须落盘 mapping + history report + 回写 PRD frontmatter `ado_published` 块**（v1.1）
+- **ADO 写入工具不可用时只允许 dry-run，status: `dry-run-only`**（v1.1）
 
 禁止：
 - 发布 draft PRD
@@ -391,11 +416,152 @@ status: success | dry-run-only | blocked | partial-success
 - 跨 ADO project 更新相同 tag 的 work item
 - 使用 title 作为唯一幂等 key
 - 覆盖团队手工维护字段
+- **跳过本地 mapping/history 落盘**（v1.1 落盘是审计追溯依据）
+- **只信任本地 mapping 不做 ADO 回查**（mapping 可能因人工在 ADO 端清理而失效，必须按 §6.1 两阶段执行）
 
 ---
 
-## §14 版本变更记录
+## §14 本地 mapping 与发布历史落盘（v1.1 新增 · 强制）
+
+### 14.1 落盘路径
+
+```text
+Project/{project}/PRD/{epic-slug}/
+├── ado-mapping.json                                    ← 单文件，本次更新条目 + 历史条目共存
+├── ado-publish-history/
+│   ├── ado-publish-2026-05-19-1430.md                  ← 每次发布生成独立时间戳文件
+│   ├── ado-publish-2026-05-19-1845.md
+│   └── ...
+└── LATEST.md, {epic-slug}-prd-{stamp}.md               ← 既有 PRD 文件不变
+```
+
+### 14.2 ado-mapping.json 结构
+
+```json
+{
+  "project": "spk2challenge-miniprogram",
+  "epic_slug": "speaking-challenge-and-scoring",
+  "ado_organization": "BCChina",
+  "ado_project": "IELTS Mini Program",
+  "schema_version": "1.1",
+  "last_synced_at": "2026-05-19-1430",
+  "epic": {
+    "prd_id": "EPIC-speaking-challenge-and-scoring",
+    "ado_id": 12345,
+    "ado_url": "https://dev.azure.com/BCChina/IELTS%20Mini%20Program/_workitems/edit/12345",
+    "title_at_publish": "EPIC-speaking-challenge-and-scoring - Speaking Challenge and Scoring",
+    "iteration_path": "IELTS Mini Program",
+    "area_path": "IELTS Mini Program",
+    "last_synced_at": "2026-05-19-1430",
+    "content_hash": "sha1:..."
+  },
+  "features": {
+    "F1": {
+      "prd_id": "F1",
+      "ado_id": 12346,
+      "ado_url": "...",
+      "parent_ado_id": 12345,
+      "last_synced_at": "2026-05-19-1430",
+      "content_hash": "sha1:..."
+    }
+  },
+  "stories": {
+    "EPIC-speaking-challenge-and-scoring-F1-S01": {
+      "ado_id": 12350,
+      "ado_url": "...",
+      "parent_ado_id": 12346,
+      "ac_count": 5,
+      "ac_target": "standard",
+      "iteration_path": "IELTS Mini Program\\Sprint 2026-05",
+      "area_path": "IELTS Mini Program\\Mini Program",
+      "last_synced_at": "2026-05-19-1430",
+      "content_hash": "sha1:..."
+    }
+  },
+  "stale_candidates": [
+    {
+      "prd_id": "EPIC-speaking-challenge-and-scoring-F1-S99",
+      "ado_id": 12399,
+      "reason": "Story removed from PRD",
+      "detected_at": "2026-05-19-1430"
+    }
+  ]
+}
+```
+
+### 14.3 content_hash 计算规则
+
+对每个 work item 的 PRD managed block 内容（Description 中 `<!-- PRD_MANAGED_START -->` 到 `<!-- PRD_MANAGED_END -->` 之间）+ AC 全文做 SHA1。
+
+用途：
+- 下次发布前对比 hash，**未变更的 Story 标 Action=no-op，不做 ADO 写入**（性能优化）
+- dry-run 表 Notes 列显式标 `content unchanged` / `content changed`
+
+### 14.4 发布历史报告格式（ado-publish-{stamp}.md）
+
+```markdown
+---
+publish_at: 2026-05-19-1430
+project: {project}
+epic_slug: {epic-slug}
+ado_organization: BCChina
+ado_project: {ADO Project}
+source_prd: Project/{project}/PRD/{epic-slug}/{file}.md
+pm_confirmation_at: {YYYY-MM-DD-HHmm}
+status: success | partial-success | blocked | dry-run-only
+---
+
+# ADO Publish History — {epic-slug} — {stamp}
+
+## 发布摘要
+
+- Created: N
+- Updated: M
+- No-op (content unchanged): K
+- Block: B
+- Stale candidates: S
+
+## 明细
+
+| Level | PRD ID | ADO Action | ADO ID | URL | AC Target | Source | Status | Notes |
+|---|---|---|---|---|---|---|---|---|
+| Epic | ... | create | 12345 | ... | n/a | new | success | |
+| ... | | | | | | | | |
+
+## Block 明细（如有）
+
+[每条 block 的具体原因 + 建议]
+
+## Stale Candidates（如有）
+
+[已在 ADO 但不在当前 PRD 的 work items 列表，仅追加 `prd-stale-candidate:true` tag，不删除]
+```
+
+### 14.5 PRD frontmatter 回写
+
+发布完成后必须回写 `Project/{project}/PRD/{epic-slug}/{file}.md` 与 LATEST 指向文件的 frontmatter：
+
+```yaml
+ado_published:
+  last_publish_at: {YYYY-MM-DD-HHmm}
+  ado_organization: BCChina
+  ado_project: {ADO Project}
+  work_item_count:
+    epic: 1
+    feature: N
+    story: M
+  status: success | partial-success | blocked | dry-run-only
+  mapping_file: Project/{project}/PRD/{epic-slug}/ado-mapping.json
+  last_history_report: Project/{project}/PRD/{epic-slug}/ado-publish-history/ado-publish-{stamp}.md
+```
+
+> 仅 v1.1 起的新发布回写此字段；旧 PRD 不强制 backfill。
+
+---
+
+## §15 版本变更记录
 
 | 版本 | 日期 | 变更 |
 |---|---|---|
+| 1.1.0 | 2026-05-19 | **本地 mapping + 发布历史落盘**。§6 幂等搜索升级为两阶段（本地 mapping 优先 → ADO 回查兜底）；§10 dry-run 表新增 `AC Target` / `Source` 列；新增 §14 落盘规范（`ado-mapping.json` 结构 + `ado-publish-history/{stamp}.md` 格式 + PRD frontmatter `ado_published` 回写）；§13 强制规则新增"无写工具时只允许 dry-run"、"立即写回 mapping"、"完成后必须落盘"。 |
 | 1.0.0 | 2026-05-19 | 初版。定义 approved PRD 到 Azure DevOps Boards 的映射、tag 幂等、dry-run、create/update/stale/block、Iteration Path / Area Path 默认与覆盖规则。 |
