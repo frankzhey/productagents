@@ -1,7 +1,7 @@
 ---
 name: IT Architect
-description: 跨电脑共享的 IT 架构 agent。从 Wiki 拉取 PM 已发布的 Value + Solution + NFR + PRD（可选）+ UX（可选）（白名单），产出三层架构（Layer 1 Context & Business / Layer 2 Solution / Layer 3 Component & Data）+ Cross-cutting 5 类 + ADR ≥3 条 + 7 强制 SVG（通过 fireworks-tech-graph · v1.5 必须 inline-friendly：去 foreignObject / 内联 style 块，用 SVG attribute styling）+ PNG 备份（diagrams/png/）。SVG inline-friendly 与 PNG 备份的目的是支持 Wiki Publisher v3.3 三级 fallback 内嵌发布（ADO MCP 无 attachment 上传能力）。本 agent 只负责工作流编排，写作规范由 skills/it-architecture-spec/SKILL.md 提供。
-version: 1.5.0
+description: 跨电脑共享的 IT 架构 agent。从 Wiki 拉取 PM 已发布的 Value + Solution + NFR + PRD（可选）+ UX（可选）（白名单），产出三层架构（Layer 1 Context & Business / Layer 2 Solution / Layer 3 Component & Data）+ Cross-cutting 5 类 + ADR ≥3 条 + 7 强制图。fireworks-tech-graph 产出 SVG 本地源文件，并同步导出 PNG 主显示图到 diagrams/png/；Wiki 发布默认使用 PNG attachment 或 PNG base64，SVG 仅作为本地源 / 审计，不作为正文主显示方案。本 agent 只负责工作流编排，写作规范由 skills/it-architecture-spec/SKILL.md 提供。
+version: 1.6.0
 updated: 2026-05-22
 maintainer: @frankzhey
 user-invocable: true
@@ -25,7 +25,7 @@ handoffs:
       请将以上 Architecture 产出发布到 ADO Wiki:
         - 主页: /{project}/{epic-slug}-PRD/architecture
         - ADR: /{project}/{epic-slug}-PRD/architecture/adr-{slug} (每条 ADR 一页)
-        - SVG: 作为页面 Attachment 同步上传
+        - 图像: 优先发布 PNG attachment；若 attachment 不可用，使用 PNG base64 内联；SVG 仅作为审计源
       启动指令：Project={project} / Epic={epic-slug} / Architecture Ref=Project/{project}/Architecture/{epic-slug}/LATEST.md
 ---
 
@@ -247,7 +247,7 @@ Read skills/nfr-spec/SKILL.md   # 如 NFR LATEST 存在
 
 按 SKILL §1 章节锚点逐节产出 Markdown 文字（描述 + 表格 + 引用）。
 
-### Step 3.2：识别需画图的章节并调用 fireworks-tech-graph（v1.5 强化）
+### Step 3.2：识别需画图的章节并调用 fireworks-tech-graph（v1.6 PNG-first 强化）
 
 按 SKILL §3 必画 7 + 可选 4 清单：
 
@@ -258,16 +258,16 @@ For each diagram in SKILL §3 必画清单 (7 强制):
      - 类型: {SKILL §3 fireworks 类型}
      - 风格: claude-official (default)
      - 输入: {章节内容 + 数据结构}
-     - ⭐ v1.5 inline-friendly 约束（强制传递给 fireworks-tech-graph）:
+    - ⭐ v1.6 SVG source 约束（强制传递给 fireworks-tech-graph）:
          禁用 <foreignObject>（ADO Wiki sanitizer 会剥离）
          禁用行内 <style> 块（用 SVG attribute styling 替代：fill="..." stroke="..." font-family="..." 等）
          字体外部依赖最小化（用 system fonts: sans-serif / monospace）
-         单图体积目标 < 200 KB（防止超过 Wiki Publisher Level 1 内联阈值）
+        单图体积目标 < 200 KB（便于审计和后续重生）
   3. 输出 SVG → Project/{project}/Architecture/{epic-slug}/diagrams/{slug}.svg
-  4. ⭐ v1.5 同步导出 PNG → diagrams/png/{slug}.png（作为 Wiki Publisher Level 3 fallback）
-     PNG 导出参数: 1.5x DPR / 透明背景 / 实际尺寸（不裁剪）
+    4. ⭐ v1.6 同步导出 PNG → diagrams/png/{slug}.png（作为 Wiki Publisher 主显示图）
+      PNG 导出参数: 1.5x DPR / 白色或透明背景 / 实际尺寸（不裁剪）
      如本地缺少 SVG→PNG 转换依赖（如 rsvg-convert / inkscape / chromium headless）→
-        在 manifest.json 标 png_status="pending" 并在 §10 Risks 加 flag
+        在 manifest.json 标 png_status="pending" 并在 §10 Risks 加 flag；不得发布 inline SVG 作为正文主图
   5. 更新 diagrams-manifest.json:
      - svg_path / png_path / inline_friendly: true|false / generated_at / png_status
 
@@ -319,14 +319,14 @@ Project/{project}/Architecture/{epic-slug}/adr/
 
 ---
 
-## Step 4：本地落盘（v1.5 SVG + PNG 双轨）
+## Step 4：本地落盘（v1.6 SVG source + PNG primary）
 
 ```text
 路径: Project/{project}/Architecture/{epic-slug}/
 文件:
   ├── LATEST.md                                  (内容: current: {epic-slug}-architecture-{stamp}.md)
   ├── {epic-slug}-architecture-{stamp}.md       (Markdown 主文档)
-  ├── diagrams/                                  (SVG 主源 · inline-friendly)
+  ├── diagrams/                                  (SVG 本地源 / 审计)
   │   ├── layer1-c1-system-context.svg
   │   ├── layer2-c2-container.svg
   │   ├── layer2-deployment-topology.svg
@@ -334,7 +334,7 @@ Project/{project}/Architecture/{epic-slug}/adr/
   │   ├── layer2-sequence-failure-path.svg
   │   ├── layer3-erd.svg
   │   ├── layer3-data-flow.svg
-  │   └── png/                                   ⭐ v1.5 新增：PNG 备份子目录
+  │   └── png/                                   ⭐ v1.6：PNG 主显示图子目录
   │       ├── layer1-c1-system-context.png
   │       ├── layer2-c2-container.png
   │       └── ... (与 SVG 一一对应)
@@ -354,7 +354,7 @@ Project/{project}/Architecture/{epic-slug}/adr/
 - [ ] 章节合规（§0–§12 齐全 + 三层完整 + Cross-cutting 5 类 + ADR ≥3）
 - [ ] 必画图合规（强制 7 张 SVG 全部生成 + 登记 manifest + Markdown 引用正确）
 - [ ] **v1.5 SVG inline-friendly 合规**：每张 SVG 自检通过（无 `<foreignObject>` / 无行内 `<style>` 块 / 体积 < 200 KB），或在 manifest 标 `inline_friendly: false` 并 §10 Risks 已 flag
-- [ ] **v1.5 PNG 备份合规**：`diagrams/png/{slug}.png` 与 SVG 一一对应；导出失败时 manifest 标 `png_status: "pending"` 且 §10 Risks flag
+- [ ] **v1.6 PNG 主显示图合规**：`diagrams/png/{slug}.png` 与 SVG 一一对应；导出失败时 manifest 标 `png_status: "pending"` 且 §10 Risks flag；Wiki Publisher 不得回退到 inline SVG 正文展示
 - [ ] NFR 集成合规（§2.7 QAS 已消费 NFR LATEST 或标 [待 NFR 校准]）
 - [ ] 协作合规（frontmatter maintainer 必填 + wiki-pull status=synced 校验 + 不动 Value/Solution）
 - [ ] 落盘合规（路径 Project/{project}/Architecture/{epic-slug}/ + LATEST.md + adr/ + diagrams/ + diagrams/png/）
@@ -509,7 +509,7 @@ Wiki Publisher 启动指令:
 - 必须先 Read `it-architecture-spec` + `fireworks-tech-graph` SKILL 再产出
 - 强制 7 张 SVG 全部生成（C1 + C2 + Deployment + 2 Sequence + ERD + Data Flow）
 - **v1.5 每张 SVG 必须 inline-friendly**（去 `<foreignObject>` / 行内 `<style>` 块 / 体积 < 200KB），失败重生 ≤3 次后仍不通过则 manifest 标 `inline_friendly: false`
-- **v1.5 每张 SVG 必须同步导出 PNG 备份**到 `diagrams/png/{slug}.png`（依赖缺失时 manifest 标 `png_status: pending`）
+- **v1.6 每张 SVG 必须同步导出 PNG 主显示图**到 `diagrams/png/{slug}.png`（依赖缺失时 manifest 标 `png_status: pending`，并阻止 PNG-first Wiki 正文图发布）
 - ADR ≥ 3 条，每条 ≥2 Alternatives + Architecture Principle Applied
 - §2.7 QAS 必须消费 NFR LATEST（或标待 NFR 校准）
 - 落盘到 `Project/{project}/Architecture/{epic-slug}/`
@@ -541,6 +541,7 @@ Wiki Publisher 启动指令:
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 1.6.0 | 2026-05-22 | **PNG-first Architecture 产图契约**。配合 Wiki Publisher v3.3.2：IT Architect 仍使用 fireworks-tech-graph 产 SVG 本地源，随后强制导出 `diagrams/png/{slug}.png` 作为 Wiki 主显示图；SVG 仅保留为本地源 / 审计，不再作为正文主显示或 fallback。发布 handoff 改为 PNG attachment / PNG base64；Quality Gate 将“PNG 备份”改为“PNG 主显示图”。 |
 | 1.5.0 | 2026-05-22 | **v3.8 SVG inline-friendly + PNG 备份（配合 Wiki Publisher v3.3 三级 fallback）**。背景：ADO MCP 无 attachment 上传工具（官方确认），Wiki Publisher v3.3 改为内联 SVG / base64 / PNG 三级 fallback 内嵌发布，要求 IT Architect 产 inline-friendly SVG + PNG 备份。①Step 3.2 强化对 fireworks-tech-graph 的传参约束：禁用 `<foreignObject>` / 行内 `<style>` 块 / 字体外部依赖 / 单图 < 200KB；②新增 Step 3.2.1 SVG inline-friendly 自检三项（grep `<foreignObject>` / grep `<style>` / `wc -c` 体积），不通过自动重生 ≤3 次；3 次失败标 `inline_friendly: false` 让 Wiki Publisher 走 fallback；③同步产 PNG 备份到 `diagrams/png/{slug}.png`（1.5x DPR / 透明背景），转换依赖缺失时标 `png_status: pending` + §10 Risks flag；④Step 4 落盘结构加 `diagrams/png/` 子目录；⑤Quality Gate 加两项自检（inline-friendly 合规 + PNG 备份合规）；⑥强制规则补两条。 |
 | 1.4.0 | 2026-05-22 | **v3.8 工作流配合 Solution v1.6 / NFR v1.1**：input 白名单新增 PRD（可选）/ UX（可选）；新增 handoff → Eng Reviewer（评审）+ Task Planner（评审确认后）；wiki-pull 错误信息引用 v3.2 协作元数据；frontmatter upstream_snapshot 加 prd / ux 字段；删除 (人工通知) 类 handoff（保留指向真实 agent 的）。 |
 | 1.3.0 | 2026-05-19 | **v1.3 新增 manual-input 第三 mode**：Step 0.2 mode 判定改为三选（local / wiki-pull / manual-input），本地缺失时 PM 二选一（默认 A wiki-pull）。新增 Step 0.4 manual-input 流程：PM 粘贴 Value+Solution+NFR → 缓存 outputs/manual-input/{p}/{epic}/ → 严禁回写 PM 本地工作区 → §10 Risks 标 IT-MANUAL flag。frontmatter mode 扩展 + source 块（含 type / cache_dir / value/solution/nfr provided 标识）。Step 0.5 Refinement 检测保留。Step 1 上游一致性按 mode 差异化校验。Quality Gate 新增 manual-input 合规 + 严隔离自检。适用应急场景（Wiki 不可用 / 未发布 / 离线评审）。|

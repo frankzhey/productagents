@@ -1,7 +1,7 @@
 ---
 name: Wiki Publisher
-description: Publish Value Frame / Solution Brief / PRD / Eng Review / UX / Task Planning / Architecture / NFR to Azure DevOps Wiki. v3.3：对齐 ADO MCP v2 工具命名（wiki + wiki_upsert_page · 旧独立工具已 consolidate）；SVG 发布策略改为内联 SVG + base64 data URI 混合（ADO MCP 无 attachment 上传能力 · 官方确认 · 详见 §4-bis-③）；新增 PNG fallback；协作元数据 + frontmatter 保真不变。
-version: 3.3.0
+description: Publish Value Frame / Solution Brief / PRD / Eng Review / UX / Task Planning / Architecture / NFR to Azure DevOps Wiki. v3.3：对齐 ADO MCP v2 工具命名（wiki + wiki_upsert_page · 旧独立工具已 consolidate）。v3.3.1：源文件 frontmatter 原文区块从页面顶部移至页面最底部（页面以可读正文开头）。v3.3.6：图发布策略改为 Wiki Git 根级 .attachments PNG file + Git absolute path 优先；PNG 必须由 standalone Chrome headless HTML-wrapper 或等价 SVG renderer 导出，避免 VS Code integrated browser SVG document screenshot 裁剪；PNG 引用加 ADO Wiki 显示宽度（默认 960px）。
+version: 3.3.6
 updated: 2026-05-22
 maintainer: @frankzhey
 user-invocable: true
@@ -42,9 +42,9 @@ tools: [read/getNotebookSummary, read/problems, read/readFile, read/viewImage, r
 | **Solution Brief** | `/{project}/{epic-slug}-solution` | `-solution` | standard | `Project/{project}/Solution/{epic-slug}/LATEST.md` 全文 |
 | **PRD（合并）** | `/{project}/{epic-slug}-PRD` | `-PRD` | merged | Value §1–§4 + Solution §1–§9 + PRD §1–§X 合并（v3.2 更新 Solution 章节范围） |
 | **UX** | `/{project}/{epic-slug}-PRD/ui-prototype` | 三级子页 | standard | UX 文档 |
-| **Engineering Review** | `/{project}/{epic-slug}-PRD/engineering-review` | 三级子页 | standard | Eng Review 文档 + SVG（如有） |
+| **Engineering Review** | `/{project}/{epic-slug}-PRD/engineering-review` | 三级子页 | standard | Eng Review 文档 + diagrams/png/*.png（正文展示）+ SVG 审计附录（如有） |
 | **Task Planning** | `/{project}/{epic-slug}-PRD/task-planning` | 三级子页 | standard | Task Plan 文档 |
-| **Architecture** ⭐ v3.2 新增 | `/{project}/{epic-slug}-PRD/architecture` | 三级子页 | standard | `Project/{project}/Architecture/{epic-slug}/LATEST.md` + diagrams/*.svg（Attachment） |
+| **Architecture** ⭐ v3.2 新增 | `/{project}/{epic-slug}-PRD/architecture` | 三级子页 | standard | `Project/{project}/Architecture/{epic-slug}/LATEST.md` + diagrams/png/*.png（正文展示）+ diagrams/*.svg（审计附录） |
 | **ADR** ⭐ v3.2 新增 | `/{project}/{epic-slug}-PRD/architecture/adr-{slug}` | 四级子页 | standard | `Project/{project}/Architecture/{epic-slug}/adr/ADR-NNN-{slug}.md` |
 | **NFR（Epic 级）** ⭐ v3.2 新增 | `/{project}/{epic-slug}-PRD/nfr` | 三级子页 | standard | `Project/{project}/NFR/{epic-slug}/LATEST.md` |
 | **NFR（Project-wide）** ⭐ v3.2 新增 | `/{project}/project-wide-nfr` | 二级子页 | standard | `Project/{project}/NFR/project-wide/LATEST.md` |
@@ -227,7 +227,7 @@ ado.wiki_upsert_page(
     project="ProductPortfolio",
     wiki="Product-Portfolio.wiki",
     path=path,
-    content=final_content,  # merged 模式为合并后内容；standard 模式为原文（含内联 SVG / base64 PNG）
+    content=final_content,  # merged 模式为合并后内容；standard 模式为原文（含 PNG attachment 引用 / PNG base64 data URI）
 )
 ```
 
@@ -240,7 +240,7 @@ ado.wiki_upsert_page(
 merged 模式额外步骤：
 - 上游文件缺失 → 在合并页对应章节顶部标注 "⚠️ 上游 X 文件未找到，本节缺失"，**不阻塞发布**
 
-## Step 4-bis（v3.2 新增）：注入协作元数据 + frontmatter 保真 + SVG Attachment
+## Step 4-bis（v3.2 新增）：注入协作元数据 + frontmatter 保真 + Diagram Publishing
 
 ### v3.2-① 协作元数据强制注入（每个 Wiki 页面顶部）
 
@@ -270,15 +270,30 @@ else:
   status = synced         # 一致
 ```
 
-### v3.2-② frontmatter 保真（YAML 原文不剥离）
+### v3.2-② frontmatter 保真（YAML 原文不剥离 · v3.3 调整：移至页面最底部）
 
-发布到 Wiki 时，**保留输入文件的 YAML frontmatter 原文**（作为页面顶部 ```yaml 区块），不只把 frontmatter 转成自然语言。  
+发布到 Wiki 时，**保留输入文件的 YAML frontmatter 原文**（作为 ```yaml 区块），不只把 frontmatter 转成自然语言。  
 这样下游 agent（IT Architect / Eng Reviewer / NFR Architect）拉回 Wiki 内容时可以解析结构化字段。
 
-格式：
+> **v3.3 布局变更**：源文件 frontmatter 原文区块从「页面顶部」**移到页面最底部**。  
+> 动机：让 Wiki 页面以可读正文开头（而不是一大段 YAML），结构化元数据沉到底部归档区。  
+> 顶部仍保留 v3.2-① 的人类可读「协作元数据」摘要（供下游 agent 解析 status / maintainer）；底部保留机器可解析的 frontmatter 原文（供下游 agent 解析全部结构化字段）。
+
+**页面整体布局（v3.3 强制顺序）**：
 
 ```markdown
-> **协作元数据**（如上）
+> **协作元数据**（v3.2-① · 顶部 · 人类可读摘要）
+> - project: {project}
+> - ...
+
+# {页面正文从这里开始 · 可读内容}
+...
+（正文全部章节）
+...
+
+---
+
+## 源文件 Frontmatter（保真 · 供下游 agent 解析 · Wiki Publisher 自动追加于页面底部）
 
 ```yaml
 ---
@@ -287,97 +302,83 @@ epic: EPIC-{slug}
 ...（原文 frontmatter 全部内容）...
 ---
 ```
-
-# {页面正文从这里开始}
-...
 ```
 
-### v3.3-③ SVG 内联发布 · 三级 fallback（v3.3 重写 · ADO MCP 无 attachment 上传）
+> 下游 agent 解析约定：结构化字段从**页面底部**「源文件 Frontmatter」区块读取（不再从顶部）；status / maintainer 仍可从顶部协作元数据摘要快速读取。
 
-> **背景**：Microsoft Learn 官方文档（2026-05-13）确认 ADO MCP Server 的 Wiki toolset 仅含 `wiki` / `wiki_upsert_page` / `search_wiki` 共 6 项能力，**无 attachment 上传工具**。v3.2 设计的 `wiki_upload_attachment` 不存在；feature request 见 GitHub Issue #392。
-> 
-> **v3.3 替代策略**：发布 `architecture` / `engineering-review` 类页面时，**Wiki Publisher 必须把 SVG 内嵌进 Markdown 内容本身**（通过 `wiki_upsert_page` 一次性写入），使图片仍然出现在 Markdown 中原引用位置（§1.3 / §2.1 / §3.2 等章节就地）。
+### v3.3.6-③ PNG 文件优先发布 · SVG 审计保留
 
-#### Level 1 · 内联 SVG（默认 · 体积小且 sanitize-friendly 时）
+> **背景**：ADO Wiki 对 inline SVG / SVG data URI / PNG data URI 都可能执行安全过滤，导致页面正文无法显示图。Wiki Publisher 因此不再把 data URI 作为可靠展示方案。SVG 仍保留为本地源文件和 Wiki 审计附录，用于追踪 diagram provenance；正文展示优先使用真实 PNG 文件链接。
 
-发布前，对每张 `./diagrams/xxx.svg` 引用执行：
+发布 `architecture` / `engineering-review` 类页面时，图像发布策略强制如下：
 
-```python
-# 伪代码
-def embed_svg_inline(svg_path, alt_text):
-    svg_content = read_text(svg_path)
-    size_kb = file_size_kb(svg_path)
-    has_foreign_object = "<foreignObject" in svg_content
-    has_inline_style_block = "<style>" in svg_content  # 行内 <style> 块（不是 attribute styling）
-    
-    # 检查 IT Architect manifest.json 的 inline_friendly 字段（v1.5 之后强制写）
-    manifest = load_diagrams_manifest(local_dir / "diagrams-manifest.json")
-    inline_friendly_flag = manifest.lookup(svg_path)["inline_friendly"]
-    
-    if size_kb < 200 and not has_foreign_object and not has_inline_style_block and inline_friendly_flag:
-        # Level 1：直接内联 SVG（最佳渲染保真度）
-        # ADO Wiki Markdown 接受内联 HTML，但需要前后空行隔离
-        return f"\n\n{svg_content}\n\n> *Source: {alt_text} · embedded inline*\n\n"
-    else:
-        return None  # fallback 到 Level 2
-```
+0. **PNG 生成器要求**：PNG 必须由 standalone Chrome headless + fixed-size HTML wrapper、`cairosvg`、`rsvg-convert`、Inkscape 或等价 SVG renderer 导出。不得使用 VS Code integrated browser / Playwright 直接打开 SVG document 后对 `svg` element 截图；该路径可能因 SVG document viewport / deviceScaleFactor 处理导致右侧内容被裁剪。
 
-#### Level 2 · base64 data URI（fallback · 内联失败 / 含 foreignObject 时）
+1. **Level 1 · Wiki Git root PNG file + Git absolute path 引用**：若可写 Wiki Git repo，将 `diagrams/png/{name}.png` 提交到 Wiki 根级 `.attachments/{project}-{page-type}/`，并将原 Markdown 中的 `./diagrams/{name}.svg` 引用替换为 `/.attachments/{project}-{page-type}/{name}.png =960x`。
+2. **Level 2 · PNG attachment + Markdown 引用**：若当前 ADO MCP / Wiki API 提供 attachment upload 能力，上传 `diagrams/png/{name}.png`，并将原引用替换为 attachment PNG 引用。
+3. **Level 3 · PNG data URI 最后应急**：仅在 Wiki Git repo 和 attachment upload 都不可用时，才尝试 `![alt](data:image/png;base64,...)`，并在返回结果中显式标记 `rendering_risk: high`。
+4. **Level 4 · 缺 PNG 降级警示**：若 PNG 主显示图不存在，页面原位置标注 `⚠️ Missing PNG display artifact: {name}.png`，继续发布其它内容；不得回退到 inline SVG 作为主显示方案。
+5. **SVG 审计附录**：`diagrams/*.svg` 原文仅追加到页面底部 `<details>` 审计区，不作为正文主显示内容。
+
+#### PNG 优先发布伪代码
 
 ```python
-def embed_svg_base64(svg_path, alt_text):
+def resolve_png_path(svg_path):
+    return svg_path.parent / "png" / (svg_path.stem + ".png")
+
+def publish_png_attachment_if_available(png_path, alt_text):
+    if not wiki_attachment_upload_available():
+        return None
+    attachment_url = ado.wiki_upload_attachment(path=png_path)
+    return f"![{alt_text}]({attachment_url})\n\n> *Source: {alt_text} · PNG attachment*\n"
+
+def publish_png_to_wiki_git_if_available(png_path, alt_text, page_dir, page_type):
+    if not wiki_git_repo_write_available():
+        return None
+    # Azure DevOps Wiki image paths are most reliable when stored under the Wiki Git root
+    # and referenced with an absolute Git path. Page-local hidden folders can render as broken images.
+    attachment_dir = wiki_git_root / ".attachments" / f"{project}-{page_type}"
+    attachment_dir.mkdir(parents=True, exist_ok=True)
+    target = attachment_dir / png_path.name
+    copy_file(png_path, target)
+    return f"![{alt_text}](/.attachments/{project}-{page_type}/{png_path.name} =960x)\n\n> *Source: {alt_text} · Wiki Git root attachment PNG · display_width=960px*\n"
+
+def embed_png_base64(png_path, alt_text):
     import base64
-    svg_bytes = read_bytes(svg_path)
-    size_kb = len(svg_bytes) / 1024
-    
-    if size_kb < 1500:  # Markdown 单页 < 18MB 限制，单张图建议 < 1.5MB
-        b64 = base64.b64encode(svg_bytes).decode("ascii")
-        return f"![{alt_text}](data:image/svg+xml;base64,{b64})\n\n> *Source: {alt_text} · embedded as data URI ({size_kb:.0f} KB)*\n"
-    else:
-        return None  # fallback 到 Level 3
-```
-
-#### Level 3 · PNG 备份 + 警示（fallback · SVG 体积过大时）
-
-IT Architect v1.5 起，所有 SVG 同步产 PNG 到 `diagrams/png/{name}.png`。Wiki Publisher 优先尝试 PNG base64（PNG 通常比 SVG 小）：
-
-```python
-def embed_png_fallback(svg_path, alt_text):
-    png_path = svg_path.parent / "png" / (svg_path.stem + ".png")
-    if not png_path.exists():
-        return f"⚠️ 图片 {alt_text} 体积过大无法内联，且无 PNG 备份。请查看本地副本：`{svg_path}`\n"
-    
     png_bytes = read_bytes(png_path)
+    size_kb = len(png_bytes) / 1024
     b64 = base64.b64encode(png_bytes).decode("ascii")
-    return f"![{alt_text}](data:image/png;base64,{b64})\n\n> *Source: {alt_text} · embedded as PNG fallback (SVG 体积过大)*\n"
+    return f"![{alt_text}](data:image/png;base64,{b64})\n\n> *Source: {alt_text} · embedded PNG data URI ({size_kb:.0f} KB) · rendering_risk=high*\n"
 ```
 
 #### 完整发布流程
 
 ```python
-# 伪代码
 if page_type in ["architecture", "engineering-review"]:
     diagrams_dir = local_dir / "diagrams"
     if diagrams_dir.exists():
-        # 扫 Markdown 中所有 ./diagrams/xxx.svg 引用
+        # 扫 Markdown 中所有 ./diagrams/xxx.svg 引用；正文显示一律替换为 PNG
         for svg_ref in re.finditer(r"!\[(.*?)\]\(\./diagrams/(.*?\.svg)\)", content):
             alt_text, svg_filename = svg_ref.group(1), svg_ref.group(2)
             svg_path = diagrams_dir / svg_filename
-            if not svg_path.exists():
-                content = content.replace(svg_ref.group(0), f"⚠️ Missing SVG: {svg_filename}")
+            png_path = resolve_png_path(svg_path)
+            if not png_path.exists():
+                content = content.replace(svg_ref.group(0), f"⚠️ Missing PNG display artifact: {png_path.name}")
                 continue
-            
-            # 三级 fallback
-            embed = embed_svg_inline(svg_path, alt_text) \
-                 or embed_svg_base64(svg_path, alt_text) \
-                 or embed_png_fallback(svg_path, alt_text)
-            
+
+            embed = publish_png_to_wiki_git_if_available(png_path, alt_text, wiki_page_dir, page_type) \
+                 or publish_png_attachment_if_available(png_path, alt_text) \
+                 or embed_png_base64(png_path, alt_text)
+
             content = content.replace(svg_ref.group(0), embed)
-    
-    # manifest.json 不再上传（无 attachment 工具）；改为内嵌到页面底部的 <details> 区块
+
+    # manifest.json 与 SVG 原文不再作为附件上传；改为内嵌到页面底部审计区
     manifest_path = local_dir / "diagrams-manifest.json"
     if manifest_path.exists():
         content += f"\n\n<details><summary>diagrams-manifest.json (审计追溯)</summary>\n\n```json\n{read_text(manifest_path)}\n```\n\n</details>\n"
+
+    for svg_path in sorted((local_dir / "diagrams").glob("*.svg")):
+        content += f"\n\n<details><summary>{svg_path.name} (SVG source audit)</summary>\n\n```xml\n{read_text(svg_path)}\n```\n\n</details>\n"
 
 # ADR 子页发布（每条独立四级子页 · 用 wiki_upsert_page）
 if page_type == "architecture":
@@ -398,25 +399,30 @@ if page_type == "architecture":
 
 | 情况 | 行为 |
 |---|---|
-| SVG 文件缺失 | Markdown 中标注 `⚠️ Missing SVG: {filename}`，**继续发布其它内容**（不阻塞） |
-| 三级 fallback 全部失败（PNG 也缺） | Markdown 标 `⚠️ 体积过大，请查看本地副本`，**继续发布**（不阻塞） |
+| PNG 文件缺失 | Markdown 中标注 `⚠️ Missing PNG display artifact: {filename}`，**继续发布其它内容**（不阻塞） |
+| attachment upload 不可用但 Wiki Git repo 可写 | 提交 PNG 到 Wiki 根级 `.attachments/{project}-{page-type}/` 并使用 Git absolute path 引用 `/.attachments/...` |
+| Wiki Git repo 与 attachment upload 都不可用 | 可临时使用 PNG base64 data URI，但返回 `rendering_risk: high`，**不回退到 inline SVG** |
 | `wiki_upsert_page` 单次调用失败 | 重试 1 次；仍失败 → 返回错误，已成功的子页保留 |
 
-#### 内联 SVG 体积预估（防止超过 Wiki 单页限制）
+#### PNG 文件 / data URI 体积策略
 
 - ADO Wiki 单页 Markdown 上限 ≈ 18 MB
-- 典型 inline-friendly SVG: 5–50 KB / 张
-- 7 强制 SVG 全内联约 100–500 KB → 远低于上限，安全
-- 如 IT Architect 产出复杂图导致单张 > 200 KB → 自动降级 Level 2/3
+- 典型 PNG fallback: 50–500 KB / 张
+- 7 强制 PNG 若使用 Wiki Git root attachment，正文 Markdown 通常 < 100 KB，渲染最稳定
+- Playwright / Chromium 导出的 PNG 可能因 deviceScaleFactor 变成 2x 像素宽度；ADO Wiki 会按原始像素显示。发布时必须追加 `=960x`（或 manifest 指定宽度）避免横向溢出，看起来像图片被截断。
+- VS Code integrated browser 直接渲染 `file://...svg` 后截图可能只截取 SVG document 的左侧可视区域，生成的 PNG 文件本身就缺右侧内容。正确方式是把 SVG 原文嵌入固定尺寸 HTML wrapper，再用 standalone Chrome headless `--screenshot` 按 SVG `viewBox` 尺寸导出。
+- PNG base64 data URI 会放大正文体积，且可能被 ADO Wiki sanitizer 过滤；仅作为最后应急，不作为默认方案
+- 若图像过大，应优先使用 Wiki Git attachment / attachment upload 或压缩 PNG，不得改用 inline SVG 作为正文展示
 
 ### v3.2-④ 协作元数据查询接口（供下游 agent 调用）
 
 下游 agent（IT Architect / NFR Architect / Eng Reviewer）通过 `ado/wiki_get_page_content` 拉取 Wiki 内容后：
 
-1. 解析顶部"协作元数据"区块
+1. 解析**顶部**"协作元数据"摘要区块 → 快速读取 `status` / `maintainer`
 2. 校验 `status` 字段
 3. 校验 `maintainer` 字段
-4. 用于 frontmatter `upstream_snapshot.*_pulled_at` 记录
+4. 解析**页面底部**"源文件 Frontmatter"区块（v3.3 起 frontmatter 原文在底部）→ 读取全部结构化字段
+5. 用于 frontmatter `upstream_snapshot.*_pulled_at` 记录
 
 ---
 
@@ -646,6 +652,12 @@ return {
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 3.3.6 | 2026-05-22 | **修正 SVG→PNG 转换器约束**。实测 VS Code integrated browser / Playwright 直接打开 SVG document 后截图，会因 SVG document viewport / deviceScaleFactor 处理导致 PNG 右侧内容缺失。PNG 生成器改为 standalone Chrome headless + fixed-size HTML wrapper（或 cairosvg / rsvg-convert / Inkscape 等等价 SVG renderer），再提交到 Wiki Git root attachment。 |
+| 3.3.5 | 2026-05-22 | **修正 2x PNG 原始宽度溢出**。实测 Playwright / Chromium 导出的 PNG 可能为 SVG 逻辑宽度的 2 倍（如 960 SVG → 1920 PNG），ADO Wiki 按原始像素展示会横向溢出，用户看到类似“图片截断”。PNG Markdown 引用默认追加 `=960x` 显示宽度，保证在 Wiki 正文容器内完整显示。 |
+| 3.3.4 | 2026-05-22 | **修正 Wiki Git attachment 路径解析**。实测页面同级 `.attachments/{page-type}/...` 仍会在 ADO Wiki 渲染为 broken image。按 Azure DevOps Markdown guidance 改为根级 `.attachments/{project}-{page-type}/...`，正文使用 Git absolute path `/.attachments/...` 引用。 |
+| 3.3.3 | 2026-05-22 | **修正 ADO Wiki 图片显示策略**。实测 PNG base64 data URI 仍可能在 ADO Wiki 正文中被安全过滤，导致图片不显示。默认 Level 1 改为将 PNG 提交到 Wiki Git repo 页面同级 `.attachments/{page-type}/` 并使用普通 Markdown 文件引用；Level 2 才使用 API attachment upload；PNG data URI 仅作为 `rendering_risk: high` 的最后应急方案。 |
+| 3.3.2 | 2026-05-22 | **图发布策略修正为 PNG 优先**。Architecture / Engineering Review 不再默认 inline SVG；正文图像优先使用 PNG attachment，attachment 工具不可用时使用 PNG base64 data URI 内联；SVG 原文仅保留在页面底部审计区，不作为主显示方案，以规避 ADO Wiki 对 inline SVG / SVG data URI 的安全过滤。 |
+| 3.3.1 | 2026-05-22 | **frontmatter 区块下移至页面底部**。§4-bis-② 调整页面布局：源文件 YAML frontmatter 原文从「页面顶部 ```yaml 区块」移到「页面最底部『源文件 Frontmatter』归档区」，使 Wiki 页面以可读正文开头。顶部仍保留 v3.2-① 人类可读「协作元数据」摘要（status / maintainer 快速读取）。§4-bis-④ 下游解析约定更新：结构化字段从页面底部读取。其余各 page_type 发布逻辑不变。 |
 | 3.3.0 | 2026-05-22 | **v3.8 ADO MCP v2 对齐 + SVG 内联发布**。背景：经 Microsoft Learn 官方文档（2026-05-13）验证，ADO MCP Server 无 attachment 上传工具（feature request GitHub Issue #392 仍未实现），v3.2 设计的 `wiki_upload_attachment` 调用不可行。①tools 列表对齐 v2 命名：保留 `ado/wiki`（list/get 派发器）+ `ado/wiki_upsert_page`（write）+ `ado/search_wiki`；删除已 consolidate 的旧独立工具（`wiki_create_or_update_page` / `wiki_get_page` / `wiki_get_page_content` / `wiki_get_wiki` / `wiki_list_pages` / `wiki_list_wikis`）+ 不存在的 `core_get_identity_ids`。②§4-bis-③ 重写为**三级 fallback 内嵌策略**：Level 1 内联 SVG（<200KB + 无 foreignObject + 无 inline style → 直接 `<svg>` 内嵌）/ Level 2 base64 data URI（<1.5MB） / Level 3 PNG base64 fallback（依赖 IT Architect v1.5 产出的 diagrams/png/）。图片仍出现在 Markdown 引用原位置（§1.3 / §2.1 / §3.2 等）。③ADR 子页发布改用 `wiki_upsert_page`。④manifest.json 不再上传为附件（无能力），改为嵌入页面底部 `<details>` 区块作为审计追溯。⑤Step 4 / MCP 执行伪代码命名同步更新。⑥失败降级显式定义（SVG 缺失 / 全级 fallback 失败 / upsert 失败 1 次重试）。 |
 | 3.2.0 | 2026-05-19 | **协作元数据 + frontmatter 保真 + SVG Attachment + page_type 扩展**。路径规则表 +6 行（architecture / adr / nfr Epic 级 / nfr Project-wide / Architecture RR / NFR RR / Upstream RR）。Step 4-bis 强制注入协作元数据区块（status / last_published_at / source_local_at / maintainer / cross-agent-consumable）。status 计算逻辑：local_ahead / synced / wiki_ahead。YAML frontmatter 原文保真（不剥离），供下游 agent 解析。Architecture / Eng Review 发布时同步上传 `diagrams/*.svg` 为 Wiki Attachment + 自动重写 Markdown 引用路径。Architecture 发布时同步上传 adr/ 子目录每条 ADR 为四级子页。Solution Brief 章节范围更新（含 §5 流程难点 / §8 NFR Reference / §9 Story List 编号下移）。PRD 校验新增 §6 NFR Reference + §X Coverage Matrix。Engineering Review 校验对齐 v4.0 纯评审章节（Architecture Challenge / NFR Verification / Coverage Verification）。新增 Architecture / NFR 必须包含字段。|
 | 3.0.0 | 2026-05-19 | **路径规则重构 + 6 类文档支持**。以 `/{project}` 为 Value 主页，Solution → `/{project}/{epic-slug}-solution`，PRD → `/{project}/{epic-slug}-PRD`（merged），UX / Eng / Task 为三级子页 `/{project}/{epic-slug}-PRD/...`。命名后缀 `-solution` / `-PRD` 严格强制。新增 page_type=value / solution 支持。新增 Step 0 project-context-loader 一致性校验 + Wiki 主页存在性预检。返回结果新增 `project_name` 字段。废弃 v2.x 旧路径 `/{epic-name}` 平铺。 |

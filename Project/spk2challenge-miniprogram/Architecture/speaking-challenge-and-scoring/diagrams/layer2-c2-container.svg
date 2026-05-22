@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 720" width="1100" height="720" role="img" aria-label="C2 Container">
+  <rect x="0" y="0" width="1100" height="720" fill="#ffffff"/>
+  <text x="40" y="44" font-family="sans-serif" font-size="24" font-weight="700" fill="#111827">C2 Container - Async Scoring Architecture</text>
+  <rect x="40" y="80" width="1020" height="95" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="60" y="110" font-family="sans-serif" font-size="14" font-weight="700" fill="#334155">Client / Channel</text>
+  <rect x="90" y="120" width="180" height="40" rx="8" fill="#ecfdf5" stroke="#059669"/>
+  <text x="180" y="145" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#064e3b">Mini Program Client</text>
+  <rect x="40" y="205" width="1020" height="230" rx="12" fill="#eff6ff" stroke="#60a5fa" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="60" y="235" font-family="sans-serif" font-size="14" font-weight="700" fill="#1d4ed8">Application Services</text>
+  <rect x="90" y="270" width="160" height="55" rx="8" fill="#ffffff" stroke="#2563eb"/>
+  <text x="170" y="302" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#1e3a8a">Challenge BFF</text>
+  <rect x="285" y="270" width="160" height="55" rx="8" fill="#ffffff" stroke="#2563eb"/>
+  <text x="365" y="302" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#1e3a8a">Upload Gateway</text>
+  <rect x="480" y="270" width="175" height="55" rx="8" fill="#ffffff" stroke="#2563eb"/>
+  <text x="568" y="302" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#1e3a8a">Scoring Job Service</text>
+  <rect x="690" y="270" width="180" height="55" rx="8" fill="#ffffff" stroke="#2563eb"/>
+  <text x="780" y="302" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#1e3a8a">Result Composition</text>
+  <rect x="890" y="270" width="140" height="55" rx="8" fill="#ffffff" stroke="#2563eb"/>
+  <text x="960" y="302" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#1e3a8a">Handoff</text>
+  <rect x="480" y="355" width="175" height="45" rx="8" fill="#fff7ed" stroke="#f97316"/>
+  <text x="568" y="383" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#9a3412">Queue + Workers</text>
+  <rect x="40" y="465" width="1020" height="145" rx="12" fill="#f9fafb" stroke="#9ca3af" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="60" y="495" font-family="sans-serif" font-size="14" font-weight="700" fill="#374151">Data and External Dependencies</text>
+  <rect x="100" y="525" width="150" height="45" rx="8" fill="#ffffff" stroke="#6b7280"/>
+  <text x="175" y="553" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#374151">Relational DB</text>
+  <rect x="300" y="525" width="150" height="45" rx="8" fill="#ffffff" stroke="#6b7280"/>
+  <text x="375" y="553" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#374151">Object Storage</text>
+  <rect x="505" y="525" width="150" height="45" rx="8" fill="#ffffff" stroke="#6b7280"/>
+  <text x="580" y="553" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#374151">AI Scoring</text>
+  <rect x="710" y="525" width="150" height="45" rx="8" fill="#ffffff" stroke="#6b7280"/>
+  <text x="785" y="553" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#374151">Website</text>
+  <rect x="900" y="525" width="130" height="45" rx="8" fill="#ffffff" stroke="#6b7280"/>
+  <text x="965" y="553" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#374151">Observability</text>
+  <path d="M180 160 L170 270" stroke="#334155" stroke-width="2" fill="none"/>
+  <polygon points="170,270 164,258 176,258" fill="#334155"/>
+  <path d="M250 298 L285 298" stroke="#334155" stroke-width="2" fill="none"/>
+  <polygon points="285,298 275,292 275,304" fill="#334155"/>
+  <path d="M445 298 L480 298" stroke="#334155" stroke-width="2" fill="none"/>
+  <polygon points="480,298 470,292 470,304" fill="#334155"/>
+  <path d="M568 325 L568 355" stroke="#334155" stroke-width="2" fill="none"/>
+  <polygon points="568,355 562,345 574,345" fill="#334155"/>
+  <path d="M655 298 L690 298" stroke="#334155" stroke-width="2" fill="none"/>
+  <polygon points="690,298 680,292 680,304" fill="#334155"/>
+  <path d="M870 298 L890 298" stroke="#334155" stroke-width="2" fill="none"/>
+  <polygon points="890,298 880,292 880,304" fill="#334155"/>
+  <path d="M365 325 L375 525" stroke="#64748b" stroke-width="2" fill="none"/>
+  <path d="M568 400 L580 525" stroke="#64748b" stroke-width="2" fill="none"/>
+  <path d="M960 325 L785 525" stroke="#64748b" stroke-width="2" fill="none"/>
+</svg>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 760" width="1120" height="760" role="img" aria-label="Logical ERD">
+  <rect x="0" y="0" width="1120" height="760" fill="#ffffff"/>
+  <text x="40" y="42" font-family="sans-serif" font-size="22" font-weight="700" fill="#111827">Logical Data Model</text>
+  <g font-family="monospace" font-size="12" fill="#111827">
+    <rect x="60" y="80" width="210" height="130" fill="#f8fafc" stroke="#475569"/><text x="75" y="105" font-weight="700">user_profile_ref</text><text x="75" y="130">PK user_id</text><text x="75" y="150">union_id_hash</text><text x="75" y="170">phone_masked</text><text x="75" y="190">created_at</text>
+    <rect x="330" y="80" width="220" height="150" fill="#eff6ff" stroke="#2563eb"/><text x="345" y="105" font-weight="700">speaking_challenge</text><text x="345" y="130">PK challenge_id</text><text x="345" y="150">question_id</text><text x="345" y="170">status</text><text x="345" y="190">publish_window</text><text x="345" y="210">mapping_policy</text>
+    <rect x="60" y="290" width="230" height="160" fill="#eff6ff" stroke="#2563eb"/><text x="75" y="315" font-weight="700">voice_submission</text><text x="75" y="340">PK submission_id</text><text x="75" y="360">FK user_id</text><text x="75" y="380">FK challenge_id</text><text x="75" y="400">audio_ref</text><text x="75" y="420">validation_status</text>
+    <rect x="360" y="290" width="230" height="175" fill="#fff7ed" stroke="#f97316"/><text x="375" y="315" font-weight="700">scoring_task</text><text x="375" y="340">PK task_id</text><text x="375" y="360">FK submission_id</text><text x="375" y="380">idempotency_key</text><text x="375" y="400">status</text><text x="375" y="420">retry_count</text><text x="375" y="440">timeout_at</text>
+    <rect x="660" y="290" width="240" height="175" fill="#f5f3ff" stroke="#7c3aed"/><text x="675" y="315" font-weight="700">scoring_result</text><text x="675" y="340">PK result_id</text><text x="675" y="360">FK task_id</text><text x="675" y="380">band_score</text><text x="675" y="400">cefr_level</text><text x="675" y="420">score_bucket</text><text x="675" y="440">mapping_version</text>
+    <rect x="650" y="535" width="250" height="130" fill="#ecfdf5" stroke="#059669"/><text x="665" y="560" font-weight="700">handoff_attribution</text><text x="665" y="585">PK attribution_id</text><text x="665" y="605">FK task_id</text><text x="665" y="625">source_scene</text><text x="665" y="645">score_bucket</text>
+    <rect x="360" y="535" width="220" height="130" fill="#fef2f2" stroke="#dc2626"/><text x="375" y="560" font-weight="700">feedback_ticket</text><text x="375" y="585">PK feedback_id</text><text x="375" y="605">FK task_id</text><text x="375" y="625">reason</text><text x="375" y="645">status</text>
+    <rect x="60" y="535" width="220" height="130" fill="#f9fafb" stroke="#6b7280"/><text x="75" y="560" font-weight="700">audit_log</text><text x="75" y="585">PK audit_id</text><text x="75" y="605">actor</text><text x="75" y="625">resource_type</text><text x="75" y="645">trace_id</text>
+  </g>
+  <g stroke="#334155" stroke-width="2" fill="none">
+    <path d="M165 210 L165 290"/><polygon points="165,290 159,280 171,280" fill="#334155"/>
+    <path d="M440 230 L230 290"/><polygon points="230,290 239,281 242,292" fill="#334155"/>
+    <path d="M290 370 L360 370"/><polygon points="360,370 350,364 350,376" fill="#334155"/>
+    <path d="M590 375 L660 375"/><polygon points="660,375 650,369 650,381" fill="#334155"/>
+    <path d="M780 465 L780 535"/><polygon points="780,535 774,525 786,525" fill="#334155"/>
+    <path d="M475 465 L475 535"/><polygon points="475,535 469,525 481,525" fill="#334155"/>
+    <path d="M360 420 L280 535"/><polygon points="280,535 280,523 290,530" fill="#334155"/>
+  </g>
+</svg>
