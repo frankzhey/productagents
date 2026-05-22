@@ -1,0 +1,1 @@
+current: spk2challenge-miniprogram-project-wide-nfr-2026-05-22-1100.md

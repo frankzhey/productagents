@@ -1,8 +1,8 @@
 ---
 name: value-frame
-description: Value Frame 写作规范——Brief 六要素（含"为什么是我们做"）/ Hypothesis 假设格式 / KPI Tree 三类要求 / Roadmap+Epic 列表结构 / Open Questions 状态分类。Discovery 阶段产出 Value Frame 时必须 Read 本文件。
-version: 1.1.0
-updated: 2026-05-14
+description: Value Frame 写作规范——Brief 六要素（含"为什么是我们做" + v1.2 用户量级/地域/数据敏感度三项枚举供 NFR 自动抽取）/ Hypothesis 假设格式 / KPI Tree 三类要求 / Roadmap+Epic 列表结构 / Open Questions 状态分类。Discovery 阶段产出 Value Frame 时必须 Read 本文件。
+version: 1.2.0
+updated: 2026-05-22
 maintainer: @frankzhey
 applies-to: [value-architect]
 ---
@@ -40,6 +40,9 @@ applies-to: [value-architect]
 - **为什么是我们做**：[我方在能力 / 数据 / 渠道 / 业务位置上的不可替代性 — 相对竞品的差异化，必须具体；来自 Value Architect Gate 2 Q2 答案]
 - **为什么现在做**：[时机 / 风口 / 资源 / 战略对齐 — 必须具体]
 - **目标用户**：[1–3 类核心角色 + 简短描述]
+  - **用户量级范围**（v1.2 新增 · 枚举 · NFR 自动抽取使用）：`<1万` / `1-10万` / `10-100万` / `>100万`
+  - **用户地域**（v1.2 新增 · 枚举 · NFR 自动抽取使用）：`国内` / `海外` / `双区（国内+港澳）` / `跨境（含出境）`
+  - **数据敏感度**（v1.2 新增 · 枚举 · NFR 自动抽取使用）：`公开` / `内部` / `PII` / `强合规（金融/健康/支付）`
 - **业务价值**：[直接业务收益 — 收入 / 成本 / 体验 / 合规]
 ```
 
@@ -47,6 +50,9 @@ applies-to: [value-architect]
 - "为什么是我们做"必须给出不可替代的具体依据（如"在 IELTS 测评有 X 年运营数据 / 拥有 Y 渠道独占接入 / 已有 Z 系统沉淀"），**禁止**写"团队经验丰富" / "我们更专业"等空话
 - "为什么现在做"必须具体（不能写"用户体验差"这类空话），需要含时机依据（如"3Ups 上线带来流量入口" / "Q2 战略立项" / "竞品 X 已抢先 6 个月"）
 - "目标用户"必须用具体角色名，不能用"所有用户"
+- **v1.2 新增**："用户量级范围" / "用户地域" / "数据敏感度" 三项**必须**从枚举中选 1 个，不能自由文本（这三项是 NFR Architect Step 1 自动抽取 3 项业务背景的强信号源 · 详见 `skills/nfr-spec/SKILL.md` §3.5）
+  - 不确定时选最保守档位（量级取偏小、地域取国内、敏感度取 PII），并在 §5 OQ 标"待验证"
+  - 多个核心角色用户量级差异较大时，取量级最大的角色
 - "业务价值"必须可衡量（指向某个 KPI 或业务指标）
 
 ---
@@ -268,6 +274,7 @@ Read skills/value-frame/SKILL.md
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 1.2.0 | 2026-05-22 | **v3.8 NFR 前置支持**。§2 Brief "目标用户"字段新增 3 项**枚举**子字段（用户量级范围 4 档 / 用户地域 4 档 / 数据敏感度 4 档），作为 NFR Architect Step 1 自动抽取 3 项业务背景的强信号源（与 `skills/nfr-spec/SKILL.md` §3.5 抽取映射表对接）。强制要求三项必须从枚举中选 1 个，不可自由文本；不确定时选保守档位 + §5 OQ "待验证"。 |
 | 1.3.0 | 2026-05-08 | §5.1 第 1 条新增基础设施 Epic 例外；§5.4 新增 Epic 自检矩阵 §5.4.1（EPIC ID / 三判定 / KPI 重叠扫描 / 反模式扫描 / 依赖单向性 / 结论），所有行需 `pass` 否则 PM override + changelog 记录；§9 必须清单同步加入自检矩阵与新增 Leading KPI 要求。 |
 | 1.2.0 | 2026-05-08 | §5.1 第 2 条加 value_statement 主语必为终端用户、禁止内部角色；第 3 条引入 KPI 子集约束 + 重叠率 <50% 硬约束 + North Star 共享豁免 + 持续 Guardrail 例外；§5.2 新增反模式 E（按内部受益方切）；§5.4 新增 step 5 依赖单向性检查（基础设施类例外）；§9 禁止清单新增 KPI 重叠率 ≥50% / 单向依赖 / 内部角色主语三项。 |
 | 1.1.0 | 2026-05-08 | 新增 §5.1 Epic 颗粒度定义（端到端可感知 / 一句话价值 / 独立 KPI）+ §5.2 Epic 反模式 + §5.3 Epic List 强制结构（EPIC ID / EPIC name / value_statement / KPI 对齐 / Phase）+ §5.4 Epic 合并自检；§7 ID 体系明确 slug 为 canonical、E1/E2 为排序号；§9 强制规则补充 Epic List 与颗粒度阻塞项及反模式禁止项。 |

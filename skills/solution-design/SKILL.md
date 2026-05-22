@@ -1,22 +1,28 @@
 ---
 name: solution-design
-description: Solution Brief 写作规范 v1.4——业务方案为主（不再包含详细技术架构）。§5 改为"流程难点与 PRD 拆解提示"（替代 GWT，给 PRD 拆解指引）；§7 Technology Direction 瘦身为方向 + 约束 + 待 IT Architect 问题清单（详细架构由 IT Architect 产出）；§8 新增 NFR Reference（引用 NFR LATEST，不重写）；Step 0.5 PM-AI 协作 4 阶段（22→14 项）。Plan 阶段产出 Solution Brief 时必须 Read 本文件。
-version: 1.4.0
-updated: 2026-05-19
+description: Solution Brief 写作规范 v1.6——纯业务方案（不写技术选型 / 不写 engineering notes）。v1.6 重构 §7 为 "Technology Expectations to IT Architect"（结构化 EXP-{n} + must/should/nice），仅传达对 IT 的业务期望/约束/待澄清问题；删除原 §7 技术方向 / Layer 1 引用回填等子节，IT Architect 单向消费 Solution，不回写。§8 NFR Reference 保留（引用 NFR LATEST）。Step 0.5 PM-AI 协作 14 项产出 EXP 候选清单。Plan 阶段产出 Solution Brief 时必须 Read 本文件。
+version: 1.6.0
+updated: 2026-05-22
 maintainer: @frankzhey
 applies-to: [solution-architect]
 ---
 
-# Solution Brief 写作规范 v1.4
+# Solution Brief 写作规范 v1.6
 
-本 SKILL 定义 Solution Brief 的章节结构、ID 体系、Feature List 格式、Journey/Process/流程难点/T-shirt/NFR Reference/Story List 标准，由 Solution Architect 在产出 brief 前显式 Read 并执行。
+本 SKILL 定义 Solution Brief 的章节结构、ID 体系、Feature List 格式、Journey/Process/流程难点/T-shirt/EXP/NFR Reference/Story List 标准，由 Solution Architect 在产出 brief 前显式 Read 并执行。
 
-> **v1.4 核心变化**：
-> - **§5 GWT Top 3-5 → 流程难点与 PRD 拆解提示**（不再写形式化测试用例，转为对 PRD 拆解的结构化指引）
-> - **§7 Tech High-level 四段式 → Technology Direction（瘦版）**（详细架构由 IT Architect 产出，本章节仅给方向 + 约束 + 待 IT Architect 问题）
-> - **§8 新增 NFR Reference**（引用 NFR LATEST，不重写 NFR 详情）
-> - **删除"复杂边界触发 fireworks-tech-graph"段落**（可视化职责完全下放 IT Architect）
-> - **Step 0.5 PM-AI 协作 4 阶段**（14 项分级输入 · NFR 已移除）
+> **v1.6 核心变化（在 v1.4 基础上）**：
+> - **§7 重写为 Technology Expectations to IT Architect**：结构化 EXP-{n} ID + 优先级 must/should/nice + 来源/理由；删除 v1.4 §7.1 技术方向 / §7.3 Layer 1 引用回填等子节
+> - **三份产出独立 + 无回路**：IT Architect 单向消费 Solution §7 EXP，**不回写 Solution**；删除任何"回填 Layer 1 引用"机制；Solution 进入审核后无 tech-refined 状态
+> - **§7.2 ITQ 改为待澄清问题**：保留"待 IT Architect 回答的问题清单"作为 ITQ-{n}，但澄清结论由 IT Architect 在 Architecture LATEST / ADR 中给出，Solution 不回填
+> - **§7.3 Architecture 引用指针**：仅作为只读指针，不回填详细架构内容
+> - **严禁技术选型**：EXP 描述只能是"能力 / 约束 / 期望"，不能写"使用 RabbitMQ"等具体技术选择（详见 §9 强制规则）
+
+> **v1.4 沉淀保持不变**：
+> - §5 流程难点与 PRD 拆解提示（BP-H/U/E）
+> - §8 NFR Reference（引用 NFR LATEST · 不重写）
+> - Step 0.5 PM-AI 协作 4 阶段 14 项分级
+> - 严禁画完整架构图 / ERD / API / 触发 fireworks-tech-graph（IT Architect 职责）
 
 ---
 
@@ -31,8 +37,8 @@ applies-to: [solution-architect]
 | §4 | Business Process Flow | ✅ 必须 | — |
 | **§5** | **流程难点与 PRD 拆解提示** ⭐ v1.4 替代 GWT | ✅ 必须 | 新章节（见 §X 详细规范） |
 | §6 | Phase-level Workload（T-shirt 映射） | ✅ 必须 | — |
-| **§7** | **Technology Direction & Open Questions（瘦版）** | ✅ 必须 | v1.4 瘦身（见 §X 详细规范） |
-| **§8** | **NFR Reference** ⭐ v1.4 新增 | ✅ 必须 | 仅引用 NFR LATEST，不重写 |
+| **§7** | **Technology Expectations to IT Architect** ⭐ v1.6 重写 | ✅ 必须 | 结构化 EXP-{n} + must/should/nice + ITQ-{n} 待澄清问题 + Architecture 引用指针（只读） |
+| **§8** | **NFR Reference** | ✅ 必须 | 仅引用 NFR LATEST，不重写 |
 | §9 | Story List 预览（标题 + Stable ID 占位） | ✅ 必须 | 编号下移（原 §8） |
 | §10 | Open Questions（含 Value 继承） | ✅ 必须 | 编号下移（原 §9） |
 | §11 | 跨团队评审记录 | ⭕ 评审后填写 | 编号下移（原 §10） |
@@ -48,7 +54,9 @@ applies-to: [solution-architect]
 | Feature | `F1`, `F2`, `F3` | 永不重排，删除走退役 | Product Planner Story ID 基础 `EPIC-{slug}-F{N}-S{M}` |
 | Persona | `P1`, `P2` | 永不重排 | Product Planner Story `upstream_refs.persona` 引用 |
 | Journey Stage | `J1`, `J2` | 永不重排 | Product Planner Story `upstream_refs.journey_stage` 引用 |
-| Scenario (GWT) | `S1`, `S2` | 永不重排（与 Story S 编号互不冲突，因为有完整前缀区分） | Product Planner Story `upstream_refs.scenarios` 引用 |
+| Process Path | `BP-H{n}`, `BP-U{n}`, `BP-E{n}` | 永不重排 | PRD §X Coverage Matrix `Source Path` 列引用（v1.4） |
+| Technology Expectation | `EXP-1`, `EXP-2` | 永不重排（v1.6 新增）| IT Architect ADR / Architecture trace；PRD §5 Engineering Notes 间接引用（IT Architecture LATEST 已 trace） |
+| IT Open Question | `ITQ-1`, `ITQ-2` | 永不重排（v1.6 新增）| IT Architect 在 Architecture LATEST / ADR 中给出结论；Solution 不回填 |
 | Open Question | `S-OQ1`, `S-OQ2`（S 前缀避免与 Value V- 混淆） | — | PRD §9 propagate |
 
 **强制规则**：
@@ -201,55 +209,90 @@ applies-to: [solution-architect]
 
 ---
 
-## §9 §7 Technology Direction & Open Questions（v1.4 瘦版）
+## §9 §7 Technology Expectations to IT Architect（v1.6 重写）
 
-> **v1.4 重大变化**：详细技术架构（C2 Container / C3 Component / ERD / API / Deployment / 7 强制 SVG / ADR ≥3 条）**全部下放到 IT Architect**。  
-> Solution §7 仅保留 3 个子节：**方向 + 约束 + 待 IT Architect 问题清单**。
+> **v1.6 重大变化**：删除 v1.4 §7.1 技术方向 / §7.2 关键技术约束 / §7.3 Layer 1 引用回填等子节。  
+> Solution 完全去技术化，§7 只产出**对 IT Architect 的业务期望 / 约束 / 待澄清问题** —— 结构化 EXP-{n} ID + must/should/nice 优先级 + 来源。  
+> IT Architect **单向消费** Solution §7（wiki-pull）→ 在 Architecture LATEST / ADR 中给出技术决策；**不回写 Solution**。
 
 ### §7 章节格式（强制）
 
 ```markdown
-## §7 Technology Direction & Open Questions
+## §7 Technology Expectations to IT Architect
 
-> ⚠️ 本章节不包含完整架构。完整三层架构、Container 图、API 契约、ERD、ADR 等
+> ⚠️ Solution Architect 不写技术选型。完整架构（三层 / C2 / C3 / ERD / API / ADR / 7 强制 SVG）
 > 由 **IT Architect** 产出，路径：`Project/{project}/Architecture/{epic-slug}/LATEST.md`
+> 
+> 本章节传达：① 业务对 IT 的硬期望（must） / 重要期望（should） / 加分项（nice）；
+> ② 待 IT Architect 在 ADR 中澄清的问题（ITQ-{n}）；
+> ③ Architecture LATEST 引用指针（只读 · 不回填）。
 
-### 7.1 技术方向（≤3 句）
-- 主要的同步 / 异步边界（如：评分走异步队列 + 短轮询前端）
-- 主要存储选型方向（如：MySQL + 对象存储）
-- 主要集成方向（如：复用 IOC 用户体系，新建 ICS 评分通道）
+### 7.1 Expectations 清单（EXP-{n}）
 
-### 7.2 关键技术约束
-[来自 Step 0.5 PM 输入的硬约束]
-- 必须用: {例 .NET / Spring}
-- 不能用: {例 Python / Go}
-- 现有基础设施: {例 K8s / ELK / Datadog}
-- 团队能力: {例 BE 团队熟 .NET，FE 团队熟 React/Vue}
+| EXP ID | 优先级 | 描述 | 来源 / 理由 |
+|---|:---:|---|---|
+| **EXP-1** | must | 评分必须可追溯到 prompt 版本 | 业务合规 + 用户投诉处理（Value §1 Brief） |
+| **EXP-2** | must | 团队主要熟 .NET，BE 优先 .NET 实现 | 团队能力约束（Step 0.5 PM 输入） |
+| **EXP-3** | must | 评分需支持异步处理 | NFR PERF-T2（API p95 ≤ 500ms 难以同步达成） |
+| **EXP-4** | should | 复用现有 IOC 用户体系（unionId） | 减少账号体系重复 + 现有基础设施 |
+| **EXP-5** | should | 录音文件保留 ≥ 3 年 | NFR RETN-T2（教育评分记录） |
+| **EXP-6** | nice | 移动端可离线缓存历史报告 | 增强体验，非必需 |
 
-### 7.3 引用 IT Architect Layer 1（refinement 时回填）
-> 待 IT Architect 产出后回填此区块的引用：
-> - Layer 1 §1.3 C1 System Context: 见 Architecture LATEST §1.3
-> - Layer 1 §1.4 业务能力地图: 见 Architecture LATEST §1.4
-> - Architecture Wiki URL: /{project}/{epic-slug}-PRD/architecture
+### 7.2 Open Questions to IT Architect（ITQ-{n}）
 
-### 7.4 待 IT Architect 回答的问题清单
-- Q1: AI 评分异步回调失败时的兜底策略？
-- Q2: unionId 绑定的幂等性如何保证？
-- Q3: ...
+> 待 IT Architect 在 Architecture LATEST / ADR 中给出结论。Solution 不回填，结论以 IT Architecture 为准。
+
+| ITQ ID | 问题 | 期望结论形式 |
+|---|---|---|
+| **ITQ-1** | AI 评分异步回调失败的兜底策略？ | ADR：明确重试 / 死信队列 / 人工 fallback 的边界 |
+| **ITQ-2** | unionId 绑定幂等性如何保证？ | Layer 3 Component：给出幂等 key 设计 + 冲突处理 |
+| **ITQ-3** | 短轮询频率与服务端 LongConnection 取舍？ | ADR：性能 vs 实现复杂度权衡 |
+
+### 7.3 Architecture LATEST 引用指针（只读 · v1.6 不回填）
+
+| 项 | 值 |
+|---|---|
+| Architecture LATEST | `Project/{project}/Architecture/{epic-slug}/LATEST.md` |
+| Wiki | `/{project}/{epic-slug}-PRD/architecture` |
+| 状态 | ✅ 已产出 / ⏳ 待 IT Architect 启动 / ❌ 缺失 |
+| 关联 EXP / ITQ | IT Architect 必须在 ADR 中 trace 本 Solution 每条 EXP-{n} / ITQ-{n} 的处理方式 |
+
+> **v1.6 显式声明**：本指针为**只读**。IT Architect 完成后不回写 Solution 文件，PM 通过 wiki 查看 Architecture 详情。如 Architecture 给出的方案与 Solution §7 EXP 冲突，由 Eng Reviewer 在评审时发"反向 Refinement Request to IT Architect"（不发到 Solution）。
 ```
+
+### EXP / ITQ 命名规则（跨阶段稳定）
+
+| 前缀 | 类型 | 命名 | 说明 |
+|---|---|---|---|
+| `EXP-{n}` | Expectation | 单调递增 | 业务期望 / 约束。一经发布永不变更；删除走退役 |
+| `ITQ-{n}` | IT Open Question | 单调递增 | 待 IT Architect 澄清；结论由 IT Architect 在 Architecture LATEST / ADR 中给出 |
 
 ### 强制要求
 
-- 必须 4 个子节全部输出（即使某节简短也保留）
-- **禁止**画完整 C2 / C3 / ERD / Sequence 图（这是 IT Architect 职责）
-- 7.3 区块在首版可留空（refinement 时回填）
-- 7.4 必须 ≥1 个问题给 IT Architect
+- **§7.1 EXP 清单**：
+  - **≥1 条 must**（Epic 必有 1 项业务侧硬期望，否则 Solution 不应启动 IT Architect）
+  - 每条 EXP 描述 **≥10 字**，来源/理由必须有具体依据（如"来自 Step 0.5 PM 输入 / Value §1 Brief / NFR Tier ID / 团队能力"）
+  - 优先级三选一：`must` / `should` / `nice`
+  - EXP-{n} ID 一经发布永不变更，删除走退役归档
+- **§7.2 ITQ 清单**：
+  - 可为空（如无待 IT 澄清的问题）
+  - 每条 ITQ 必须给"期望结论形式"（不能是开放式提问）
+- **§7.3 Architecture 引用**：状态字段必填（已产出 / 待启动 / 缺失）
 
-### 与 IT Architect 的接口契约
+### 禁止
 
-- Solution §7.4 问题清单是 IT Architect 启动时的"PM 期望回答清单"
-- IT Architect Refinement 完成后 → PM 触发 Solution Architect refinement → 回填 §7.3 引用
-- **删除 v1.0 的"复杂边界触发 fireworks-tech-graph"段落**（职责完全下放 IT Architect，由 it-architecture-spec/SKILL.md §3 7 强制 + 4 可选 SVG 规则统一管理）
+- ❌ **EXP 中写技术选型**（如"使用 RabbitMQ" / "采用 Redis Stream"）→ 只能写"需要异步队列能力" / "需要消息重试与死信能力"
+- ❌ **EXP 中写组件设计 / API 设计 / ERD 字段**（IT Architect 职责）
+- ❌ **回填 Architecture LATEST 内容到 §7.3**（v1.6 不回路：IT → Solution 单向，无 patch）
+- ❌ **EXP 引用未在本 §7.1 定义的 ID**（必须先在表中定义）
+- ❌ **画完整 C2 / C3 / ERD / Sequence 图**（IT Architect 职责）
+- ❌ **触发 fireworks-tech-graph 生图**（IT Architect 职责）
+
+### 与 IT Architect 的接口契约（v1.6）
+
+- IT Architect 启动时 wiki-pull Solution LATEST → 读取 §7.1 EXP 全表 + §7.2 ITQ → 在 Architecture LATEST 各 Layer 章节 / ADR 中 trace 每条 EXP / ITQ 的处理（消费规则由 `skills/it-architecture-spec/SKILL.md` 定义）
+- IT Architect 发现 EXP 业务期望间矛盾（如 EXP-1 must 与 EXP-3 must 冲突）→ 发"反向 Refinement Request to PM"，**不发到 Solution Architect**
+- 三份产出（Solution / NFR / Architecture）彼此独立，无 patch、无 refine 反向触发；同步通过 Wiki Publisher 的协作元数据（Architecture last_published_at vs Solution 引用 timestamp）
 
 ---
 
@@ -363,14 +406,14 @@ Read skills/solution-design/SKILL.md
 
 必须：
 - 章节锚点严格按 §1 顺序产出
-- Stable ID 体系（F / P / J / S）跨阶段稳定，禁止重排
+- Stable ID 体系（F / P / J / BP / **EXP / ITQ** v1.6 / S-OQ）跨阶段稳定，禁止重排
 - §2 Feature List 每 Feature 含 Description + Value + T-shirt + 关联 Persona
 - §3 Journey 每 Stage 含 Persona × Action × Touchpoint
 - §4 Process Flow ≥1 Happy + ≥1 Unhappy
 - §5 流程难点 ≥1 happy (BP-H1) + 3-5 unhappy (BP-U1..)，每条标 Feature + 拆解提示（v1.4）
 - §6 T-shirt 与 Unit Range 严格按映射
-- §7 Technology Direction 4 子节全输出（瘦版 · v1.4）
-- §8 NFR Reference 必填，含路径 + 状态 + 摘要或调用提示（v1.4 新增）
+- **§7 Technology Expectations（v1.6 重写）**：§7.1 EXP ≥1 条 must + 优先级三选一 + 来源/理由具体；§7.2 ITQ 可空，但每条必给期望结论形式；§7.3 Architecture 引用指针含状态字段
+- §8 NFR Reference 必填，含路径 + 状态 + 摘要或调用提示
 - §9 Story List 每个 Story 有 Stable ID
 - §10 OQ 必须 propagate Value 所有 status=open 条目
 
@@ -381,6 +424,9 @@ Read skills/solution-design/SKILL.md
 - **v1.4 严禁画完整架构图 / ERD / API**（IT Architect 职责）
 - **v1.4 严禁触发 fireworks-tech-graph 生图**（IT Architect 职责）
 - **v1.4 严禁在 §8 重写 NFR 详细字段**（NFR Architect 职责，仅引用）
+- **v1.6 严禁在 §7 EXP 中写技术选型 / 组件设计 / API / ERD 字段**（必须是"能力 / 约束 / 期望"语义）
+- **v1.6 严禁回填 §7.3 Architecture LATEST 详细内容**（IT → Solution 单向，无 patch）
+- **v1.6 严禁 EXP-{n} / ITQ-{n} ID 重排或复用退役编号**
 - 跳过 §9 Story List 预览
 - T-shirt 估算偏离 §6 统一映射
 
@@ -430,9 +476,14 @@ Read skills/solution-design/SKILL.md
   
   注：NFR 已移除（独立到 NFR Architect agent · v1.0+）
 
-阶段 ⑤ 总确认 + 落 frontmatter
+阶段 ⑤ 总确认 + 落 frontmatter + 生成 EXP 候选清单（v1.6 新增）
   AI 把 14 项内容结构化落到 Solution Brief frontmatter
-  PM 总确认 → 进入 §1-§13 Solution Brief 产出
+  AI 基于 14 项内容 + Step 0.3 wiki-pull 的 NFR LATEST，生成 §7.1 EXP 候选清单：
+    - 第 13 项"用户入口 / 触点" → 可能产生 EXP（如"必须支持微信小程序生态"）
+    - 第 14 项"第三方 vendor" → 产生 EXP（如"复用现有 IDV vendor"）
+    - 第 15 项"技术栈 / 团队 / 时间 / 运营闭环约束" → 直接产生 EXP must（如"团队主要熟 .NET"）
+    - NFR Tier ID（如 PERF-T2 / AVAIL-T2）→ 推导 EXP（如"评分需异步"基于 PERF-T2 API p95 不可同步达成）
+  PM 总确认 EXP 候选清单（增/删/调优先级） → 进入 §1-§13 Solution Brief 产出
 ```
 
 ### 15.2 14 项分级总览
@@ -488,5 +539,6 @@ pm_input_14:
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 1.6.0 | 2026-05-22 | **v3.8 Solution 完全去技术化 + 独立产出 + 无回路**。①§7 重写为 **Technology Expectations to IT Architect**：结构化 EXP-{n} ID + 优先级 must/should/nice + 来源/理由具体；删除 v1.4 §7.1 技术方向 / §7.2 技术约束 / §7.3 Layer 1 引用回填等子节；②§7.2 ITQ-{n} 待澄清问题保留，但结论由 IT Architect 在 Architecture LATEST / ADR 中给出（Solution 不回填）；③§7.3 Architecture 引用指针明确为"只读 · 不回填"；④Stable ID 表新增 `EXP-{n}` / `ITQ-{n}` / `BP-{H/U/E}{n}` 三类；⑤§13 强制规则补"§7 EXP ≥1 must / 来源具体 / 严禁技术选型"；禁止规则补"严禁回填 §7.3 / 严禁 EXP/ITQ ID 重排"；⑥§15.1 Step 0.5 阶段 ⑤ 新增"生成 §7 EXP 候选清单"产出；⑦明确三份产出（Solution / NFR / Architecture）独立 + 无 patch 回路。 |
 | 1.4.0 | 2026-05-19 | **重大重构 v1.4**：§5 GWT Top 3-5 → **流程难点与 PRD 拆解提示**（Path ID BP-H/U/E + 拆解提示 + Coverage Matrix 接口）；§7 Tech High-level 四段式 → **Technology Direction 瘦版**（方向 + 约束 + 引用 IT Architect Layer 1 + 待 IT Architect 问题清单）；**§8 新增 NFR Reference**（引用 NFR LATEST · 不重写）；**删除"复杂边界触发 fireworks-tech-graph"段落**（职责完全下放 IT Architect）；§9-§13 编号下移；新增 §15 Step 0.5 PM-AI 协作 4 阶段模板（22 项→14 项 · NFR 移除 · PM 负担 -36%）。|
 | 1.0.0 | 2026-05-08 | 初版。从 solution-architect.agent v1.0 抽离 Solution Brief 章节锚点 + Stable ID 体系 + Feature List 表格 + Journey/Process/GWT/T-shirt/Tech high-level/Story List 预览的格式标准与强制规则。 |
