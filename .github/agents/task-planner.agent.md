@@ -5,7 +5,7 @@ version: 2.0.0
 updated: 2026-05-22
 maintainer: @frankzhey
 user-invocable: true
-tools: [read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/terminalSelection, read/terminalLastCommand, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, edit/rename, search/codebase, ado/wiki_get_page, ado/wiki_get_page_content, ado/wiki_list_pages, ado/search_wiki]
+tools: [read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/terminalSelection, read/terminalLastCommand, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, edit/rename, search/codebase, ado/wiki, ado/search_wiki]
 agents: []
 handoffs:
   - label: Publish Task Plan to Wiki

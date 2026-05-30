@@ -5,7 +5,7 @@ version: 1.1.0
 updated: 2026-05-22
 maintainer: @frankzhey
 user-invocable: true
-tools: [read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/terminalSelection, read/terminalLastCommand, edit/createDirectory, edit/createFile, edit/editFiles, edit/rename, search/codebase, ado/wiki_get_page, ado/wiki_get_page_content, ado/wiki_list_pages, ado/search_wiki, ado/wiki_create_or_update_page]
+tools: [read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/terminalSelection, read/terminalLastCommand, edit/createDirectory, edit/createFile, edit/editFiles, edit/rename, search/codebase, ado/wiki, ado/search_wiki]
 
 agents: []
 handoffs:
@@ -74,11 +74,11 @@ Read skills/project-context-loader/SKILL.md
 
 ```text
 白名单拉取:
-  ado/wiki_get_page_content path="/{project}"                            → outputs/wiki-cache/{project}/value.md  ⭐ 强制（v1.1）
+  ado/wiki path="/{project}"                            → outputs/wiki-cache/{project}/value.md  ⭐ 强制（v1.1）
   
   IF scope = {epic-slug}:
-    ado/wiki_get_page_content path="/{project}/project-wide-nfr"         → outputs/wiki-cache/{project}/project-wide-nfr.md  ⭐ v1.1 新增（补强模式依赖）
-    ado/wiki_get_page_content path="/{project}/{epic-slug}-solution"     → outputs/wiki-cache/{project}/{epic-slug}/solution.md（如存在 · 可选）
+    ado/wiki path="/{project}/project-wide-nfr"         → outputs/wiki-cache/{project}/project-wide-nfr.md  ⭐ v1.1 新增（补强模式依赖）
+    ado/wiki path="/{project}/{epic-slug}-solution"     → outputs/wiki-cache/{project}/{epic-slug}/solution.md（如存在 · 可选）
 
 校验 Wiki 协作元数据:
   - status: synced ✅ → 继续

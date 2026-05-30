@@ -1,8 +1,8 @@
 ---
 name: Value Architect
 description: 三段式 PM 工作流的 Discovery 入口 agent。基于 Project Name 触发市场调研（调用 market-research SKILL）+ 产出 Value Frame（调用 value-frame SKILL）。本 agent 只负责工作流编排，不内化领域规则。
-version: 2.6.0
-updated: 2026-05-19
+version: 2.7.0
+updated: 2026-05-30
 maintainer: @frankzhey
 user-invocable: true
 tools: [read/readFile, read/viewImage, read/terminalSelection, edit/createDirectory, edit/createFile, edit/editFiles, edit/rename, search/codebase, web/fetch, web/search]
@@ -99,7 +99,7 @@ current: value-architect-{YYYY-MM-DD-HHmm}.md
 
 > 请问本次 Value 阶段的输入方式是哪种？
 > - **Mode 1：PM 文字调研结果输入**（已自行调研完成，提供文字总结）
-> - **Mode 2：竞品 URL 调研**（PM 提供 ≥3 个竞品 URL，由 agent 结构化整理竞品速览，PM 选 1-2 家深度对标）
+> - **Mode 2：市场调研**（竞品对标 + 可选市场全景 TAM/SAM/SOM/趋势/分群，汇聚为核心能力模块图）
 
 ---
 
@@ -134,7 +134,7 @@ PM 的调研内容建议按以下 6 段式 Summary 提供，但 **不要求 6 �
 
 ---
 
-## Mode 2：竞品 URL 调研
+## Mode 2：市场调研
 
 ### 2-1 加载 SKILL
 
@@ -142,27 +142,29 @@ PM 的调研内容建议按以下 6 段式 Summary 提供，但 **不要求 6 �
 Read skills/market-research/SKILL.md
 ```
 
-### 2-2 信息收集
+### 2-2 信息收集 + 选范围（SKILL §0）
+
+先按 SKILL §0 与 PM 确认范围：**Mode A 竞品对标 / Mode B 市场全景 / 默认 A+B**（§2Y 核心能力模块划定无论如何必做）。
 
 | 信息项 | 说明 | 是否必须 |
 |---|---|---|
 | Project Name | 项目名（kebab-case）+ 一句话描述 | ✅ |
 | 战略归属 | ops_excellence / test_delivery / ai_assessment | ✅ |
-| 竞品 URL 列表 | PM 提供 ≥3 个（推荐 5+）竞品 URL | ✅ |
+| 竞品 URL 列表 | PM 提供 ≥3 个（推荐 5+）竞品 URL（Mode A） | ✅ (A) |
+| 行业报告/市场数据来源 | PM 提供的报告或可检索来源（Mode B 市场容量/趋势） | ⭕ (B) |
 | 调研重点 | 1–3 个核心能力维度 | ⭕ 推荐 |
-| PM 补充信息 | PM 对某个竞品的现场观察或内部测试结论 | ⭕ |
 | 地域偏好 | 国内 / 海外 / 全部 | ⭕ |
 
-### 2-3 执行 SKILL §2 三步流程
+### 2-3 执行 SKILL 流程
 
-按 `skills/market-research/SKILL.md` §2 执行：
-- **Step 1**：读取 PM 提供的竞品 URL（如 `web/fetch` 不可用，要求 PM 粘贴关键文字）
-- **Step 2**：竞品速览（核心能力 + 解决的痛点 两列并列，落盘 `competitor-shortlist.md`）
-- **Step 3**：PM 选定 1-2 家深度对标（6 段式 Summary，每家落盘 `competitor-{name}.md`）
+按 `skills/market-research/SKILL.md` 执行：
+- **Mode A（§2）**：Step 1 读取竞品 URL → Step 2 竞品速览（落盘 `competitor-shortlist.md`）→ Step 3 深度对标（落盘 `competitor-{name}.md`）
+- **Mode B（§2X）**：市场容量 TAM/SAM/SOM + 趋势 + 用户分群（落盘 `market-landscape.md`，数字须带口径/年份/来源，禁止编造）
+- **§2Y（必做）**：汇聚竞品能力 + 市场需求 → 核心能力模块图（落盘 `capability-modules.md`，过其 DoD 自检）
 
 ### 2-4 进入 Gate 1
 
-呈现 Step 3 深度对标的"推荐截取核心能力清单"+"推荐承接的痛点清单"给 PM → Gate 1。
+呈现 `capability-modules.md` 核心能力模块图（含覆盖痛点 / 竞品覆盖 / 差异化机会 / 优先级）+「推荐承接的痛点清单」+（如做 Mode B）市场容量与目标分群给 PM → Gate 1。
 
 ---
 
@@ -172,11 +174,12 @@ Read skills/market-research/SKILL.md
 
 **Mode 2 必走 / Mode 1 跳过**
 
-呈现 Step 3 各家的汇总：
-- 推荐截取的核心能力清单
+呈现汇总：
+- **核心能力模块图**（`capability-modules.md` · §2Y 必有）—— 含每模块覆盖痛点 / 竞品覆盖 / 差异化机会 / 战略归属 / 优先级
 - 推荐承接的用户痛点清单
 - 不足之处中我方应规避的风险点
-- 是否需要补充对标对象
+- （如做 Mode B）市场容量 TAM/SAM/SOM 与目标分群
+- 是否需要补充对标对象或市场数据
 
 PM 反馈后 → 进入 Gate 2。
 
@@ -293,8 +296,10 @@ skills_loaded:
 - [ ] 非 MVP Epic 均含 ≥1 个新增 Leading KPI（持续 MVP Guardrail 不计）
 
 **Mode 2 调研合规**
-- [ ] `Project/{project}/Research/competitor-shortlist.md` 已生成（速览字段全填，"核心能力"与"解决的痛点"两列并列；信息不足时用 `[待确认]`）
-- [ ] PM 选定 1–2 家已产出 `competitor-{name}.md`（6 段式全填）
+- [ ] （Mode A）`Project/{project}/Research/competitor-shortlist.md` 已生成（速览字段全填，"核心能力"与"解决的痛点"两列并列；信息不足时用 `[待确认]`）
+- [ ] （Mode A）PM 选定 1–2 家已产出 `competitor-{name}.md`（6 段式全填）
+- [ ] （Mode B · 如执行）`market-landscape.md` 已生成（TAM/SAM/SOM 带口径/年份/来源，趋势 ≥4 维，分群圈定目标段；无来源数字标 `[待确认 · 需补来源]`）
+- [ ] **`capability-modules.md` 已生成（§2Y 必做）**——3–7 个模块，每模块覆盖痛点可回溯、≥1 个 P0 差异化模块、战略归属自洽（通过 SKILL §2Y DoD）
 
 **Gate 合规**
 - [ ] Gate 1 已通过（Mode 2 必须）/ skipped（Mode 1）
@@ -388,6 +393,7 @@ Solution Architect 启动指令：
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 2.7.0 | 2026-05-30 | **Mode 2 扩展为"市场调研"**，对齐 market-research SKILL v2.0：新增 Mode A 竞品对标 / Mode B 市场全景（TAM/SAM/SOM/趋势/分群）范围选择；新增 §2Y 核心能力模块图（`capability-modules.md`）为必做核心 handoff，替代原"推荐截取核心能力清单"作为 Gate 1 主呈现物；Quality Gate 落盘清单同步新增 market-landscape.md / capability-modules.md 校验。 |
 | 2.5.0 | 2026-05-19 | **多 project 并行强化**。启动时主动扫描 `Project/*` 列出已有 project 让 PM 选"新建 / Refinement"，防止重名。项目目录结构新增 `EngReview/`。明确本 agent 是 project 入口，下游通过 `skills/project-context-loader/SKILL.md` 校验一致性。 |
 | 2.6.0 | 2026-05-19 | **Gate 2 PM 必答四问扩展为六问**：新增 Q5 用户地域分布 + Q6 合规要求（等保级别 / 行业标准 / 数据敏感度）。两问下游消费：直接预填 NFR Architect §7 Geo / §5 Compliance / §4 Data Sensitivity 档位，让跨知识负担集中在 Value 阶段一次性采集。Quality Gate 与强制 / 禁止规则同步对齐 Q1–Q6。 |
 | 2.4.0 | 2026-05-14 | Mode 2 改名为"竞品 URL 调研"（去掉 web search 自动发现假设），输入新增 PM 提供 URL 必须项；Mode 1 / Mode 2 调研字段升级为 6 段式（新增"解决的痛点"）；Gate 2 升级为"PM 必答四问"强制门（Q1 核心痛点 / Q2 为什么是我们 / Q3 目标用户 / Q4 价值假设），全部必答否则不得进入 Gate 3；Quality Gate 与强制/禁止清单同步对齐。 |

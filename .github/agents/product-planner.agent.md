@@ -5,7 +5,7 @@ version: 4.8.0
 updated: 2026-05-22
 maintainer: @frankzhey
 user-invocable: true
-tools: [read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/terminalSelection, read/terminalLastCommand, agent/runSubagent, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, edit/rename, search/codebase, figma/add_code_connect_map, figma/create_design_system_rules, figma/create_new_file, figma/generate_diagram, figma/generate_figma_design, figma/get_code_connect_map, figma/get_code_connect_suggestions, figma/get_context_for_code_connect, figma/get_design_context, figma/get_figjam, figma/get_metadata, figma/get_screenshot, figma/get_variable_defs, figma/search_design_system, figma/send_code_connect_mappings, figma/use_figma, figma/whoami, figma/get_libraries, figma/upload_assets]
+tools: [read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/terminalSelection, read/terminalLastCommand, agent/runSubagent, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, edit/rename, search/codebase, ado/wiki, ado/search_wiki, magic-patterns/read_artifact_files, figma/add_code_connect_map, figma/create_design_system_rules, figma/create_new_file, figma/generate_diagram, figma/generate_figma_design, figma/get_code_connect_map, figma/get_code_connect_suggestions, figma/get_context_for_code_connect, figma/get_design_context, figma/get_figjam, figma/get_metadata, figma/get_screenshot, figma/get_variable_defs, figma/search_design_system, figma/send_code_connect_mappings, figma/use_figma, figma/whoami, figma/get_libraries, figma/upload_assets]
 
 agents: ['Story Splitter']
 handoffs:
@@ -185,7 +185,7 @@ Read skills/project-context-loader/SKILL.md
   ⑤ 都没有 → §6 NFR Reference 标"待 NFR Architect 产出" + §9 OQ flag
 
 Wiki 拉取时（③④）:
-  - ado/wiki_get_page_content path={wiki_path}
+  - ado/wiki path={wiki_path}
   - 缓存到 outputs/wiki-cache/{project}/{epic-slug}/nfr.md
   - 校验协作元数据 status: synced（v3.2）
   - frontmatter.upstream_sources.nfr = { type: wiki-pull, wiki_path, pulled_at }
@@ -211,7 +211,7 @@ Wiki 拉取时（③④）:
          § 在 §9 OQ 标 "ARCH-MANUAL: PM 手动粘贴非正式"
 
 Wiki 拉取时（①）:
-  - ado/wiki_get_page_content path=/{project}/{epic-slug}-PRD/architecture
+  - ado/wiki path=/{project}/{epic-slug}-PRD/architecture
   - 缓存到 outputs/wiki-cache/{project}/{epic-slug}/architecture.md
   - [可选] 拉 diagrams Attachment → outputs/wiki-cache/.../diagrams/*.svg
   - [可选] 拉 adr/ 子页 → outputs/wiki-cache/.../adr/*.md
@@ -362,7 +362,7 @@ Story 删除 → 归档到 `Project/{project}/PRD/{epic-slug}/{epic-slug}-archiv
 
 ### A-2 读取 Magic Patterns
 
-`read_files(editor_id)` 读取全部组件源码，从源码提取：
+`read_artifact_files(editor_id)` 读取全部组件源码，从源码提取：
 
 | 提取维度 | 来源 | 对应 AC 类型 |
 |---|---|---|

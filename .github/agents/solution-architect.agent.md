@@ -5,7 +5,7 @@ version: 2.5.0
 updated: 2026-05-22
 maintainer: @frankzhey
 user-invocable: true
-tools: [read/readFile, read/viewImage, read/terminalSelection, edit/createDirectory, edit/createFile, edit/editFiles, edit/rename, search/codebase, figma/get_design_context, figma/get_screenshot, figma/get_metadata, figma/get_variable_defs, figma/use_figma]
+tools: [read/readFile, read/viewImage, read/terminalSelection, edit/createDirectory, edit/createFile, edit/editFiles, edit/rename, search/codebase, ado/wiki, ado/search_wiki, magic-patterns/read_artifact_files, figma/get_design_context, figma/get_screenshot, figma/get_metadata, figma/get_variable_defs, figma/use_figma]
 
 agents: []
 handoffs:
@@ -105,7 +105,7 @@ Read skills/project-context-loader/SKILL.md
 
 ```text
 wiki-pull 流程:
-  ado/wiki_get_page_content path="/{project}/project-wide-nfr"
+  ado/wiki path="/{project}/project-wide-nfr"
     → outputs/wiki-cache/{project}/project-wide-nfr.md
 
 校验 Wiki 协作元数据:
@@ -172,7 +172,7 @@ Step -1 已加载 Value，本步骤仅做产出前的最终校验：
 
 ## Step 2：MP / Figma 读取（如 Step 0 选择了 A / B）
 
-- **MP**：`read_files(editor_id)` 读取组件源码，提取页面层级 / 字段命名 / 状态枚举
+- **MP**：`read_artifact_files(editor_id)` 读取组件源码，提取页面层级 / 字段命名 / 状态枚举
 - **Figma**：`get_screenshot` + Vision，提取页面布局 / 跳转关系
 
 读取产物作为 Journey + Feature List 的参考依据，不直接进入 Solution Brief。

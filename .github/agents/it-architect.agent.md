@@ -5,7 +5,7 @@ version: 1.6.0
 updated: 2026-05-22
 maintainer: @frankzhey
 user-invocable: true
-tools: [read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/terminalSelection, read/terminalLastCommand, edit/createDirectory, edit/createFile, edit/editFiles, edit/rename, search/codebase, ado/wiki_get_page, ado/wiki_get_page_content, ado/wiki_list_pages, ado/search_wiki, ado/wiki_create_or_update_page]
+tools: [read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/terminalSelection, read/terminalLastCommand, edit/createDirectory, edit/createFile, edit/editFiles, edit/rename, search/codebase, ado/wiki, ado/search_wiki]
 
 agents: []
 handoffs:
@@ -94,11 +94,11 @@ Read skills/project-context-loader/SKILL.md
 
 ```text
 白名单（IT Architect 允许拉取这些）:
-  ado/wiki_get_page_content path="/{project}"                         → outputs/wiki-cache/{project}/value.md                  (Value · 必需)
-  ado/wiki_get_page_content path="/{project}/{epic}-solution"         → outputs/wiki-cache/{project}/{epic-slug}/solution.md   (Solution · 必需)
-  ado/wiki_get_page_content path="/{project}/{epic}-PRD/nfr"          → outputs/wiki-cache/{project}/{epic-slug}/nfr.md        (NFR · 可选，如有)
-  ado/wiki_get_page_content path="/{project}/{epic}-PRD"              → outputs/wiki-cache/{project}/{epic-slug}/prd.md        (PRD · 可选 · v1.4，存在则拉取，否则 SKIP)
-  ado/wiki_get_page_content path="/{project}/{epic}-PRD/ui-prototype" → outputs/wiki-cache/{project}/{epic-slug}/ux.md         (UX · 可选 · v1.4，存在则拉取，否则 SKIP)
+  ado/wiki path="/{project}"                         → outputs/wiki-cache/{project}/value.md                  (Value · 必需)
+  ado/wiki path="/{project}/{epic}-solution"         → outputs/wiki-cache/{project}/{epic-slug}/solution.md   (Solution · 必需)
+  ado/wiki path="/{project}/{epic}-PRD/nfr"          → outputs/wiki-cache/{project}/{epic-slug}/nfr.md        (NFR · 可选，如有)
+  ado/wiki path="/{project}/{epic}-PRD"              → outputs/wiki-cache/{project}/{epic-slug}/prd.md        (PRD · 可选 · v1.4，存在则拉取，否则 SKIP)
+  ado/wiki path="/{project}/{epic}-PRD/ui-prototype" → outputs/wiki-cache/{project}/{epic-slug}/ux.md         (UX · 可选 · v1.4，存在则拉取，否则 SKIP)
 
 黑名单（严禁拉取）:
   ❌ /{project}/{epic}-PRD/engineering-review       (Eng Review · 下游)

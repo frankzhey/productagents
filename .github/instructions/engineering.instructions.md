@@ -11,6 +11,25 @@ applyTo: "{**/*.{md,ts,tsx,js,jsx,json,yml,yaml,cs,sql},src/**,docs/**}"
 
 ---
 
+## 角色与职责边界（v4.x · 强制）
+
+> 本规范是**工程质量标准库**，被多个 agent 共同加载。**同一条标准对不同角色的含义不同**：产出方按它**撰写**，评审方按它**核对**。下表是唯一权威的"谁产出 / 谁评审"边界，任何 agent 不得越界产出。
+
+| 工程产物 | 产出方（Author） | 治理 SKILL | Eng Reviewer 的动作 |
+|---|---|---|---|
+| High-level Architecture / Component / Application Diagram | **IT Architect** | `it-architecture-spec` | 评审（Architecture Challenge），**不产出** |
+| Sequence Diagram / System Interaction Flow | **IT Architect** | `it-architecture-spec` | 评审，**不产出** |
+| Database ERD | **IT Architect** | `it-architecture-spec` | 评审，**不产出** |
+| API Document / Service Boundary Table | **IT Architect** | `it-architecture-spec` | 评审，**不产出** |
+| ADR（架构决策记录） | **IT Architect** | `it-architecture-spec` | 评审，**不产出** |
+| NFR Targets（性能/可靠/安全档位） | **NFR Architect** | `nfr-spec` | 核对 QAS 是否覆盖 NFR（NFR Verification），**不产出档位** |
+| Epic / Feature / User Story / AC | **Product Planner** | `ac-writing-spec` | AC 合规核对，**不产出** |
+| Task 拆分与细估 | **Task Planner** | — | Task Readiness 评审 |
+
+**Eng Reviewer v4.1 = 纯评审**：只产出 8 类评审动作（Scope Challenge / Architecture Challenge / Blast Radius / NFR Verification / Capacity / AC 合规 / Task Readiness / Coverage Verification）+ 反向 Refinement Request（仅 Architecture / NFR）。**显式禁止**自行产出 C2/C3 架构图、ERD、API、Sequence、NFR 档位。下文所有标注「强制」的设计产出，均指**对 Author 角色强制**；Eng Reviewer 将其作为**评审检查项（核对存在性与质量）**，而非自身的撰写义务。
+
+---
+
 ## 总体工程原则
 
 - 先定义系统边界，再讨论实现细节
@@ -25,19 +44,14 @@ applyTo: "{**/*.{md,ts,tsx,js,jsx,json,yml,yaml,cs,sql},src/**,docs/**}"
 
 ## 适用范围
 
-本文件适用于：
+本文件是上述工程产物的**共享质量标准**，按"角色与职责边界"表分配产出 / 评审责任：
 
-- Engineering Review
-- Technical Design
-- High-level Architecture Design
-- High-level Components Architecture / Application Diagram
-- Sequence Diagram
-- Database ERD
-- API Document
-- Service Boundary Table
-- System Interaction Flow
-- Task 拆分中的研发实现部分
-- Copilot 输出的技术实现建议
+- Technical Design / High-level Architecture / Component / Application Diagram → **IT Architect 产出**
+- Sequence Diagram / System Interaction Flow / Database ERD → **IT Architect 产出**
+- API Document / Service Boundary Table → **IT Architect 产出**
+- Engineering Review（对以上产物的评审）→ **Eng Reviewer 产出**（纯评审，不重新撰写设计）
+- Task 拆分中的研发实现部分 → **Task Planner 产出**
+- Copilot 输出的技术实现建议 → 适用本规范，但须先确认当前角色边界
 
 ---
 
@@ -56,8 +70,8 @@ applyTo: "{**/*.{md,ts,tsx,js,jsx,json,yml,yaml,cs,sql},src/**,docs/**}"
 
 ## 架构规范
 
-### 1. High-level Architecture Design（强制）
-当任务涉及系统级功能、跨系统集成、异步流程、AI评分、上传/回调/结果回传等场景时，必须给出高层架构设计。
+### 1. High-level Architecture Design（强制 · IT Architect 产出 / Eng Reviewer 评审）
+当任务涉及系统级功能、跨系统集成、异步流程、AI评分、上传/回调/结果回传等场景时，**IT Architect** 必须给出高层架构设计；Eng Reviewer 核对其是否齐全、合理，而非自行补画。
 
 至少说明：
 
@@ -72,8 +86,8 @@ applyTo: "{**/*.{md,ts,tsx,js,jsx,json,yml,yaml,cs,sql},src/**,docs/**}"
 
 ---
 
-### 2. High-level Components Architecture / Application Diagram（强制）
-关键系统必须说明组件关系，尤其在以下场景：
+### 2. High-level Components Architecture / Application Diagram（强制 · IT Architect 产出 / Eng Reviewer 评审）
+关键系统必须由 **IT Architect** 说明组件关系，尤其在以下场景：
 
 - Mini program + backend
 - 3Ups website + backend
@@ -374,7 +388,9 @@ applyTo: "{**/*.{md,ts,tsx,js,jsx,json,yml,yaml,cs,sql},src/**,docs/**}"
 
 ## Copilot 输出要求
 
-当输出技术方案、Engineering Review、API 设计、数据设计、任务拆分、实现建议时，必须：
+先按"角色与职责边界"确认当前角色：
+
+**当作为设计 Author（IT Architect / NFR Architect / Product Planner）输出技术方案、API 设计、数据设计、任务拆分时，必须：**
 
 1. 先定义系统边界
 2. 再定义交互流程
@@ -385,9 +401,17 @@ applyTo: "{**/*.{md,ts,tsx,js,jsx,json,yml,yaml,cs,sql},src/**,docs/**}"
 7. 输出结构必须适合评审与研发 handover
 8. 优先考虑 BCChina 现有系统复用，而不是默认新建系统
 
+**当作为 Eng Reviewer（纯评审）输出 Engineering Review 时，必须：**
+
+1. 以上述 1–8 为**评审检查项**，逐项核对 Author 产物是否齐全、合理、可追踪
+2. 缺项 / 不合规 → 通过反向 Refinement Request（仅 Architecture / NFR）回提 Author，**不自行补写**
+3. 不产出 C2/C3 架构图、ERD、API、Sequence、NFR 档位
+
 ---
 
 ## 禁止事项
+
+> 以下针对**设计 Author 角色**；Eng Reviewer 另有约束：禁止自行产出架构图 / ERD / API / Sequence / NFR 档位，缺项一律回提 Author。
 
 - 禁止脱离 service boundary 直接谈实现
 - 禁止只写 happy path，不写异常路径
@@ -401,7 +425,9 @@ applyTo: "{**/*.{md,ts,tsx,js,jsx,json,yml,yaml,cs,sql},src/**,docs/**}"
 
 ## 默认输出建议
 
-如无特殊要求，技术输出建议包含：
+> 下列清单是 **IT Architect 设计产出**的默认结构；**Eng Reviewer 不按此清单撰写**，而是逐项核对其存在性与质量（详见 `eng-review-spec`）。
+
+如无特殊要求，IT Architect 技术输出建议包含：
 
 - Scope / Context
 - High-level Architecture

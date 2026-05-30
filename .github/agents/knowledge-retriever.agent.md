@@ -5,7 +5,7 @@ version: 2.0.0
 updated: 2026-05-08
 maintainer: @frankzhey
 user-invocable: true
-tools: ['ado/search_wiki', 'ado/wiki_get_page', 'ado/wiki_get_page_content', 'ado/wiki_list_pages', 'read', 'edit/createDirectory', 'edit/createFile', 'edit/editFiles']
+tools: ['ado/search_wiki', 'ado/wiki', 'read', 'edit/createDirectory', 'edit/createFile', 'edit/editFiles']
 handoffs:
   - label: Send to Value Architect
     agent: Value Architect
@@ -163,7 +163,7 @@ Project/{project}/
 ### 检索逻辑
 
 ```
-1. ado/wiki_list_pages → 列出 Wiki 根目录所有页面
+1. ado/wiki → 列出 Wiki 根目录所有页面
 2. 按 epic_name 前缀匹配 {project} 同名或同系列：
    - 完全匹配：page_path 含 {project}
    - 系列匹配：page_path 前缀与 {project} 同根（如 `ges-` / `ielts-`）
@@ -217,7 +217,7 @@ Project/{project}/
 
 # 📖 Step 4：读取页面内容
 
-使用 `ado/wiki_get_page_content` 读取筛选后的页面。
+使用 `ado/wiki` 读取筛选后的页面。
 
 每页读取重点：
 - 核心业务流程（不读完整 PRD，只提取 flow）

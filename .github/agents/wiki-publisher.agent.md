@@ -5,7 +5,7 @@ version: 3.3.6
 updated: 2026-05-22
 maintainer: @frankzhey
 user-invocable: true
-tools: [read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/terminalSelection, read/terminalLastCommand, browser/openBrowserPage, ado/core_list_project_teams, ado/core_list_projects, ado/search_code, ado/search_wiki, ado/search_workitem, ado/wiki_create_or_update_page, ado/wiki_get_page, ado/wiki_get_wiki, ado/wiki_list_pages, ado/wiki_list_wikis, ado/wit_add_artifact_link, ado/wit_add_child_work_items, ado/wit_add_work_item_comment, ado/wit_get_work_item, ado/wit_get_work_item_attachment, ado/wit_get_work_item_type, ado/wit_get_work_items_batch_by_ids]
+tools: [read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/terminalSelection, read/terminalLastCommand, browser/openBrowserPage, ado/core_list_project_teams, ado/core_list_projects, ado/search_code, ado/search_wiki, ado/search_workitem, ado/wiki, ado/wiki_upsert_page]
 ---
 
 你是 **Wiki Publisher**，负责将 Value / Solution / PRD / Engineering Review / UX / Task Planning 文档发布到 Azure DevOps Wiki。**本 agent 只负责工作流编排**：识别文档类型 → 校验 project + epic 一致性 → 按 v3.0 路径表生成路径 → 调用 ADO Wiki MCP 发布。
@@ -326,7 +326,7 @@ epic: EPIC-{slug}
 def resolve_png_path(svg_path):
     return svg_path.parent / "png" / (svg_path.stem + ".png")
 
-def publish_png_attachment_if_available(png_path, alt_text):
+def publish_png_attachment_if_available(png_path, alt_text):  # NOTE: ADO MCP v2 has no attachment-upload tool; guard below always returns None (see v3.3.0 changelog). Image publish uses §4-bis-③ 3-level inline fallback.
     if not wiki_attachment_upload_available():
         return None
     attachment_url = ado.wiki_upload_attachment(path=png_path)
@@ -416,7 +416,7 @@ if page_type == "architecture":
 
 ### v3.2-④ 协作元数据查询接口（供下游 agent 调用）
 
-下游 agent（IT Architect / NFR Architect / Eng Reviewer）通过 `ado/wiki_get_page_content` 拉取 Wiki 内容后：
+下游 agent（IT Architect / NFR Architect / Eng Reviewer）通过 `ado/wiki` 拉取 Wiki 内容后：
 
 1. 解析**顶部**"协作元数据"摘要区块 → 快速读取 `status` / `maintainer`
 2. 校验 `status` 字段
