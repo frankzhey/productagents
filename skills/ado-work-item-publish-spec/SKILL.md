@@ -1,8 +1,8 @@
 ---
 name: ado-work-item-publish-spec
-description: Azure DevOps Boards Work Item 发布规范。用于 Work Item Publisher 将 PM approved PRD 中的 Epic / Feature / User Story / AC 发布到 BCChina Azure DevOps project，包含字段映射、PM confirmation gate、Iteration/Area Path、tag 幂等、dry-run、create/update/stale/block 规则。v1.1 新增本地 ado-mapping.json + 发布历史落盘规范，幂等搜索升级为"本地优先 → ADO 回查"两阶段。
-version: 1.1.0
-updated: 2026-05-19
+description: Azure DevOps Boards Work Item 发布规范。用于 Work Item Publisher 将 PM approved PRD 中的 Epic / Feature / User Story / AC 发布到 BCChina Azure DevOps project，包含字段映射、PM confirmation gate、Iteration/Area Path、tag 幂等、dry-run、create/update/stale/block 规则。v1.2 对齐 Story Points / Units 估算口径，仅发布 PRD §4 中 1/3/5/8 的 Story Points / Units。
+version: 1.2.0
+updated: 2026-06-29
 maintainer: @frankzhey
 applies-to: [work-item-publisher]
 ---
@@ -162,7 +162,7 @@ Title：
 | Area Path | `System.AreaPath` |
 | PRD managed markdown | `System.Description` 中的受控区块 |
 | Acceptance Criteria | `Microsoft.VSTS.Common.AcceptanceCriteria`；若字段不可用，则写入 Description 受控区块 |
-| Story estimate / units | `Microsoft.VSTS.Scheduling.StoryPoints` 或团队可用估算字段；字段不可用时写入 Description |
+| Story Points / Units | `Microsoft.VSTS.Scheduling.StoryPoints` 或团队可用估算字段；取 PRD §4 的 Story Points / Units 数值（只能为 1 / 3 / 5 / 8）；字段不可用时写入 Description |
 | KPI alignment / source project / source file | Tags |
 
 ---
@@ -285,7 +285,7 @@ PRD Confirmed At: {confirmed_at}
 |---|---|
 | Iteration Path | PM 本次显式提供才更新；未提供则保留已有值 |
 | Area Path | PM 本次显式提供才更新；未提供则保留已有值 |
-| Estimate / Story Points | 字段可用且 PRD 有值时更新；否则写入 Description |
+| Estimate / Story Points | 字段可用且 PRD §4 有 Story Points / Units 时更新；仅允许 1 / 3 / 5 / 8；否则写入 Description |
 
 ### 7.4 禁止覆盖
 
@@ -563,5 +563,6 @@ ado_published:
 
 | 版本 | 日期 | 变更 |
 |---|---|---|
+| 1.2.0 | 2026-06-29 | 对齐 PRD Story-level Estimation：ADO StoryPoints 字段取 PRD §4 的 Story Points / Units 数值，仅允许 1 / 3 / 5 / 8；字段不可用时写入 Description。 |
 | 1.1.0 | 2026-05-19 | **本地 mapping + 发布历史落盘**。§6 幂等搜索升级为两阶段（本地 mapping 优先 → ADO 回查兜底）；§10 dry-run 表新增 `AC Target` / `Source` 列；新增 §14 落盘规范（`ado-mapping.json` 结构 + `ado-publish-history/{stamp}.md` 格式 + PRD frontmatter `ado_published` 回写）；§13 强制规则新增"无写工具时只允许 dry-run"、"立即写回 mapping"、"完成后必须落盘"。 |
 | 1.0.0 | 2026-05-19 | 初版。定义 approved PRD 到 Azure DevOps Boards 的映射、tag 幂等、dry-run、create/update/stale/block、Iteration Path / Area Path 默认与覆盖规则。 |

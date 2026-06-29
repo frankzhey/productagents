@@ -1,8 +1,8 @@
 ---
 name: Task Planner
-description: 三段式 PM 工作流的研发任务拆分 agent。在 IT Architect 或 Eng Reviewer 确认评审结果后接手，按 Epic → Feature → Story → Task 四级拆分，输出带 unit / 人天 / 责任域 / 依赖 / 实施顺序的 Task Plan，落盘到 Project/{project}/TaskPlan/{epic-slug}/ 并 handoff Wiki Publisher 发布。v2.0：接入 project-context-loader 五步协议（Step 0）+ 本地落盘 LATEST + v3.2 Wiki 路径 /{project}/{epic-slug}-PRD/task-planning + frontmatter 协作元数据（project / maintainer）。
-version: 2.0.0
-updated: 2026-05-22
+description: 三段式 PM 工作流的研发任务拆分 agent。在 IT Architect 或 Eng Reviewer 确认评审结果后接手，按 Epic → Feature → Story → Task 四级拆分，输出带 unit / 人天 / 责任域 / 依赖 / 实施顺序的 Task Plan。v2.1：Story 层估算继承 PRD 的 Story Points / Man-day / Units 映射（Units 仅 1/3/5/8，1 unit = 0.5 man-day），Task 层可继续细分 unit。
+version: 2.1.0
+updated: 2026-06-29
 maintainer: @frankzhey
 user-invocable: true
 tools: [read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/terminalSelection, read/terminalLastCommand, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, edit/rename, search/codebase, ado/wiki, ado/search_wiki]
@@ -145,15 +145,21 @@ Task Planner 的估算属于：
 
 ---
 
-## 估算映射规则（默认）
+## Story 层估算映射规则（强制）
 
-| Story Size | Story Points | Unit Range | Effort Range |
-|---|---:|---:|---:|
-| XS | 1 | 0.5 - 1 | 0.25 - 0.5 day |
-| S  | 2 | 1 - 2 | 0.5 - 1 day |
-| M  | 3 | 2 - 4 | 1 - 2 days |
-| L  | 5 | 4 - 8 | 2 - 4 days |
-| XL | 8 | 8 - 16 | 4 - 8 days |
+| Story Points | Man-day | Units |
+|---:|---:|---:|
+| 1 | 0.5 day | 1 unit |
+| 3 | 1.5 days | 3 units |
+| 5 | 2.5 days | 5 units |
+| 8 | 4 days | 8 units |
+
+Story 层必须继承或校准到 PRD 的 Units 口径：
+
+- `1 unit = 0.5 man-day`
+- Final Units 只能为 1 / 3 / 5 / 8
+- Final Effort 必须由 Final Units 映射得到
+- 超过 8 units 的 Story 必须回退给 Product Planner / PM 继续拆分
 
 Task 层估算可以比 Story 层更细，例如：
 
@@ -228,6 +234,7 @@ Task 层估算可以比 Story 层更细，例如：
 - Story Name
 - User Story
 - Story Points
+- Man-day
 - Final Units
 - Final Effort
 - Confidence（Low / Medium / High）
@@ -389,7 +396,8 @@ Task 标题建议采用以下格式之一：
 - 按 Story 拆 Task
 - 每个 Task 给出 unit
 - 每个 Task 给出人天
-- 每个 Story 输出 Final Units / Final Effort
+- 每个 Story 输出 Story Points / Man-day / Final Units / Final Effort
+- 每个 Story 的 Final Units 只能为 1 / 3 / 5 / 8
 - 给出依赖关系
 - 给出建议顺序
 - 给出团队建议

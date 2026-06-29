@@ -1,15 +1,20 @@
 ---
 name: solution-design
-description: Solution Brief 写作规范 v1.6——纯业务方案（不写技术选型 / 不写 engineering notes）。v1.6 重构 §7 为 "Technology Expectations to IT Architect"（结构化 EXP-{n} + must/should/nice），仅传达对 IT 的业务期望/约束/待澄清问题；删除原 §7 技术方向 / Layer 1 引用回填等子节，IT Architect 单向消费 Solution，不回写。§8 NFR Reference 保留（引用 NFR LATEST）。Step 0.5 PM-AI 协作 14 项产出 EXP 候选清单。Plan 阶段产出 Solution Brief 时必须 Read 本文件。
-version: 1.6.0
-updated: 2026-05-22
+description: Solution Brief 写作规范 v1.7——纯业务方案（不写技术选型 / 不写 engineering notes）。v1.7 接入 story-splitting-spec，Solution 阶段的 Feature List 必须按 Feature=系统能力、输入→处理→输出闭环、尽量不跨系统、每 Feature 预估 ≥3 Story 等 Feature Gate 生成；User Story / AC 详细拆解仍由 Product Planner / Story Splitter 承接。
+version: 1.7.0
+updated: 2026-06-29
 maintainer: @frankzhey
 applies-to: [solution-architect]
 ---
 
-# Solution Brief 写作规范 v1.6
+# Solution Brief 写作规范 v1.7
 
 本 SKILL 定义 Solution Brief 的章节结构、ID 体系、Feature List 格式、Journey/Process/流程难点/T-shirt/EXP/NFR Reference/Story List 标准，由 Solution Architect 在产出 brief 前显式 Read 并执行。
+
+> **v1.7 核心变化**：
+> - Feature List 的颗粒度规则接入 `skills/story-splitting-spec/SKILL.md`
+> - Solution 阶段必须先判断 Feature 是否是"系统能力"，并检查名称、业务闭环、系统边界、Story 数量与后台二级菜单边界
+> - Solution 仍不写完整 Story AC；Story 详细拆分与 AC 由 Product Planner / Story Splitter 承接
 
 > **v1.6 核心变化（在 v1.4 基础上）**：
 > - **§7 重写为 Technology Expectations to IT Architect**：结构化 EXP-{n} ID + 优先级 must/should/nice + 来源/理由；删除 v1.4 §7.1 技术方向 / §7.3 Layer 1 引用回填等子节
@@ -90,6 +95,11 @@ applies-to: [solution-architect]
 ```
 
 **强制要求**：
+- 产出 Feature List 前必须加载 `skills/story-splitting-spec/SKILL.md`，并按其 §2 执行 Feature Gate
+- 每个 Feature 必须是可独立理解的系统能力，至少包含输入 → 处理 → 输出
+- 每个 Feature 尽量不跨系统；跨用户系统 / AI 系统 / 支付系统 / 后台系统时优先拆 Feature
+- 每个 Feature 预估 Story 数默认 ≥3；少于 3 必须记录 PM override 理由
+- 后台系统中独立二级菜单默认可作为一个 Feature
 - 每个 Feature 必须有 Description ≥30 字（不是标题重复）
 - Value 必须明确用户价值或业务价值（不能写"提升体验"）
 - 预估 Story 数为 range（如 4–6）
@@ -346,7 +356,7 @@ applies-to: [solution-architect]
 
 ---
 
-## §10 §8 Story List 预览格式
+## §10 §9 Story List 预览格式
 
 按 Feature 分组，每个 Story 仅给：标题 + 一句话描述 + Stable ID 占位：
 
@@ -396,9 +406,10 @@ applies-to: [solution-architect]
 
 ```
 Read skills/solution-design/SKILL.md
+Read skills/story-splitting-spec/SKILL.md
 ```
 
-加载位置：solution-architect.agent.md 的 **§Step 0 启动协议** 之后、§产出 Solution Brief 之前必须先 Read 本文件。
+加载位置：solution-architect.agent.md 的 **§Step 0 启动协议** 之后、§产出 Solution Brief 之前必须先 Read 本文件与 story-splitting-spec。
 
 ---
 
@@ -407,7 +418,7 @@ Read skills/solution-design/SKILL.md
 必须：
 - 章节锚点严格按 §1 顺序产出
 - Stable ID 体系（F / P / J / BP / **EXP / ITQ** v1.6 / S-OQ）跨阶段稳定，禁止重排
-- §2 Feature List 每 Feature 含 Description + Value + T-shirt + 关联 Persona
+- §2 Feature List 每 Feature 通过 `story-splitting-spec` Feature Gate，并含 Description + Value + T-shirt + 关联 Persona
 - §3 Journey 每 Stage 含 Persona × Action × Touchpoint
 - §4 Process Flow ≥1 Happy + ≥1 Unhappy
 - §5 流程难点 ≥1 happy (BP-H1) + 3-5 unhappy (BP-U1..)，每条标 Feature + 拆解提示（v1.4）
@@ -419,6 +430,7 @@ Read skills/solution-design/SKILL.md
 
 禁止：
 - Feature ID 重排（任何场景）
+- §2 Feature List 出现名称模糊、缺输入→处理→输出闭环、跨系统大杂烩或少于 3 个预估 Story 且无 PM override 的 Feature
 - §2 Feature List 出现未在 §3 Journey / §5 流程难点关联的孤立 Feature
 - 越权写完整 Story AC（Product Planner 职责）
 - **v1.4 严禁画完整架构图 / ERD / API**（IT Architect 职责）
@@ -539,6 +551,7 @@ pm_input_14:
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 1.7.0 | 2026-06-29 | **接入 story-splitting-spec**：Solution 阶段 Feature List 按 Feature=系统能力执行 Feature Gate，新增名称可独立理解、输入→处理→输出闭环、尽量不跨系统、每 Feature 预估 ≥3 Story、后台二级菜单可作为 Feature 等规则；加载方式新增 `skills/story-splitting-spec/SKILL.md`，保持完整 Story AC 仍由 Product Planner 负责。 |
 | 1.6.0 | 2026-05-22 | **v3.8 Solution 完全去技术化 + 独立产出 + 无回路**。①§7 重写为 **Technology Expectations to IT Architect**：结构化 EXP-{n} ID + 优先级 must/should/nice + 来源/理由具体；删除 v1.4 §7.1 技术方向 / §7.2 技术约束 / §7.3 Layer 1 引用回填等子节；②§7.2 ITQ-{n} 待澄清问题保留，但结论由 IT Architect 在 Architecture LATEST / ADR 中给出（Solution 不回填）；③§7.3 Architecture 引用指针明确为"只读 · 不回填"；④Stable ID 表新增 `EXP-{n}` / `ITQ-{n}` / `BP-{H/U/E}{n}` 三类；⑤§13 强制规则补"§7 EXP ≥1 must / 来源具体 / 严禁技术选型"；禁止规则补"严禁回填 §7.3 / 严禁 EXP/ITQ ID 重排"；⑥§15.1 Step 0.5 阶段 ⑤ 新增"生成 §7 EXP 候选清单"产出；⑦明确三份产出（Solution / NFR / Architecture）独立 + 无 patch 回路。 |
 | 1.4.0 | 2026-05-19 | **重大重构 v1.4**：§5 GWT Top 3-5 → **流程难点与 PRD 拆解提示**（Path ID BP-H/U/E + 拆解提示 + Coverage Matrix 接口）；§7 Tech High-level 四段式 → **Technology Direction 瘦版**（方向 + 约束 + 引用 IT Architect Layer 1 + 待 IT Architect 问题清单）；**§8 新增 NFR Reference**（引用 NFR LATEST · 不重写）；**删除"复杂边界触发 fireworks-tech-graph"段落**（职责完全下放 IT Architect）；§9-§13 编号下移；新增 §15 Step 0.5 PM-AI 协作 4 阶段模板（22 项→14 项 · NFR 移除 · PM 负担 -36%）。|
 | 1.0.0 | 2026-05-08 | 初版。从 solution-architect.agent v1.0 抽离 Solution Brief 章节锚点 + Stable ID 体系 + Feature List 表格 + Journey/Process/GWT/T-shirt/Tech high-level/Story List 预览的格式标准与强制规则。 |

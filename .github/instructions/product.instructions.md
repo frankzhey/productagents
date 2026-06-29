@@ -48,7 +48,7 @@ applyTo: "{**/*.md,docs/**,requirements/**,prd/**}"
 **强制规则：**
 - 不允许混淆 Epic / Feature / Story
 - 每条 Story 必须明确归属 Feature 和 Epic
-- 每个 Feature 下应有清晰 Story 列表
+- 每个 Feature 下应有清晰 Story 列表；Feature / Story 详细拆分以 `skills/story-splitting-spec/SKILL.md` 为准
 
 ---
 
@@ -87,6 +87,10 @@ PRD 源文件由 Product Planner 产出，必须保持 **Epic → Feature → St
 
 ### S4 — Estimation / Engineering Notes / NFR Reference
 - Story-level Estimation
+  - Story 估算必须包含 Story Points / Man-day / Units
+  - `1 unit = 0.5 man-day`
+  - Story Units 只能为 `1 / 3 / 5 / 8`；超过 8 units 必须继续拆 Story
+  - 禁止使用 Size（XS/S/M/L/XL）或 Units range 作为 Story 最终估算
 - Engineering Notes
 - **NFR Reference**（v4.6 改为引用模式 · 不再原创 NFR 详细字段）
   - 必含：NFR LATEST 路径 + 状态 + 关键摘要 / 未产出提示
@@ -146,9 +150,10 @@ PRD 源文件由 Product Planner 产出，必须保持 **Epic → Feature → St
 
 | 内容 | 位置 |
 |------|------|
+| Feature Gate / Story 拆分优先级 / FCS 评分 / Story 数量规则 | `skills/story-splitting-spec/SKILL.md` |
 | AC 详细格式 / 覆盖规范 / 写法模板 / 自主补全分级 | `skills/ac-writing-spec/SKILL.md` |
 | Product Planner 工作流（Mode A/B/C 输入、Step 0-11、Quality Gate、Rule Sedimentation） | `.github/agents/product-planner.agent.md` |
-| Story 拆分规则 / FCS 评分 | `.github/agents/story-splitter.agent.md` |
+| Story Splitter 编排与 Product Planner 交接 | `.github/agents/story-splitter.agent.md` |
 | 工程评审规则（Scope Challenge、Blast Radius、API/ERD） | `.github/agents/eng-reviewer.agent.md` |
-| 估算映射规则（Story Size / Points / Units） | `.github/agents/product-planner.agent.md` §估算章节 |
+| 估算映射规则（Story Points / Man-day / Units） | `skills/story-splitting-spec/SKILL.md` §6.1；`.github/agents/product-planner.agent.md` §估算章节 |
 | 项目永久规则库 | `.github/Rules/{project}-rules.md` |

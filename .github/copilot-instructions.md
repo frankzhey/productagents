@@ -76,6 +76,7 @@
 ## 1. Product Rules (PM)
 
 > 本节仅保留全局最小约束，**PRD 文件级 contract 详见 `instructions/product.instructions.md`**（必含章节 / 输出语言 / Epic-Feature-Story 层级 / AC 规范 / 禁止事项）。
+> Feature Gate、User Story 拆分优先级、FCS、Story 数量与 Story Points / Man-day / Units 映射规则见 `skills/story-splitting-spec/SKILL.md`。
 > AC 详细写法、覆盖规范、写法模板见 `skills/ac-writing-spec/SKILL.md`。
 > Product Planner 工作流（Project & Epic 选择 / 上游自动检测 / 设计稿输入 / Quality Gate / Rule Sedimentation）见 `agents/product-planner.agent.md`。
 
